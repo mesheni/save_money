@@ -27,6 +27,9 @@ public static class TransactionSource
     public const string Widget = "widget";
     public const string Notification = "notification";
     public const string Import = "import";
+
+    /// <summary>Создана автоматически из регулярного платежа.</summary>
+    public const string Recurring = "recurring";
 }
 
 public static class DebtDirection

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SaveMoney.ViewModels"
+             xmlns:conv="clr-namespace:SaveMoney.Converters"
+             x:Class="SaveMoney.Views.DebtsPage"
+             Title="Долги"
+             Appearing="OnAppearing">
+
+    <ContentPage.Resources>
+        <conv:BoolToColorConverter x:Key="OverdueColor" TrueColor="#E74C3C" FalseColor="Black"/>
+    </ContentPage.Resources>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="＋" Command="{Binding AddCommand}"/>
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="12,6">
+
+        <Picker Grid.Row="0" ItemsSource="{Binding DirectionOptions}" SelectedIndex="{Binding DirectionIndex}"
+                WidthRequest="160" HorizontalOptions="Start"/>
+
+        <Label Grid.Row="1" Text="{Binding SummaryText}" FontAttributes="Bold" Padding="4,8,0,4"/>
+
+        <CollectionView Grid.Row="2" ItemsSource="{Binding Rows}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:DebtRowVM">
+                    <SwipeView>
+                        <SwipeView.RightItems>
+                            <SwipeItems>
+                                <SwipeItem Text="Удалить" BackgroundColor="#E74C3C" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+                        <Grid Padding="6,10" ColumnDefinitions="44,*,Auto">
+                            <Label Text="{Binding Icon}" FontSize="22" VerticalOptions="Start"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="1">
+                                <Label Text="{Binding PersonName}" FontAttributes="Bold"/>
+                                <Label Text="{Binding Subtitle}" FontSize="12" Opacity="0.7"
+                                       TextColor="{Binding IsOverdue, Converter={StaticResource OverdueColor}}"/>
+                                <ProgressBar Progress="{Binding Progress}" HeightRequest="4" WidthRequest="160"
+                                             HorizontalOptions="Start" VerticalOptions="Center"/>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="2" HorizontalOptions="End">
+                                <Label Text="{Binding RemainingText}" FontAttributes="Bold"/>
+                                <Label Text="{Binding TotalText}" FontSize="12" Opacity="0.5"/>
+                            </VerticalStackLayout>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenCommand, Source={RelativeSource AncestorType={x:Type vm:DebtsViewModel}}}" CommandParameter="{Binding .}"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                    </SwipeView>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+
+</ContentPage>

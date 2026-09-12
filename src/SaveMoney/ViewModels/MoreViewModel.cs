@@ -14,13 +14,16 @@ public partial class MoreViewModel : ObservableObject
     [
         new("Счета", "Наличные, карты, балансы", "accounts"),
         new("Категории", "Расходы, доходы, подкатегории", "categories"),
-        new("Долги", "Фаза 2 — в разработке", null),
-        new("Бюджеты и «до зарплаты»", "Фаза 2 — в разработке", null),
+        new("Долги", "Мне должны / я должен", "debts"),
+        new("Бюджеты", "Лимиты, план/факт по циклу", "budgets"),
+        new("До зарплаты", "Хватит ли до ЗП, ₽/день", "payday"),
+        new("Регулярные платежи", "ЖКХ, подписки, аренда", "recurring"),
         new("Настройки и экспорт", "Фаза 3 — в разработке", null),
+        new("Синк и семья", "v2.0 — в разработке", null),
     ];
 
     public string VersionText =>
-        $"SaveMoney {AppInfo.VersionString} · Фаза 1";
+        $"SaveMoney {AppInfo.VersionString} · Фаза 2";
 
     [RelayCommand]
     private void Open(MoreMenuItem? item)

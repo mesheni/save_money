@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SaveMoney.ViewModels"
+             x:Class="SaveMoney.Views.DebtEditPage"
+             Title="{Binding Title}"
+             Appearing="OnAppearing">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,10" Spacing="12">
+
+            <Label Text="Направление" FontSize="12" Opacity="0.6"/>
+            <Picker ItemsSource="{Binding DirectionOptions}" SelectedIndex="{Binding DirectionIndex}"/>
+
+            <Label Text="Кто" FontSize="12" Opacity="0.6"/>
+            <Entry Text="{Binding PersonName}" Placeholder="Имя человека или организации"/>
+
+            <Label Text="Полная сумма, ₽" FontSize="12" Opacity="0.6"/>
+            <Entry Text="{Binding AmountText}" Placeholder="0" Keyboard="Text"/>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="Есть срок возврата" VerticalOptions="Center"/>
+                <Switch Grid.Column="1" IsToggled="{Binding HasDueDate}"/>
+            </Grid>
+
+            <DatePicker Date="{Binding DueDate}" Format="d MMMM yyyy" IsVisible="{Binding HasDueDate}"/>
+
+            <Label Text="Связанный счёт (для транзакций при погашении)" FontSize="12" Opacity="0.6"/>
+            <Picker ItemsSource="{Binding AccountOptions}" SelectedIndex="{Binding AccountIndex}"/>
+
+            <Label Text="Заметка" FontSize="12" Opacity="0.6"/>
+            <Entry Text="{Binding Note}" Placeholder="Необязательно"/>
+
+            <Button Text="Сохранить" BackgroundColor="#2ECC71" TextColor="White" Command="{Binding SaveCommand}"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

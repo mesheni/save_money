@@ -29,6 +29,10 @@ public static class MauiProgram
         builder.Services.AddSingleton<TransactionService>();
         builder.Services.AddSingleton<HistoryService>();
         builder.Services.AddSingleton<CategoryService>();
+        builder.Services.AddSingleton<CycleService>();
+        builder.Services.AddSingleton<RecurringService>();
+        builder.Services.AddSingleton<BudgetService>();
+        builder.Services.AddSingleton<DebtService>();
 
         builder.Services.AddTransient<QuickAddViewModel>();
         builder.Services.AddTransient<HistoryViewModel>();
@@ -37,6 +41,14 @@ public static class MauiProgram
         builder.Services.AddTransient<AccountEditViewModel>();
         builder.Services.AddTransient<CategoriesViewModel>();
         builder.Services.AddTransient<CategoryEditViewModel>();
+        builder.Services.AddTransient<DebtsViewModel>();
+        builder.Services.AddTransient<DebtEditViewModel>();
+        builder.Services.AddTransient<DebtDetailViewModel>();
+        builder.Services.AddTransient<BudgetsViewModel>();
+        builder.Services.AddTransient<BudgetEditViewModel>();
+        builder.Services.AddTransient<PaydayViewModel>();
+        builder.Services.AddTransient<RecurringViewModel>();
+        builder.Services.AddTransient<RecurringEditViewModel>();
 
         builder.Services.AddTransient<QuickAddPage>();
         builder.Services.AddTransient<HistoryPage>();
@@ -45,6 +57,14 @@ public static class MauiProgram
         builder.Services.AddTransient<AccountEditPage>();
         builder.Services.AddTransient<CategoriesPage>();
         builder.Services.AddTransient<CategoryEditPage>();
+        builder.Services.AddTransient<DebtsPage>();
+        builder.Services.AddTransient<DebtEditPage>();
+        builder.Services.AddTransient<DebtDetailPage>();
+        builder.Services.AddTransient<BudgetsPage>();
+        builder.Services.AddTransient<BudgetEditPage>();
+        builder.Services.AddTransient<PaydayPage>();
+        builder.Services.AddTransient<RecurringPage>();
+        builder.Services.AddTransient<RecurringEditPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

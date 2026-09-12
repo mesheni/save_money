@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SaveMoney.ViewModels"
+             x:Class="SaveMoney.Views.RecurringEditPage"
+             Title="{Binding Title}"
+             Appearing="OnAppearing">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,10" Spacing="12">
+
+            <Label Text="Название (магазин/что это)" FontSize="12" Opacity="0.6"/>
+            <Entry Text="{Binding NameText}" Placeholder="Например, Интернет"/>
+
+            <Label Text="Тип" FontSize="12" Opacity="0.6"/>
+            <Picker ItemsSource="{Binding KindOptions}" SelectedIndex="{Binding KindIndex}"/>
+
+            <Label Text="Счёт" FontSize="12" Opacity="0.6"/>
+            <Picker ItemsSource="{Binding AccountOptions}" SelectedIndex="{Binding AccountIndex}"/>
+
+            <Label Text="Категория" FontSize="12" Opacity="0.6"/>
+            <Picker ItemsSource="{Binding CategoryOptions}" SelectedIndex="{Binding CategoryIndex}"/>
+
+            <Label Text="Сумма, ₽" FontSize="12" Opacity="0.6"/>
+            <Entry Text="{Binding AmountText}" Placeholder="0" Keyboard="Text"/>
+
+            <Label Text="Периодичность" FontSize="12" Opacity="0.6" Margin="0,8,0,0"/>
+            <Picker ItemsSource="{Binding RecurrenceOptions}" SelectedIndex="{Binding RecurrenceIndex}"/>
+
+            <HorizontalStackLayout Spacing="8" IsVisible="{Binding IsMonthly}" VerticalOptions="Center">
+                <Label Text="День месяца" VerticalOptions="Center"/>
+                <Picker ItemsSource="{Binding DayOfMonthOptions}" SelectedIndex="{Binding DayOfMonthIndex}" WidthRequest="100"/>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="8" IsVisible="{Binding IsEveryN}" VerticalOptions="Center">
+                <Label Text="Каждые" VerticalOptions="Center"/>
+                <Entry Text="{Binding IntervalDaysText}" WidthRequest="70" Keyboard="Numeric"/>
+                <Label Text="дней" VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="8" VerticalOptions="Center" Margin="0,8,0,0">
+                <Label Text="Следующее списание" VerticalOptions="Center"/>
+                <DatePicker Date="{Binding NextDate}" Format="d MMM yyyy"/>
+            </HorizontalStackLayout>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="Активен" VerticalOptions="Center"/>
+                <Switch Grid.Column="1" IsToggled="{Binding IsActive}"/>
+            </Grid>
+
+            <Button Text="Сохранить" BackgroundColor="#2ECC71" TextColor="White" Command="{Binding SaveCommand}"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

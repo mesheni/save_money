@@ -14,5 +14,13 @@ public partial class AppShell : Shell
 		Routing.RegisterRoute("account", typeof(AccountEditPage));
 		Routing.RegisterRoute("categories", typeof(CategoriesPage));
 		Routing.RegisterRoute("category", typeof(CategoryEditPage));
+		Routing.RegisterRoute("debts", typeof(DebtsPage));
+		Routing.RegisterRoute("debtnew", typeof(DebtEditPage));
+		Routing.RegisterRoute("debt", typeof(DebtDetailPage));
+		Routing.RegisterRoute("budgets", typeof(BudgetsPage));
+		Routing.RegisterRoute("budget", typeof(BudgetEditPage));
+		Routing.RegisterRoute("payday", typeof(PaydayPage));
+		Routing.RegisterRoute("recurring", typeof(RecurringPage));
+		Routing.RegisterRoute("recurringnew", typeof(RecurringEditPage));
 	}
 }

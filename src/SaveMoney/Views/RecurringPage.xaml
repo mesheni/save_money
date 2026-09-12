@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SaveMoney.ViewModels"
+             xmlns:conv="clr-namespace:SaveMoney.Converters"
+             x:Class="SaveMoney.Views.RecurringPage"
+             Title="Регулярные платежи"
+             Appearing="OnAppearing">
+
+    <ContentPage.Resources>
+        <conv:BoolToColorConverter x:Key="AmountColor" TrueColor="#E74C3C" FalseColor="#2ECC71"/>
+    </ContentPage.Resources>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="＋" Command="{Binding AddCommand}"/>
+    </ContentPage.ToolbarItems>
+
+    <Grid Padding="12,6">
+        <CollectionView ItemsSource="{Binding Rows}">
+        <CollectionView.ItemTemplate>
+            <DataTemplate x:DataType="vm:RecurringRowVM">
+                <SwipeView>
+                    <SwipeView.RightItems>
+                        <SwipeItems>
+                            <SwipeItem Text="Удалить" BackgroundColor="#E74C3C" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
+                        </SwipeItems>
+                    </SwipeView.RightItems>
+                    <Grid Padding="6,10" ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Spacing="1">
+                            <Label Text="{Binding TitleText}" FontAttributes="Bold">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsActive}" Value="False">
+                                        <Setter Property="Opacity" Value="0.5"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Label FontSize="12" Opacity="0.6">
+                                <Label.Text>
+                                    <MultiBinding StringFormat="{0} · далее {1}">
+                                        <Binding Path="AccountText"/>
+                                        <Binding Path="NextDateText"/>
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+                        </VerticalStackLayout>
+                        <Label Grid.Column="1" Text="{Binding AmountText}" FontAttributes="Bold"
+                               TextColor="{Binding IsExpense, Converter={StaticResource AmountColor}}"/>
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:RecurringViewModel}}}" CommandParameter="{Binding .}"/>
+                        </Grid.GestureRecognizers>
+                    </Grid>
+                </SwipeView>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+    </CollectionView>
+    </Grid>
+
+</ContentPage>

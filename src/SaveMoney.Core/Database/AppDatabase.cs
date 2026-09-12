@@ -29,6 +29,8 @@ public sealed class AppDatabase : IDisposable
     public DebtRepository Debts => new(_db);
     public MerchantRuleRepository MerchantRules => new(_db);
     public SettingRepository Settings => new(_db);
+    public BudgetRepository Budgets => new(_db);
+    public RecurringPaymentRepository RecurringPayments => new(_db);
 
     public void Dispose() => _db.Dispose();
 }

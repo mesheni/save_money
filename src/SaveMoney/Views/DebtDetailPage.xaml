@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SaveMoney.ViewModels"
+             x:Class="SaveMoney.Views.DebtDetailPage"
+             Title="Долг"
+             Appearing="OnAppearing">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,10" Spacing="12">
+
+            <Border StrokeShape="RoundRectangle 12" BackgroundColor="#F6F6FA" Padding="16,12">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{Binding PersonTitle}" FontSize="24" FontAttributes="Bold"/>
+                    <Label Text="{Binding DirectionText}" FontSize="13" Opacity="0.6"/>
+                    <Label Text="{Binding RemainingText}" FontSize="30" FontAttributes="Bold"/>
+                    <Label Text="{Binding TotalText, StringFormat='из {0}'}" FontSize="13" Opacity="0.6"/>
+                    <Label Text="{Binding DueText}" FontSize="13" Opacity="0.6"/>
+                    <Label Text="Долг закрыт ✓" TextColor="#2ECC71" FontAttributes="Bold"
+                           IsVisible="{Binding IsSettled}"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="Платежи" FontSize="12" Opacity="0.6"/>
+            <CollectionView ItemsSource="{Binding Payments}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:PaymentRowVM">
+                        <Grid Padding="4,6" ColumnDefinitions="*,Auto">
+                            <Label Text="{Binding DateText}" Opacity="0.7"/>
+                            <Label Grid.Column="1" Text="{Binding AmountText}" FontAttributes="Bold"/>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <VerticalStackLayout Spacing="10" IsVisible="{Binding !IsSettled}">
+                <Label Text="Добавить платёж" FontSize="16" FontAttributes="Bold"/>
+                <Entry Text="{Binding PaymentAmountText}" Placeholder="Сумма, ₽" Keyboard="Text"/>
+                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                    <Label Text="Дата" VerticalOptions="Center"/>
+                    <DatePicker Date="{Binding PaymentDate}" Format="d MMM yyyy"/>
+                </HorizontalStackLayout>
+                <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding CanLinkTransaction}">
+                    <Label Text="Провести по связанному счёту" VerticalOptions="Center"/>
+                    <Switch Grid.Column="1" IsToggled="{Binding CreateTransaction}"/>
+                </Grid>
+                <Button Text="Добавить платёж" BackgroundColor="#512BD4" TextColor="White" Command="{Binding AddPaymentCommand}"/>
+                <Button Text="Закрыть досрочно" BackgroundColor="Transparent" TextColor="#512BD4" Command="{Binding SettleCommand}"/>
+            </VerticalStackLayout>
+
+            <Button Text="Править" BackgroundColor="Transparent" TextColor="#512BD4" Command="{Binding OpenEditCommand}"/>
+            <Button Text="Удалить долг" BackgroundColor="Transparent" TextColor="#E74C3C" Command="{Binding DeleteCommand}"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SaveMoney.ViewModels"
+             x:Class="SaveMoney.Views.PaydayPage"
+             Title="До зарплаты"
+             Appearing="OnAppearing">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,10" Spacing="12">
+
+            <Border StrokeShape="RoundRectangle 12" BackgroundColor="#512BD4" Padding="18,14">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{Binding PaydayText}" FontSize="18" FontAttributes="Bold" TextColor="White"/>
+                    <Label Text="{Binding BalanceText}" FontSize="14" TextColor="White" Opacity="0.9"/>
+                    <Label Text="{Binding UpcomingText}" FontSize="14" TextColor="White" Opacity="0.9"/>
+                    <Label Text="{Binding CanSpendText}" FontSize="26" FontAttributes="Bold" TextColor="#2ECC71"/>
+                    <Label Text="{Binding PerDayText}" FontSize="15" TextColor="White" Opacity="0.9"/>
+                    <Label Text="{Binding StatusText}" FontSize="14" TextColor="White" FontAttributes="Bold"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="{Binding CycleText}" FontSize="13" Opacity="0.6"/>
+
+            <Label Text="Настройки" FontSize="16" FontAttributes="Bold" Margin="0,8,0,0"/>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="День зарплаты" VerticalOptions="Center"/>
+                <Picker Grid.Column="1" ItemsSource="{Binding PaydayDayOptions}" SelectedIndex="{Binding PaydayDayIndex}" WidthRequest="160"/>
+            </Grid>
+
+            <Label Text="Цикл: якорная дата и длина (сменный график)" FontSize="12" Opacity="0.6" Margin="0,8,0,0"/>
+            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                <DatePicker Date="{Binding CycleAnchorDate}" Format="d MMM yyyy"/>
+                <Entry Text="{Binding CycleDaysText}" Placeholder="30" WidthRequest="80" Keyboard="Numeric"/>
+                <Label Text="дн." VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+
+            <Button Text="Сохранить настройки" Command="{Binding SaveSettingsCommand}"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

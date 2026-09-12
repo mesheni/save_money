@@ -7,6 +7,8 @@ public class DebtRepository(SQLiteConnection db) : Repository<Debt>(db)
 {
     private readonly Repository<DebtPayment> _payments = new(db);
 
+    public void SoftDeletePayment(DebtPayment payment) => _payments.SoftDelete(payment);
+
     public List<Debt> GetActive() =>
         Db.Table<Debt>()
           .Where(d => !d.IsDeleted && d.Status == DebtStatus.Active)

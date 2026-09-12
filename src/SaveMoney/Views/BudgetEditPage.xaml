@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SaveMoney.ViewModels"
+             x:Class="SaveMoney.Views.BudgetEditPage"
+             Title="{Binding Title}"
+             Appearing="OnAppearing">
+
+    <VerticalStackLayout Padding="16,10" Spacing="12">
+
+        <Label Text="Категория" FontSize="12" Opacity="0.6"/>
+        <Picker ItemsSource="{Binding CategoryOptions}" SelectedIndex="{Binding CategoryIndex}"/>
+
+        <Label Text="Лимит на цикл, ₽" FontSize="12" Opacity="0.6"/>
+        <Entry Text="{Binding AmountText}" Placeholder="0" Keyboard="Text"/>
+
+        <Button Text="Сохранить" BackgroundColor="#2ECC71" TextColor="White" Command="{Binding SaveCommand}"/>
+
+    </VerticalStackLayout>
+
+</ContentPage>
