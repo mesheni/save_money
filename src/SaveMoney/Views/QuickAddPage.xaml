@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SaveMoney.Views.QuickAddPage"
+             Title="Ввод"
+             Appearing="OnAppearing">
+
+    <VerticalStackLayout Padding="30,0" Spacing="12" VerticalOptions="Center">
+        <Label Text="Общий баланс"
+               Style="{StaticResource SubHeadline}"
+               HorizontalOptions="Center" />
+        <Label Text="{Binding BalanceText}"
+               FontSize="40"
+               FontAttributes="Bold"
+               HorizontalOptions="Center" />
+        <Label Text="Экран быстрого ввода — Фаза 1"
+               FontSize="12"
+               Opacity="0.6"
+               HorizontalOptions="Center" />
+    </VerticalStackLayout>
+
+</ContentPage>
