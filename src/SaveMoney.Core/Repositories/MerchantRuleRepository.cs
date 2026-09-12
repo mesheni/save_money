@@ -11,6 +11,20 @@ public class MerchantRuleRepository(SQLiteConnection db) : Repository<MerchantRu
           .OrderByDescending(r => r.UseCount)
           .ToList();
 
+    /// <summary>Правило с точно таким же паттерном (без учёта регистра).</summary>
+    public MerchantRule? FindByPattern(string pattern)
+    {
+        if (string.IsNullOrWhiteSpace(pattern))
+        {
+            return null;
+        }
+
+        return Db.Table<MerchantRule>()
+                 .Where(r => !r.IsDeleted)
+                 .ToList()
+                 .FirstOrDefault(r => string.Equals(r.Pattern, pattern, StringComparison.OrdinalIgnoreCase));
+    }
+
     /// <summary>Ищет правило для мерчанта: паттерн — подстрока Payee без учёта регистра.</summary>
     public MerchantRule? Match(string payee)
     {

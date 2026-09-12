@@ -1,22 +1,138 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SaveMoney.ViewModels"
+             xmlns:conv="clr-namespace:SaveMoney.Converters"
              x:Class="SaveMoney.Views.QuickAddPage"
-             Title="Ввод"
+             Title="{Binding ModeText}"
              Appearing="OnAppearing">
 
-    <VerticalStackLayout Padding="30,0" Spacing="12" VerticalOptions="Center">
-        <Label Text="Общий баланс"
-               Style="{StaticResource SubHeadline}"
-               HorizontalOptions="Center" />
-        <Label Text="{Binding BalanceText}"
-               FontSize="40"
-               FontAttributes="Bold"
-               HorizontalOptions="Center" />
-        <Label Text="Экран быстрого ввода — Фаза 1"
-               FontSize="12"
-               Opacity="0.6"
-               HorizontalOptions="Center" />
-    </VerticalStackLayout>
+    <ContentPage.Resources>
+        <conv:BoolToColorConverter x:Key="ChipBg" TrueColor="#512BD4" FalseColor="#EFEFF4"/>
+        <conv:BoolToColorConverter x:Key="ChipText" TrueColor="White" FalseColor="Black"/>
+        <x:String x:Key="Accent">#512BD4</x:String>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="10,4" Spacing="8">
+
+            <Label Text="{Binding BalanceText, StringFormat='Баланс: {0}'}"
+                   HorizontalOptions="Center" FontSize="13" Opacity="0.6"/>
+
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="4">
+                <Button Grid.Column="0" Text="Расход"
+                        BackgroundColor="{Binding ExpenseColor}"
+                        TextColor="{Binding IsExpenseMode, Converter={StaticResource ChipText}}"
+                        Command="{Binding SetExpenseCommand}"/>
+                <Button Grid.Column="1" Text="Доход"
+                        BackgroundColor="{Binding IncomeColor}"
+                        TextColor="{Binding IsIncome, Converter={StaticResource ChipText}}"
+                        Command="{Binding SetIncomeCommand}"/>
+                <Button Grid.Column="2" Text="Перевод"
+                        BackgroundColor="{Binding TransferColor}"
+                        TextColor="{Binding IsTransfer, Converter={StaticResource ChipText}}"
+                        Command="{Binding SetTransferCommand}"/>
+            </Grid>
+
+            <Border StrokeShape="RoundRectangle 12" BackgroundColor="#F6F6FA" Padding="12,6">
+                <Label Text="{Binding AmountDisplay}"
+                       FontSize="42" FontAttributes="Bold"
+                       HorizontalOptions="End"/>
+            </Border>
+
+            <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="6" RowSpacing="6">
+                <Button Grid.Row="0" Grid.Column="0" Text="1" Command="{Binding DigitCommand}" CommandParameter="1"/>
+                <Button Grid.Row="0" Grid.Column="1" Text="2" Command="{Binding DigitCommand}" CommandParameter="2"/>
+                <Button Grid.Row="0" Grid.Column="2" Text="3" Command="{Binding DigitCommand}" CommandParameter="3"/>
+                <Button Grid.Row="1" Grid.Column="0" Text="4" Command="{Binding DigitCommand}" CommandParameter="4"/>
+                <Button Grid.Row="1" Grid.Column="1" Text="5" Command="{Binding DigitCommand}" CommandParameter="5"/>
+                <Button Grid.Row="1" Grid.Column="2" Text="6" Command="{Binding DigitCommand}" CommandParameter="6"/>
+                <Button Grid.Row="2" Grid.Column="0" Text="7" Command="{Binding DigitCommand}" CommandParameter="7"/>
+                <Button Grid.Row="2" Grid.Column="1" Text="8" Command="{Binding DigitCommand}" CommandParameter="8"/>
+                <Button Grid.Row="2" Grid.Column="2" Text="9" Command="{Binding DigitCommand}" CommandParameter="9"/>
+                <Button Grid.Row="3" Grid.Column="0" Text="," Command="{Binding DigitCommand}" CommandParameter=","/>
+                <Button Grid.Row="3" Grid.Column="1" Text="0" Command="{Binding DigitCommand}" CommandParameter="0"/>
+                <Button Grid.Row="3" Grid.Column="2" Text="⌫" Command="{Binding DigitCommand}" CommandParameter="⌫"/>
+            </Grid>
+
+            <Label Text="Счёт" FontSize="12" Opacity="0.6"/>
+            <CollectionView ItemsSource="{Binding Accounts}" ItemsLayout="HorizontalList" HeightRequest="46">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:AccountChip">
+                        <Border StrokeShape="RoundRectangle 21" Padding="14,9" Margin="0,0,8,0"
+                                BackgroundColor="{Binding IsSelected, Converter={StaticResource ChipBg}}">
+                            <Label Text="{Binding Name}" TextColor="{Binding IsSelected, Converter={StaticResource ChipText}}"/>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectAccountCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}" CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <VerticalStackLayout Spacing="8" IsVisible="{Binding IsOperation}">
+                <Label Text="Категория" FontSize="12" Opacity="0.6"/>
+                <CollectionView ItemsSource="{Binding RootCategories}" ItemsLayout="HorizontalList" HeightRequest="46">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:CategoryChip">
+                            <Border StrokeShape="RoundRectangle 21" Padding="12,9" Margin="0,0,8,0"
+                                    BackgroundColor="{Binding IsSelected, Converter={StaticResource ChipBg}}">
+                                <Label Text="{Binding Display}" TextColor="{Binding IsSelected, Converter={StaticResource ChipText}}"/>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectRootCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}" CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <CollectionView ItemsSource="{Binding SubCategories}" ItemsLayout="HorizontalList" HeightRequest="46"
+                                IsVisible="{Binding HasSubCategories}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:CategoryChip">
+                            <Border StrokeShape="RoundRectangle 21" Padding="12,9" Margin="0,0,8,0"
+                                    BackgroundColor="{Binding IsSelected, Converter={StaticResource ChipBg}}">
+                                <Label Text="{Binding Display}" TextColor="{Binding IsSelected, Converter={StaticResource ChipText}}"/>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectSubCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}" CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="8" IsVisible="{Binding IsTransfer}">
+                <Label Text="Куда" FontSize="12" Opacity="0.6"/>
+                <CollectionView ItemsSource="{Binding TargetAccounts}" ItemsLayout="HorizontalList" HeightRequest="46">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:AccountChip">
+                            <Border StrokeShape="RoundRectangle 21" Padding="14,9" Margin="0,0,8,0"
+                                    BackgroundColor="{Binding IsSelected, Converter={StaticResource ChipBg}}">
+                                <Label Text="{Binding Name}" TextColor="{Binding IsSelected, Converter={StaticResource ChipText}}"/>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectTargetCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}" CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+            <Entry Placeholder="Магазин (необязательно)" Text="{Binding Payee}"
+                   IsVisible="{Binding IsExpenseMode}"/>
+            <Entry Placeholder="Заметка (необязательно)" Text="{Binding Note}"/>
+
+            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                <Label Text="Дата" FontSize="13" Opacity="0.6" VerticalOptions="Center"/>
+                <DatePicker Date="{Binding Date}" Format="d MMM yyyy"/>
+            </HorizontalStackLayout>
+
+            <Button Text="Сохранить" FontSize="18"
+                    BackgroundColor="#2ECC71" TextColor="White"
+                    Margin="0,4,0,10"
+                    Command="{Binding SaveCommand}"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
 
 </ContentPage>

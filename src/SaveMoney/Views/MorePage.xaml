@@ -1,13 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SaveMoney.ViewModels"
              x:Class="SaveMoney.Views.MorePage"
              Title="Ещё">
 
-    <VerticalStackLayout VerticalOptions="Center">
-        <Label Text="{Binding Header}"
-               Style="{StaticResource SubHeadline}"
-               HorizontalOptions="Center" />
-    </VerticalStackLayout>
+    <Grid RowDefinitions="*,Auto" Padding="12">
+
+        <CollectionView Grid.Row="0" ItemsSource="{Binding Items}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:MoreMenuItem">
+                    <Grid Padding="8,14" ColumnDefinitions="*,Auto">
+                        <Label Text="{Binding Title}" FontSize="17"/>
+                        <Label Grid.Column="1" Text="{Binding Subtitle}" FontSize="13" Opacity="0.5" VerticalOptions="Center"/>
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenCommand, Source={RelativeSource AncestorType={x:Type vm:MoreViewModel}}}" CommandParameter="{Binding .}"/>
+                        </Grid.GestureRecognizers>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Label Grid.Row="1" Text="{Binding VersionText}" HorizontalOptions="Center" FontSize="12" Opacity="0.5" Padding="0,10"/>
+
+    </Grid>
 
 </ContentPage>

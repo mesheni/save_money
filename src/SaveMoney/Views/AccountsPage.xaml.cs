@@ -3,11 +3,11 @@ using SaveMoney.ViewModels;
 
 namespace SaveMoney.Views;
 
-public partial class HistoryPage : ContentPage
+public partial class AccountsPage : ContentPage
 {
-    private readonly HistoryViewModel _viewModel;
+    private readonly AccountsViewModel _viewModel;
 
-    public HistoryPage(HistoryViewModel viewModel)
+    public AccountsPage(AccountsViewModel viewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;
@@ -21,9 +21,9 @@ public partial class HistoryPage : ContentPage
 
     private async void OnDeleteInvoked(object? sender, EventArgs e)
     {
-        if (sender is SwipeItem { CommandParameter: HistoryItemVM item })
+        if (sender is SwipeItem { CommandParameter: AccountRow row })
         {
-            await _viewModel.DeleteAsync(item);
+            await _viewModel.DeleteAsync(row);
         }
     }
 }

@@ -3,17 +3,16 @@ using SaveMoney.ViewModels;
 
 namespace SaveMoney.Views;
 
-public partial class QuickAddPage : ContentPage
+public partial class CategoryEditPage : ContentPage
 {
-    private readonly QuickAddViewModel _viewModel;
+    private readonly CategoryEditViewModel _viewModel;
 
-    public QuickAddPage(QuickAddViewModel viewModel)
+    public CategoryEditPage(CategoryEditViewModel viewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;
         BindingContext = viewModel;
         viewModel.AlertAsync = async (title, message) => await DisplayAlertAsync(title, message, "ОК");
-        viewModel.CloseAsync = async () => await Navigation.PopAsync();
     }
 
     private async void OnAppearing(object? sender, EventArgs e)

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SaveMoney.ViewModels"
+             xmlns:conv="clr-namespace:SaveMoney.Converters"
+             x:Class="SaveMoney.Views.AccountEditPage"
+             Title="{Binding Title}"
+             Appearing="OnAppearing">
+
+    <ContentPage.Resources>
+        <conv:BoolToColorConverter x:Key="ChipBg" TrueColor="#512BD4" FalseColor="#EFEFF4"/>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,10" Spacing="12">
+
+            <Label Text="Название" FontSize="12" Opacity="0.6"/>
+            <Entry Text="{Binding Name}" Placeholder="Например, Сбер карта"/>
+
+            <Label Text="Тип" FontSize="12" Opacity="0.6"/>
+            <Picker ItemsSource="{Binding KindOptions}" SelectedIndex="{Binding KindIndex}"/>
+
+            <Label Text="Начальный остаток, ₽ (можно с минусом для кредитки)" FontSize="12" Opacity="0.6"/>
+            <Entry Text="{Binding InitialBalanceText}" Placeholder="0" Keyboard="Text"/>
+
+            <Label Text="Цвет" FontSize="12" Opacity="0.6"/>
+            <CollectionView ItemsSource="{Binding Colors}" ItemsLayout="HorizontalList" HeightRequest="52">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ColorChip">
+                        <Border WidthRequest="46" HeightRequest="46" Margin="0,0,8,0"
+                                StrokeShape="RoundRectangle 23"
+                                BackgroundColor="{Binding Hex}"
+                                StrokeThickness="3"
+                                Stroke="{Binding IsSelected, Converter={StaticResource ChipBg}}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectColorCommand, Source={RelativeSource AncestorType={x:Type vm:AccountEditViewModel}}}" CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="Учитывать в общем балансе" VerticalOptions="Center"/>
+                <Switch Grid.Column="1" IsToggled="{Binding IncludeInTotal}"/>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="Архивный (скрыт из ввода)" VerticalOptions="Center"/>
+                <Switch Grid.Column="1" IsToggled="{Binding Archived}"/>
+            </Grid>
+
+            <Button Text="Сохранить" BackgroundColor="#2ECC71" TextColor="White" Command="{Binding SaveCommand}"/>
+
+            <Button Text="Удалить счёт" TextColor="#E74C3C" BackgroundColor="Transparent"
+                    IsVisible="{Binding IsExisting}" Command="{Binding DeleteCommand}"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

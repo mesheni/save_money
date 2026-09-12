@@ -9,6 +9,8 @@ namespace SaveMoney;
 
 public static class MauiProgram
 {
+    public static IServiceProvider Services { get; private set; } = default!;
+
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
@@ -24,21 +26,32 @@ public static class MauiProgram
         var dbPath = Path.Combine(FileSystem.AppDataDirectory, "savemoney.db");
         builder.Services.AddSingleton(new AppDatabase(dbPath));
         builder.Services.AddSingleton<BalanceService>();
+        builder.Services.AddSingleton<TransactionService>();
+        builder.Services.AddSingleton<HistoryService>();
+        builder.Services.AddSingleton<CategoryService>();
 
         builder.Services.AddTransient<QuickAddViewModel>();
         builder.Services.AddTransient<HistoryViewModel>();
-        builder.Services.AddTransient<ReportsViewModel>();
         builder.Services.AddTransient<MoreViewModel>();
+        builder.Services.AddTransient<AccountsViewModel>();
+        builder.Services.AddTransient<AccountEditViewModel>();
+        builder.Services.AddTransient<CategoriesViewModel>();
+        builder.Services.AddTransient<CategoryEditViewModel>();
 
         builder.Services.AddTransient<QuickAddPage>();
         builder.Services.AddTransient<HistoryPage>();
-        builder.Services.AddTransient<ReportsPage>();
         builder.Services.AddTransient<MorePage>();
+        builder.Services.AddTransient<AccountsPage>();
+        builder.Services.AddTransient<AccountEditPage>();
+        builder.Services.AddTransient<CategoriesPage>();
+        builder.Services.AddTransient<CategoryEditPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
 
-        return builder.Build();
+        var app = builder.Build();
+        Services = app.Services;
+        return app;
     }
 }

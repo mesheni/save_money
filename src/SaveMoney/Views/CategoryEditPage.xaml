@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SaveMoney.ViewModels"
+             xmlns:conv="clr-namespace:SaveMoney.Converters"
+             x:Class="SaveMoney.Views.CategoryEditPage"
+             Title="{Binding Title}"
+             Appearing="OnAppearing">
+
+    <ContentPage.Resources>
+        <conv:BoolToColorConverter x:Key="ChipBg" TrueColor="#512BD4" FalseColor="#EFEFF4"/>
+        <conv:BoolToColorConverter x:Key="ChipText" TrueColor="White" FalseColor="Black"/>
+    </ContentPage.Resources>
+
+    <VerticalStackLayout Padding="16,10" Spacing="12">
+
+        <Label Text="Название" FontSize="12" Opacity="0.6"/>
+        <Entry Text="{Binding Name}" Placeholder="Например, Хобби"/>
+
+        <Label Text="Иконка" FontSize="12" Opacity="0.6"/>
+        <CollectionView ItemsSource="{Binding Icons}" ItemsLayout="HorizontalList" HeightRequest="52">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:IconChip">
+                    <Border WidthRequest="46" HeightRequest="46" Margin="0,0,8,0"
+                            StrokeShape="RoundRectangle 23"
+                            BackgroundColor="{Binding IsSelected, Converter={StaticResource ChipBg}}">
+                        <Label Text="{Binding Emoji}" FontSize="22" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SelectIconCommand, Source={RelativeSource AncestorType={x:Type vm:CategoryEditViewModel}}}" CommandParameter="{Binding .}"/>
+                        </Border.GestureRecognizers>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Button Text="Сохранить" BackgroundColor="#2ECC71" TextColor="White" Command="{Binding SaveCommand}"/>
+
+    </VerticalStackLayout>
+
+</ContentPage>

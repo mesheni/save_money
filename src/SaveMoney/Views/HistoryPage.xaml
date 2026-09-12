@@ -1,13 +1,65 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SaveMoney.ViewModels"
+             xmlns:conv="clr-namespace:SaveMoney.Converters"
              x:Class="SaveMoney.Views.HistoryPage"
-             Title="История">
+             Title="История"
+             Appearing="OnAppearing">
 
-    <VerticalStackLayout VerticalOptions="Center">
-        <Label Text="{Binding Header}"
-               Style="{StaticResource SubHeadline}"
-               HorizontalOptions="Center" />
-    </VerticalStackLayout>
+    <ContentPage.Resources>
+        <conv:BoolToColorConverter x:Key="AmountColor" TrueColor="#E74C3C" FalseColor="#2ECC71"/>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="12,6">
+
+        <HorizontalStackLayout Grid.Row="0" Spacing="8">
+            <Picker ItemsSource="{Binding PeriodOptions}" SelectedIndex="{Binding PeriodIndex}" WidthRequest="120"/>
+            <Picker ItemsSource="{Binding AccountOptions}" SelectedIndex="{Binding AccountIndex}" WidthRequest="160"/>
+        </HorizontalStackLayout>
+
+        <Label Grid.Row="1" Text="{Binding SummaryText}" Padding="0,8,0,2" FontSize="13" Opacity="0.7"/>
+
+        <CollectionView Grid.Row="2" ItemsSource="{Binding Groups}" IsGrouped="True">
+            <CollectionView.GroupHeaderTemplate>
+                <DataTemplate x:DataType="vm:HistoryGroupVM">
+                    <Border StrokeShape="RoundRectangle 8" BackgroundColor="#F2F2F7" Padding="10,6" Margin="0,8,0,2">
+                        <Grid ColumnDefinitions="*,Auto,Auto">
+                            <Label Text="{Binding HeaderText}" FontAttributes="Bold"/>
+                            <Label Grid.Column="1" Text="{Binding IncomeText}" TextColor="#2ECC71" Margin="10,0"/>
+                            <Label Grid.Column="2" Text="{Binding ExpenseText}" TextColor="#E74C3C"/>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.GroupHeaderTemplate>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:HistoryItemVM">
+                    <SwipeView>
+                        <SwipeView.RightItems>
+                            <SwipeItems>
+                                <SwipeItem Text="Удалить" BackgroundColor="#E74C3C" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+                        <Grid Padding="6,10" ColumnDefinitions="44,*,Auto">
+                            <Label Text="{Binding Icon}" FontSize="22" VerticalOptions="Start"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="1">
+                                <Label Text="{Binding Title}" FontAttributes="Bold"/>
+                                <Label Text="{Binding Subtitle}" FontSize="12" Opacity="0.6"/>
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="{Binding AmountText}" FontAttributes="Bold"
+                                   TextColor="{Binding IsExpense, Converter={StaticResource AmountColor}}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:HistoryViewModel}}}" CommandParameter="{Binding .}"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                    </SwipeView>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Label Grid.Row="2" Text="Пока пусто — добавьте первую операцию на вкладке «Ввод»"
+               IsVisible="{Binding !HasItems}" VerticalOptions="Center" HorizontalOptions="Center" Opacity="0.5"/>
+
+    </Grid>
 
 </ContentPage>
