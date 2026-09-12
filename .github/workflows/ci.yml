@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  tests:
+    name: Unit tests (Core)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Run tests
+        run: dotnet test src/SaveMoney.Tests/SaveMoney.Tests.csproj -c Release
+
+  windows-build:
+    name: Build MAUI (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Ensure maui-windows workload
+        run: dotnet workload install maui-windows
+      - name: Build
+        run: dotnet build src/SaveMoney/SaveMoney.csproj -f net10.0-windows10.0.19041.0 -c Release
+
+  android-build:
+    name: Build MAUI (Android)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Ensure maui-android workload
+        run: dotnet workload install maui-android
+      - name: Accept Android SDK licenses
+        run: yes | & "C:\Program Files (x86)\Android\android-sdk\cmdline-tools\latest\bin\sdkmanager.bat" --licenses 2>$null
+        shell: powershell
+        continue-on-error: true
+      - name: Build
+        run: dotnet build src/SaveMoney/SaveMoney.csproj -f net10.0-android -c Release

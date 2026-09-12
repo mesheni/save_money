@@ -11,8 +11,10 @@ namespace SaveMoney.ViewModels;
 /// <summary>
 /// Экран быстрого ввода (и редактирования по route "transaction?id=...").
 /// Расход/доход/перевод, кастомная клавиатура, угадывание категории по магазину.
+/// Виджет открывает его с предзаполненной суммой: "transaction?amount=100".
 /// </summary>
 [QueryProperty(nameof(EditId), "id")]
+[QueryProperty(nameof(PresetAmount), "amount")]
 public partial class QuickAddViewModel(
     AppDatabase db,
     TransactionService transactions,
@@ -86,8 +88,16 @@ public partial class QuickAddViewModel(
         set => _pendingEditId = value;
     }
 
+    /// <summary>Сумма, предзаполненная с виджета ("100" или "1250,50").</summary>
+    public string? PresetAmount { get; set; }
+
     public async Task InitializeAsync()
     {
+        if (!IsEditing && !string.IsNullOrEmpty(PresetAmount))
+        {
+            AmountText = PresetAmount;
+        }
+
         LoadAccounts();
         ReloadCategories();
         RefreshBalance();
