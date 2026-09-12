@@ -18,12 +18,12 @@ public partial class MoreViewModel : ObservableObject
         new("Бюджеты", "Лимиты, план/факт по циклу", "budgets"),
         new("До зарплаты", "Хватит ли до ЗП, ₽/день", "payday"),
         new("Регулярные платежи", "ЖКХ, подписки, аренда", "recurring"),
-        new("Настройки и экспорт", "Фаза 3 — в разработке", null),
+        new("Настройки и экспорт", "Тема, CSV, резервная копия", "settings"),
         new("Синк и семья", "v2.0 — в разработке", null),
     ];
 
     public string VersionText =>
-        $"SaveMoney {AppInfo.VersionString} · Фаза 2";
+        $"SaveMoney {AppInfo.VersionString} · Фаза 3";
 
     [RelayCommand]
     private void Open(MoreMenuItem? item)

@@ -22,5 +22,6 @@ public partial class AppShell : Shell
 		Routing.RegisterRoute("payday", typeof(PaydayPage));
 		Routing.RegisterRoute("recurring", typeof(RecurringPage));
 		Routing.RegisterRoute("recurringnew", typeof(RecurringEditPage));
+		Routing.RegisterRoute("settings", typeof(SettingsPage));
 	}
 }

@@ -1,13 +1,50 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SaveMoney.ViewModels"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
              x:Class="SaveMoney.Views.ReportsPage"
-             Title="Отчёты">
+             Title="Отчёты"
+             Appearing="OnAppearing">
 
-    <VerticalStackLayout VerticalOptions="Center">
-        <Label Text="{Binding Header}"
-               Style="{StaticResource SubHeadline}"
-               HorizontalOptions="Center" />
-    </VerticalStackLayout>
+    <ScrollView>
+        <VerticalStackLayout Padding="12,6" Spacing="10">
+
+            <HorizontalStackLayout Spacing="8">
+                <Picker ItemsSource="{Binding PeriodOptions}" SelectedIndex="{Binding PeriodIndex}" WidthRequest="140"/>
+                <DatePicker Date="{Binding FromDate}" Format="d MMM yy" IsVisible="{Binding IsCustom}"/>
+                <DatePicker Date="{Binding ToDate}" Format="d MMM yy" IsVisible="{Binding IsCustom}"/>
+            </HorizontalStackLayout>
+
+            <Label Text="{Binding SummaryText}" FontAttributes="Bold" Padding="4,4,0,0"/>
+
+            <lvc:PieChart Series="{Binding PieSeries}" HeightRequest="260" IsVisible="{Binding HasData}"/>
+
+            <Label Text="Динамика" FontSize="13" Opacity="0.6" IsVisible="{Binding HasData}"/>
+            <lvc:CartesianChart Series="{Binding ColumnSeries}"
+                                XAxes="{Binding XAxes}" YAxes="{Binding YAxes}"
+                                HeightRequest="220" IsVisible="{Binding HasData}"/>
+
+            <Label Text="Топ категорий (расход)" FontSize="13" Opacity="0.6" Margin="0,8,0,0"
+                   IsVisible="{Binding HasData}"/>
+            <CollectionView ItemsSource="{Binding TopRows}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:TopCategoryRow">
+                        <VerticalStackLayout Padding="4,6" Spacing="2">
+                            <Grid ColumnDefinitions="*,Auto,Auto">
+                                <Label Text="{Binding Display}"/>
+                                <Label Grid.Column="1" Text="{Binding PercentText}" FontSize="12" Opacity="0.6" Margin="8,0"/>
+                                <Label Grid.Column="2" Text="{Binding AmountText}" FontAttributes="Bold"/>
+                            </Grid>
+                            <ProgressBar Progress="{Binding Progress}" HeightRequest="4"/>
+                        </VerticalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Button Text="Экспорт CSV за период" Margin="0,8,0,10" Command="{Binding ExportCsvCommand}"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
 
 </ContentPage>

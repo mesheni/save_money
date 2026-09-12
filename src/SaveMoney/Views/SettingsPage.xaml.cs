@@ -3,20 +3,20 @@ using SaveMoney.ViewModels;
 
 namespace SaveMoney.Views;
 
-public partial class ReportsPage : ContentPage
+public partial class SettingsPage : ContentPage
 {
-    private readonly ReportsViewModel _viewModel;
-
-    public ReportsPage(ReportsViewModel viewModel)
+    public SettingsPage(SettingsViewModel viewModel)
     {
         InitializeComponent();
-        _viewModel = viewModel;
         BindingContext = viewModel;
         viewModel.AlertAsync = async (title, message) => await DisplayAlertAsync(title, message, "ОК");
     }
 
     private async void OnAppearing(object? sender, EventArgs e)
     {
-        await _viewModel.InitializeAsync();
+        if (BindingContext is SettingsViewModel vm)
+        {
+            await vm.InitializeAsync();
+        }
     }
 }

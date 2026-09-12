@@ -1,4 +1,5 @@
 using CommunityToolkit.Maui;
+using LiveChartsCore.SkiaSharpView.Maui;
 using Microsoft.Extensions.Logging;
 using SaveMoney.Core.Database;
 using SaveMoney.Core.Services;
@@ -17,6 +18,7 @@ public static class MauiProgram
         builder
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
+            .UseLiveCharts()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -33,6 +35,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<RecurringService>();
         builder.Services.AddSingleton<BudgetService>();
         builder.Services.AddSingleton<DebtService>();
+        builder.Services.AddSingleton<ReportService>();
+        builder.Services.AddSingleton<CsvExportService>();
 
         builder.Services.AddTransient<QuickAddViewModel>();
         builder.Services.AddTransient<HistoryViewModel>();
@@ -49,6 +53,7 @@ public static class MauiProgram
         builder.Services.AddTransient<PaydayViewModel>();
         builder.Services.AddTransient<RecurringViewModel>();
         builder.Services.AddTransient<RecurringEditViewModel>();
+        builder.Services.AddTransient<SettingsViewModel>();
 
         builder.Services.AddTransient<QuickAddPage>();
         builder.Services.AddTransient<HistoryPage>();
@@ -65,6 +70,7 @@ public static class MauiProgram
         builder.Services.AddTransient<PaydayPage>();
         builder.Services.AddTransient<RecurringPage>();
         builder.Services.AddTransient<RecurringEditPage>();
+        builder.Services.AddTransient<SettingsPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

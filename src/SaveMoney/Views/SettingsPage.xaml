@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SaveMoney.Views.SettingsPage"
+             Title="Настройки"
+             Appearing="OnAppearing">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,10" Spacing="14">
+
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                <Label Text="Тема" VerticalOptions="Center"/>
+                <Picker Grid.Column="1" ItemsSource="{Binding ThemeOptions}" SelectedIndex="{Binding ThemeIndex}"/>
+            </Grid>
+
+            <Button Text="Экспортировать все операции в CSV" Command="{Binding ExportAllCsvCommand}"/>
+            <Button Text="Резервная копия базы данных" Command="{Binding BackupDatabaseAsyncCommand}"/>
+
+            <Label Text="День зарплаты и цикл настраиваются на экране «Ещё → До зарплаты»."
+                   FontSize="13" Opacity="0.6"/>
+
+            <Label Text="{Binding AboutText}" FontSize="13" Opacity="0.7" Margin="0,10,0,10"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
