@@ -9,14 +9,14 @@
     <ScrollView>
         <VerticalStackLayout Padding="16,10" Spacing="12">
 
-            <Border StrokeShape="RoundRectangle 12" BackgroundColor="#F6F6FA" Padding="16,12">
+            <Border StrokeShape="RoundRectangle 12" BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" Padding="16,12">
                 <VerticalStackLayout Spacing="4">
                     <Label Text="{Binding PersonTitle}" FontSize="24" FontAttributes="Bold"/>
                     <Label Text="{Binding DirectionText}" FontSize="13" Opacity="0.6"/>
                     <Label Text="{Binding RemainingText}" FontSize="30" FontAttributes="Bold"/>
                     <Label Text="{Binding TotalText, StringFormat='из {0}'}" FontSize="13" Opacity="0.6"/>
                     <Label Text="{Binding DueText}" FontSize="13" Opacity="0.6"/>
-                    <Label Text="Долг закрыт ✓" TextColor="#2ECC71" FontAttributes="Bold"
+                    <Label Text="Долг закрыт ✓" TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}" FontAttributes="Bold"
                            IsVisible="{Binding IsSettled}"/>
                 </VerticalStackLayout>
             </Border>
@@ -44,12 +44,12 @@
                     <Label Text="Провести по связанному счёту" VerticalOptions="Center"/>
                     <Switch Grid.Column="1" IsToggled="{Binding CreateTransaction}"/>
                 </Grid>
-                <Button Text="Добавить платёж" BackgroundColor="#512BD4" TextColor="White" Command="{Binding AddPaymentCommand}"/>
-                <Button Text="Закрыть досрочно" BackgroundColor="Transparent" TextColor="#512BD4" Command="{Binding SettleCommand}"/>
+                <Button Text="Добавить платёж" BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}" TextColor="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}" Command="{Binding AddPaymentCommand}"/>
+                <Button Text="Закрыть досрочно" Style="{StaticResource GhostButton}" Command="{Binding SettleCommand}"/>
             </VerticalStackLayout>
 
-            <Button Text="Править" BackgroundColor="Transparent" TextColor="#512BD4" Command="{Binding OpenEditCommand}"/>
-            <Button Text="Удалить долг" BackgroundColor="Transparent" TextColor="#E74C3C" Command="{Binding DeleteCommand}"/>
+            <Button Text="Править" Style="{StaticResource GhostButton}" Command="{Binding OpenEditCommand}"/>
+            <Button Text="Удалить долг" Style="{StaticResource DangerButton}" Command="{Binding DeleteCommand}"/>
 
         </VerticalStackLayout>
     </ScrollView>

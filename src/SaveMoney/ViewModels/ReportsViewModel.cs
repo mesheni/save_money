@@ -3,6 +3,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
+using LiveChartsCore.SkiaSharpView.VisualElements;
+using SkiaSharp;
 using SaveMoney.Core.Database;
 using SaveMoney.Core.Services;
 
@@ -28,6 +31,19 @@ public partial class ReportsViewModel(
     private readonly CycleService _cycle = cycle;
     private readonly CsvExportService _csv = csv;
 
+    // Палитра секторов круговой — из контракта Vibrant.
+    private static readonly SKColor[] Palette =
+    [
+        new(0xFF, 0x6B, 0x00),
+        new(0x2E, 0x9D, 0x57),
+        new(0xFF, 0xB0, 0x20),
+        new(0x4C, 0x42, 0x6C),
+        new(0xE5, 0x48, 0x4D),
+        new(0x79, 0x6F, 0x91),
+        new(0xC2, 0x51, 0x00),
+        new(0xEF, 0xC9, 0x68),
+    ];
+
     public IReadOnlyList<string> PeriodOptions { get; } =
         ["Неделя", "Месяц", "3 месяца", "Текущий цикл", "Всё", "Свой период"];
 
@@ -42,6 +58,9 @@ public partial class ReportsViewModel(
 
     [ObservableProperty]
     public partial string SummaryText { get; set; } = "";
+
+    [ObservableProperty]
+    public partial string PeriodExpenseText { get; set; } = "—";
 
     [ObservableProperty]
     public partial bool HasData { get; set; } = true;
@@ -100,15 +119,15 @@ public partial class ReportsViewModel(
         var (from, to) = GetRange();
         var (income, expense) = _reports.GetTotals(from, to);
 
-        SummaryText = income == 0 && expense == 0
-            ? "Нет операций за период"
-            : $"Доход {MoneyFormat.Rubles(income)} · Расход {MoneyFormat.Rubles(expense)}";
+        HasData = income != 0 || expense != 0;
+        PeriodExpenseText = HasData ? MoneyFormat.Rubles(expense) : "—";
+        SummaryText = HasData
+            ? $"Доход {MoneyFormat.Rubles(income)}"
+            : "Нет операций за период";
 
         BuildPie(from, to);
         BuildColumns(from, to);
         BuildTop(from, to);
-
-        HasData = income != 0 || expense != 0;
     }
 
     private void BuildPie(long from, long to)
@@ -122,19 +141,27 @@ public partial class ReportsViewModel(
 
         const int maxSlices = 7;
         var series = new List<ISeries>();
+        var sliceIndex = 0;
         foreach (var slice in slices.Take(maxSlices))
         {
             series.Add(new PieSeries<double>
             {
                 Name = $"{slice.Icon} {slice.Name}",
                 Values = [slice.AmountMinor / 100.0],
+                Fill = new SolidColorPaint(Palette[sliceIndex % Palette.Length]),
             });
+            sliceIndex++;
         }
 
         var rest = slices.Skip(maxSlices).Sum(s => s.AmountMinor);
         if (rest > 0)
         {
-            series.Add(new PieSeries<double> { Name = "Прочие", Values = [rest / 100.0] });
+            series.Add(new PieSeries<double>
+            {
+                Name = "Прочие",
+                Values = [rest / 100.0],
+                Fill = new SolidColorPaint(new SKColor(0xEA, 0xDF, 0xBA)),
+            });
         }
 
         PieSeries = series.ToArray();
@@ -150,11 +177,13 @@ public partial class ReportsViewModel(
             {
                 Name = "Расход",
                 Values = points.Select(p => p.ExpenseMinor / 100.0).ToArray(),
+                Fill = new SolidColorPaint(new SKColor(0xE5, 0x48, 0x4D)),
             },
             new ColumnSeries<double>
             {
                 Name = "Доход",
                 Values = points.Select(p => p.IncomeMinor / 100.0).ToArray(),
+                Fill = new SolidColorPaint(new SKColor(0x2E, 0x9D, 0x57)),
             },
         ];
 

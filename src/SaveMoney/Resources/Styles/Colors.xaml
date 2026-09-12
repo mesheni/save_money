@@ -1,44 +1,54 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
-<ResourceDictionary 
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
+    <!-- Дизайн-система «Vibrant» (design_vibrant/): пары значений светлая/тёмная.
+         Подстановка через {AppThemeBinding Light={StaticResource X_Light}, Dark={StaticResource X_Dark}}. -->
 
-    <Color x:Key="Primary">#512BD4</Color>
-    <Color x:Key="PrimaryDark">#ac99ea</Color>
-    <Color x:Key="PrimaryDarkText">#242424</Color>
-    <Color x:Key="Secondary">#DFD8F7</Color>
-    <Color x:Key="SecondaryDarkText">#9880e5</Color>
-    <Color x:Key="Tertiary">#2B0B98</Color>
+    <Color x:Key="PageBgLight">#FFF8D7</Color>
+    <Color x:Key="PageBgDark">#221B3D</Color>
+    <Color x:Key="SurfaceLight">#FFFFFF</Color>
+    <Color x:Key="SurfaceDark">#2C2452</Color>
+    <Color x:Key="SurfaceWarmLight">#FFEF9F</Color>
+    <Color x:Key="SurfaceWarmDark">#3A2F63</Color>
+    <Color x:Key="SoftBgLight">#0F1D1836</Color>
+    <Color x:Key="SoftBgDark">#14FFFFFF</Color>
+    <Color x:Key="BorderLight">#EADFBA</Color>
+    <Color x:Key="BorderDark">#453A72</Color>
+    <Color x:Key="TextPrimaryLight">#1D1836</Color>
+    <Color x:Key="TextPrimaryDark">#FFF8D7</Color>
+    <Color x:Key="TextSecondaryLight">#4C426C</Color>
+    <Color x:Key="TextSecondaryDark">#D9D2F0</Color>
+    <Color x:Key="TextMutedLight">#796F91</Color>
+    <Color x:Key="TextMutedDark">#A79FC6</Color>
+    <Color x:Key="AccentLight">#FF6B00</Color>
+    <Color x:Key="AccentDark">#FF6B00</Color>
+    <Color x:Key="OnAccentLight">#FFFFFF</Color>
+    <Color x:Key="OnAccentDark">#FFFFFF</Color>
+    <Color x:Key="AccentTextLight">#C25100</Color>
+    <Color x:Key="AccentTextDark">#FF8A3D</Color>
+    <Color x:Key="AccentSoftLight">#1AFF6B00</Color>
+    <Color x:Key="AccentSoftDark">#29FF6B00</Color>
+    <Color x:Key="ExpenseLight">#E5484D</Color>
+    <Color x:Key="ExpenseDark">#F0565B</Color>
+    <Color x:Key="ExpenseTextLight">#C93F44</Color>
+    <Color x:Key="ExpenseTextDark">#F58C8F</Color>
+    <Color x:Key="ExpenseSoftLight">#1FE5484D</Color>
+    <Color x:Key="ExpenseSoftDark">#29F0565B</Color>
+    <Color x:Key="IncomeLight">#2E9D57</Color>
+    <Color x:Key="IncomeDark">#34B36A</Color>
+    <Color x:Key="IncomeTextLight">#21713F</Color>
+    <Color x:Key="IncomeTextDark">#6FD597</Color>
+    <Color x:Key="IncomeSoftLight">#1F2E9D57</Color>
+    <Color x:Key="IncomeSoftDark">#2934B36A</Color>
+    <Color x:Key="TransferLight">#4C426C</Color>
+    <Color x:Key="TransferDark">#A79FC6</Color>
+    <Color x:Key="WarnLight">#FFB020</Color>
+    <Color x:Key="WarnDark">#FFB020</Color>
+    <Color x:Key="WarnTextLight">#8A5B00</Color>
+    <Color x:Key="WarnTextDark">#FFC95E</Color>
+    <Color x:Key="WarnSoftLight">#1FFFB020</Color>
+    <Color x:Key="WarnSoftDark">#29FFB020</Color>
 
-    <Color x:Key="White">White</Color>
-    <Color x:Key="Black">Black</Color>
-    <Color x:Key="Magenta">#D600AA</Color>
-    <Color x:Key="MidnightBlue">#190649</Color>
-    <Color x:Key="OffBlack">#1f1f1f</Color>
-
-    <Color x:Key="Gray100">#E1E1E1</Color>
-    <Color x:Key="Gray200">#C8C8C8</Color>
-    <Color x:Key="Gray300">#ACACAC</Color>
-    <Color x:Key="Gray400">#919191</Color>
-    <Color x:Key="Gray500">#6E6E6E</Color>
-    <Color x:Key="Gray600">#404040</Color>
-    <Color x:Key="Gray900">#212121</Color>
-    <Color x:Key="Gray950">#141414</Color>
-
-    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
-    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
-    <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}"/>
-    <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource White}"/>
-    <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource Black}"/>
-
-    <SolidColorBrush x:Key="Gray100Brush" Color="{StaticResource Gray100}"/>
-    <SolidColorBrush x:Key="Gray200Brush" Color="{StaticResource Gray200}"/>
-    <SolidColorBrush x:Key="Gray300Brush" Color="{StaticResource Gray300}"/>
-    <SolidColorBrush x:Key="Gray400Brush" Color="{StaticResource Gray400}"/>
-    <SolidColorBrush x:Key="Gray500Brush" Color="{StaticResource Gray500}"/>
-    <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
-    <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
-    <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
 </ResourceDictionary>

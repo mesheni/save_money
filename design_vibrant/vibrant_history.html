@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>История · SaveMoney · Vibrant</title>
+  <style>
+    /* ─── токены (план §2) ────────────────────────────────────────── */
+    :root {
+      --bg:      oklch(99% 0.002 240);
+      --surface: oklch(100% 0 0);
+      --fg:      oklch(18% 0.012 250);
+      --muted:   oklch(54% 0.012 250);
+      --border:  oklch(92% 0.005 250);
+      --fg-soft: color-mix(in oklch, var(--fg) 6%, transparent);
+
+      --accent:  #512BD4;
+      --expense: #E74C3C;
+      --income:  #2ECC71;
+      --transfer:#3498DB;
+
+      --accent-soft:   color-mix(in srgb, var(--accent) 10%, transparent);
+      --expense-text:  color-mix(in srgb, var(--expense) 82%, black);
+      --expense-soft:  color-mix(in srgb, var(--expense) 10%, transparent);
+      --income-text:   color-mix(in srgb, var(--income) 62%, black);
+      --transfer-text: color-mix(in srgb, var(--transfer) 74%, black);
+      --accent-light:  color-mix(in srgb, var(--accent) 55%, white);
+
+      --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      --font-body:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--fg);
+      font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+      -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    }
+    button { font: inherit; cursor: pointer; border: 0; background: none; color: inherit; padding: 0; }
+    select { font: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+
+    /* ─── корпус iPhone 15 Pro ────────────────────────────────────── */
+    .stage {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 16px; padding: 40px 16px;
+    }
+    .device {
+      position: relative; width: 413px; padding: 10px; border-radius: 62px;
+      background: linear-gradient(160deg, oklch(40% 0.008 250), oklch(22% 0.006 250));
+      box-shadow: 0 40px 90px color-mix(in oklch, var(--fg) 24%, transparent),
+        inset 0 0 0 1.5px oklch(55% 0.01 250);
+    }
+    .side-btn { position: absolute; width: 3.5px; border-radius: 2px; background: oklch(32% 0.008 250); }
+    .side-btn.action { left: -3px; top: 176px; height: 26px; }
+    .side-btn.vol-up { left: -3px; top: 236px; height: 52px; }
+    .side-btn.vol-down { left: -3px; top: 298px; height: 52px; }
+    .side-btn.power { right: -3px; top: 262px; height: 78px; }
+    .screen {
+      position: relative; width: 393px; height: 852px; border-radius: 52px;
+      background: var(--bg); overflow: hidden; display: flex; flex-direction: column;
+    }
+    .stage-caption { font-size: 12px; color: var(--muted); letter-spacing: 0.04em; }
+    @media (max-width: 560px) { .device { zoom: 0.82; } }
+    @media (max-height: 1000px) { .device { zoom: 0.9; } }
+
+    .statusbar {
+      position: relative; z-index: 30; flex: none; height: 54px;
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 17px 30px 0;
+    }
+    .sb-time { font: 600 15px/1.2 var(--font-body); letter-spacing: -0.01em; }
+    .sb-icons { display: flex; align-items: center; gap: 7px; color: var(--fg); padding-top: 2px; }
+    .island {
+      position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+      width: 122px; height: 35px; border-radius: 24px; z-index: 40;
+      background: oklch(13% 0.004 250);
+    }
+    .island::after {
+      content: ''; position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%); width: 9px; height: 9px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, oklch(30% 0.03 260), oklch(12% 0.01 260) 70%);
+    }
+
+    .appbar { flex: none; padding: 8px 20px 10px; }
+    .appbar h1 { font: 700 24px/1.2 var(--font-display); letter-spacing: -0.02em; margin: 0; }
+
+    /* фильтры */
+    .filters { display: flex; gap: 8px; padding: 0 20px 10px; }
+    .filter-select {
+      appearance: none; -webkit-appearance: none;
+      flex: 1; min-height: 38px; padding: 8px 30px 8px 14px;
+      border: 1px solid var(--border); border-radius: 11px; background: var(--surface);
+      color: var(--fg); font-size: 13.5px; font-weight: 550; cursor: pointer;
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238a8886' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+    }
+    .filter-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .totals {
+      flex: none; margin: 0 20px 8px; padding: 10px 14px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+      display: flex; justify-content: center; gap: 18px; font-size: 13.5px;
+    }
+    .totals span { color: var(--muted); }
+    .totals b { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .totals .t-in b { color: var(--income-text); }
+    .totals .t-out b { color: var(--expense-text); }
+
+    .cat-chip-row { padding: 0 20px 8px; display: none; }
+    .cat-chip-row.is-visible { display: flex; }
+    .cat-chip {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 8px 7px 13px; border-radius: 999px;
+      background: var(--accent-soft); border: 1px solid var(--accent); color: var(--accent);
+      font-size: 13px; font-weight: 650;
+    }
+    .cat-chip button {
+      width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+      color: var(--accent); font-size: 13px; line-height: 1;
+    }
+    .cat-chip button:hover { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+
+    /* лента */
+    .content { flex: 1; overflow-y: auto; padding: 0 20px 112px; scrollbar-width: none; }
+    .content::-webkit-scrollbar { display: none; }
+
+    .day-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin: 16px 4px 6px; font-size: 13px;
+    }
+    .day-head b { font-weight: 650; }
+    .day-head .sums { color: var(--muted); font-variant-numeric: tabular-nums; }
+    .day-head .sums .minus { color: var(--expense-text); font-weight: 650; }
+    .day-head .sums .plus { color: var(--income-text); font-weight: 650; margin-right: 10px; }
+
+    .ops-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; overflow: hidden; }
+    .op-wrap { position: relative; overflow: hidden; }
+    .op-wrap + .op-wrap { border-top: 1px solid var(--border); }
+    .op {
+      position: relative; z-index: 2; display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; background: var(--surface); touch-action: pan-y;
+      transition: transform 0.2s ease;
+    }
+    .op:active { background: var(--fg-soft); }
+    .op-del {
+      position: absolute; top: 0; bottom: 0; right: 0; z-index: 1; width: 76px;
+      background: var(--expense); color: var(--surface); font-size: 12.5px; font-weight: 650;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .op-emoji { flex: none; width: 38px; height: 38px; font-size: 21px; display: grid; place-items: center; }
+    .op-main { flex: 1; min-width: 0; }
+    .op-main b { display: block; font-weight: 600; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .op-main span { display: block; font-size: 12px; color: var(--muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .op-amt { flex: none; font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .op-amt.expense { color: var(--expense-text); }
+    .op-amt.income { color: var(--income-text); }
+    .op-amt.transfer { color: var(--transfer-text); }
+    .swipe-hint { text-align: center; font-size: 11.5px; color: var(--muted); padding: 14px 0 4px; }
+
+    .empty { display: none; text-align: center; padding: 40px 24px 10px; }
+    .empty.is-visible { display: block; }
+    .empty .big { font-size: 34px; }
+    .empty p { color: var(--muted); font-size: 13.5px; margin: 8px 0 0; }
+
+    /* ─── таб-бар ─────────────────────────────────────────────────── */
+    .tabbar {
+      position: absolute; left: 0; right: 0; bottom: 0; z-index: 20;
+      display: flex; padding: 6px 10px 22px;
+      border-top: 1px solid var(--border);
+      background: color-mix(in oklch, var(--bg) 86%, transparent);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    }
+    .tab {
+      flex: 1; min-height: 46px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2px;
+      border-radius: 12px; color: var(--muted); transition: color 0.15s ease;
+    }
+    .tab .tab-ic { font-size: 20px; line-height: 1.2; }
+    .tab .tab-more { font-size: 20px; line-height: 1.2; font-weight: 700; letter-spacing: 0.05em; }
+    .tab span { font: 500 10px/1 var(--font-body); letter-spacing: 0.01em; }
+    .tab:hover { color: var(--fg); }
+    .tab.is-active { color: var(--accent); }
+    .home-indicator {
+      position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);
+      width: 134px; height: 5px; border-radius: 3px;
+      background: color-mix(in oklch, var(--fg) 85%, transparent);
+    }
+
+    .snackbar {
+      position: absolute; left: 18px; right: 18px; bottom: 96px; z-index: 60;
+      background: var(--fg); color: var(--surface); border-radius: 16px;
+      padding: 12px 15px; font-size: 13px; font-weight: 500;
+      display: none; align-items: center; justify-content: space-between; gap: 10px;
+      box-shadow: 0 10px 28px color-mix(in oklch, var(--fg) 30%, transparent);
+    }
+    .snackbar.is-visible { display: flex; }
+    .snackbar button { color: var(--accent-light); font-weight: 700; font-size: 13px; padding: 4px 2px; }
+  
+    /* ═══ Вариант оформления: Vibrant (design-system-vibrant) ═══
+       Перебиндиваем базовые токены SaveMoney на контракт Vibrant;
+       производные цвета (color-mix от var(--…)) пересчитываются сами. */
+    :root {
+      --bg: #fff8d7;
+      --surface: #ffffff;
+      --surface-warm: #ffef9f;
+      --fg: #1d1836;
+      --fg-2: #4c426c;
+      --muted: #796f91;
+      --border: #eadfba;
+      --accent: #ff6b00;
+      --accent-on: #ffffff;
+      --success: #2e9d57;
+      --warn: #ffb020;
+      --danger: #e5484d;
+
+      --expense: #e5484d;
+      --income: #2e9d57;
+      --transfer: #4c426c;
+
+      --expense-text: color-mix(in srgb, var(--expense) 88%, black);
+      --income-text: color-mix(in srgb, var(--income) 72%, black);
+      --transfer-text: var(--transfer);
+      --accent-text: color-mix(in srgb, var(--accent) 76%, black);
+      --accent-light: color-mix(in srgb, var(--accent) 55%, white);
+      --cat-cafe: var(--warn);
+      --cat-fun: color-mix(in srgb, var(--accent) 60%, var(--fg));
+      --cat-cloth: color-mix(in srgb, var(--success) 70%, var(--fg));
+
+      --font-display: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      --font-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+    /* мелкий акцентный текст — контрастная производная вместо чистого --accent */
+    .tab.is-active, .chip.is-on, .insight, .cat-chip, .guess-hint, .back,
+    .achip.is-on, .debt-ava { color: var(--accent-text); }  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="device" data-od-id="device">
+      <span class="side-btn action" aria-hidden="true"></span>
+      <span class="side-btn vol-up" aria-hidden="true"></span>
+      <span class="side-btn vol-down" aria-hidden="true"></span>
+      <span class="side-btn power" aria-hidden="true"></span>
+      <div class="screen" id="screen">
+
+        <div class="statusbar" data-od-id="status-bar" aria-hidden="true">
+          <span class="sb-time">9:41</span>
+          <span class="sb-icons">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M2 4.6a9.6 9.6 0 0 1 13 0"/><path d="M4.6 7.4a5.7 5.7 0 0 1 7.8 0"/><circle cx="8.5" cy="10.2" r="1.5" fill="currentColor" stroke="none"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.6" y="0.6" width="20.3" height="10.8" rx="3.2" fill="none" stroke="currentColor" stroke-width="1" opacity="0.4"/><rect x="2.4" y="2.4" width="13.5" height="7.2" rx="1.7" fill="currentColor"/><path d="M22.8 4v4a2.3 2.3 0 0 0 0-4Z" fill="currentColor" opacity="0.4"/></svg>
+          </span>
+        </div>
+        <div class="island" aria-hidden="true"></div>
+
+        <header class="appbar" data-od-id="appbar">
+          <h1>История</h1>
+        </header>
+
+        <div class="filters" data-od-id="history-filters">
+          <select class="filter-select" id="period-select" aria-label="Период">
+            <option value="week" selected>Неделя</option>
+            <option value="month">Этот месяц</option>
+            <option value="all">Всё время</option>
+          </select>
+          <select class="filter-select" id="acc-select" aria-label="Счёт">
+            <option value="all" selected>Все счета</option>
+            <option value="sber">💳 Сбер</option>
+            <option value="cash">💵 Наличные</option>
+            <option value="tbank">💳 Т-Банк</option>
+            <option value="vault">🏦 Вклад</option>
+          </select>
+        </div>
+
+        <div class="totals" data-od-id="totals-line">
+          <span class="t-in">Доход <b id="sum-in">120 000 ₽</b></span>
+          <span class="t-out">Расход <b id="sum-out">71 750 ₽</b></span>
+        </div>
+
+        <div class="cat-chip-row" id="cat-chip-row" data-od-id="category-filter-chip">
+          <span class="cat-chip"><span id="cat-chip-text"></span><button id="cat-chip-clear" aria-label="Сбросить фильтр категории">✕</button></span>
+        </div>
+
+        <main class="content" data-od-id="history-list" id="list"></main>
+
+        <nav class="tabbar" data-od-id="tab-bar" aria-label="Основная навигация">
+          <a class="tab" href="input.html">
+            <span class="tab-ic" aria-hidden="true">💸</span><span>Ввод</span>
+          </a>
+          <a class="tab is-active" href="history.html" aria-current="page">
+            <span class="tab-ic" aria-hidden="true">📋</span><span>История</span>
+          </a>
+          <a class="tab" href="reports.html">
+            <span class="tab-ic" aria-hidden="true">📊</span><span>Отчёты</span>
+          </a>
+          <a class="tab" href="more.html">
+            <span class="tab-more" aria-hidden="true">⋯</span><span>Ещё</span>
+          </a>
+          <div class="home-indicator" aria-hidden="true"></div>
+        </nav>
+
+        <div class="snackbar" id="snackbar" role="status"><span id="snack-text"></span><button id="snack-btn" style="display:none;"></button></div>
+
+      </div>
+    </div>
+    <p class="stage-caption">iPhone 15 Pro · 393 × 852 · демо-данные · вариант Vibrant</p>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+      /* ── общий слой данных ── */
+      var SEED = [
+        { id: 'b01', off: 0, type: 'income',   amount: 120000, emoji: '💼', name: 'Зарплата',            acc: 'sber',  shop: '',               note: '', cat: 'salary',    time: '10:00' },
+        { id: 'b02', off: 0, type: 'expense',  amount: 1250,   emoji: '🛒', name: 'Продукты',            acc: 'sber',  shop: 'Пятёрочка',      note: '', cat: 'food',      time: '09:14' },
+        { id: 'b03', off: 0, type: 'expense',  amount: 2200,   emoji: '☕', name: 'Кафе',                acc: 'cash',  shop: 'Кофемания',      note: 'Бизнес-ланч', cat: 'cafe', time: '13:05' },
+        { id: 'b04', off: 0, type: 'transfer', amount: 5000,   emoji: '🔁', name: 'Сбер → Наличные',     acc: 'sber',  acc2: 'cash', shop: '', note: '', cat: '', time: '11:40' },
+        { id: 'b05', off: 1, type: 'expense',  amount: 5000,   emoji: '🛒', name: 'Продукты',            acc: 'sber',  shop: 'Азбука Вкуса',   note: '', cat: 'food',      time: '19:40' },
+        { id: 'b06', off: 1, type: 'expense',  amount: 1800,   emoji: '☕', name: 'Кафе',                acc: 'cash',  shop: '«Му-Му»',        note: '', cat: 'cafe',      time: '13:20' },
+        { id: 'b07', off: 1, type: 'expense',  amount: 5500,   emoji: '👕', name: 'Одежда',              acc: 'tbank', shop: 'Wildberries',    note: '', cat: 'cloth',     time: '21:10' },
+        { id: 'b08', off: 2, type: 'expense',  amount: 8500,   emoji: '🏠', name: 'ЖКХ',                 acc: 'sber',  shop: 'Мосэнергосбыт',  note: '', cat: 'utilities', time: '09:00' },
+        { id: 'b09', off: 2, type: 'expense',  amount: 6040,   emoji: '🛒', name: 'Продукты',            acc: 'sber',  shop: 'Магнит',         note: '', cat: 'food',      time: '18:25' },
+        { id: 'b10', off: 2, type: 'expense',  amount: 1200,   emoji: '💊', name: 'Здоровье',            acc: 'cash',  shop: 'Аптека «Горздрав»', note: '', cat: 'health', time: '12:15' },
+        { id: 'b11', off: 2, type: 'expense',  amount: 3200,   emoji: '🚗', name: 'Транспорт',           acc: 'sber',  shop: 'Яндекс Такси',   note: '', cat: 'transport', time: '08:32' },
+        { id: 'b12', off: 3, type: 'expense',  amount: 450,    emoji: '🚗', name: 'Транспорт',           acc: 'cash',  shop: 'Такси',          note: '', cat: 'transport', time: '08:30' },
+        { id: 'b13', off: 3, type: 'expense',  amount: 3110,   emoji: '🛒', name: 'Продукты',            acc: 'sber',  shop: 'Пятёрочка',      note: '', cat: 'food',      time: '20:05' },
+        { id: 'b14', off: 3, type: 'expense',  amount: 1500,   emoji: '🎬', name: 'Развлечения',         acc: 'sber',  shop: 'Кино «Октябрь»', note: '', cat: 'fun',       time: '21:05' },
+        { id: 'b15', off: 3, type: 'expense',  amount: 10000,  emoji: '👕', name: 'Одежда',              acc: 'tbank', shop: 'Ozon',           note: 'Кроссовки', cat: 'cloth', time: '16:45' },
+        { id: 'b16', off: 4, type: 'expense',  amount: 8900,   emoji: '🛒', name: 'Продукты',            acc: 'sber',  shop: 'Лента',          note: '', cat: 'food',      time: '19:15' },
+        { id: 'b17', off: 4, type: 'expense',  amount: 8450,   emoji: '🚗', name: 'Транспорт',           acc: 'tbank', shop: 'Тройка',         note: 'Пакет «Метро»', cat: 'transport', time: '07:50' },
+        { id: 'b18', off: 4, type: 'expense',  amount: 4650,   emoji: '☕', name: 'Кафе',                acc: 'cash',  shop: 'Ресторан «Тарелка»', note: '', cat: 'cafe', time: '14:30' }
+      ];
+      var ACC = { sber: 'Сбер', cash: 'Наличные', tbank: 'Т-Банк', vault: 'Вклад' };
+      var CATNAME = { food: '🛒 Продукты', transport: '🚗 Транспорт', utilities: '🏠 ЖКХ', cafe: '☕ Кафе', health: '💊 Здоровье', fun: '🎬 Развлечения', cloth: '👕 Одежда', salary: '💼 Зарплата', freelance: '💻 Фриланс', gift: '🎁 Подарки' };
+      var DAY_TITLES = ['Сегодня', 'Вчера'];
+      var MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+      var fmt = function (n) { return Math.round(n).toLocaleString('ru-RU') + ' ₽'; };
+
+      var store = {
+        ops: [],
+        load: function () {
+          try {
+            var v = JSON.parse(localStorage.getItem('sm-ops-v1'));
+            if (Array.isArray(v) && v.length) { this.ops = v; return; }
+          } catch (e) { /* сеем базу */ }
+          this.ops = JSON.parse(JSON.stringify(SEED));
+          this.save();
+        },
+        save: function () {
+          try { localStorage.setItem('sm-ops-v1', JSON.stringify(this.ops)); } catch (e) { /* приватный режим */ }
+        },
+        remove: function (id) {
+          this.ops = this.ops.filter(function (o) { return o.id !== id; });
+          this.save();
+        },
+        add: function (op) { this.ops.unshift(op); this.save(); }
+      };
+
+      var filters = { period: 'week', acc: 'all', cat: null };
+      var params = new URLSearchParams(location.search);
+      if (params.get('cat') && CATNAME[params.get('cat')]) filters.cat = params.get('cat');
+
+      var $ = function (id) { return document.getElementById(id); };
+      var deleted = null; /* {op, index} для «Вернуть» */
+
+      function matches(o) {
+        if (filters.period === 'week' && o.off > 6) return false;
+        if (filters.acc !== 'all' && o.acc !== filters.acc && o.acc2 !== filters.acc) return false;
+        if (filters.cat && o.cat !== filters.cat) return false;
+        return true;
+      }
+
+      function render() {
+        store.load();
+        var list = $('list');
+        list.innerHTML = '';
+        var inSum = 0, outSum = 0, visible = 0;
+        var byDay = {};
+        store.ops.forEach(function (o) {
+          if (!matches(o)) return;
+          visible++;
+          if (!byDay[o.off]) byDay[o.off] = [];
+          byDay[o.off].push(o);
+          if (o.type === 'income') inSum += o.amount;
+          if (o.type === 'expense') outSum += o.amount;
+        });
+        $('sum-in').textContent = fmt(inSum);
+        $('sum-out').textContent = fmt(outSum);
+        $('cat-chip-row').classList.toggle('is-visible', !!filters.cat);
+        if (filters.cat) $('cat-chip-text').textContent = 'Категория: ' + CATNAME[filters.cat];
+
+        Object.keys(byDay).map(Number).sort(function (a, b) { return a - b; }).forEach(function (off) {
+          var d = new Date(2026, 8, 12 - off);
+          var title = DAY_TITLES[off] || (d.getDate() + ' ' + MONTHS[d.getMonth()]);
+          var din = 0, dout = 0;
+          byDay[off].forEach(function (o) {
+            if (o.type === 'income') din += o.amount;
+            if (o.type === 'expense') dout += o.amount;
+          });
+          var head = document.createElement('div');
+          head.className = 'day-head';
+          var t = '<b>' + title + '</b><span class="sums">';
+          if (din) t += '<span class="plus">+' + fmt(din) + '</span>';
+          if (dout) t += '<span class="minus">−' + fmt(dout) + '</span>';
+          t += '</span>';
+          head.innerHTML = t;
+          list.appendChild(head);
+
+          var card = document.createElement('div');
+          card.className = 'ops-card';
+          byDay[off].sort(function (a, b) { return (a.time < b.time ? 1 : -1); }).forEach(function (o) {
+            card.appendChild(opRow(o));
+          });
+          list.appendChild(card);
+        });
+
+        var empty = document.createElement('div');
+        empty.className = 'empty' + (visible ? '' : ' is-visible');
+        empty.setAttribute('data-od-id', 'empty-state');
+        empty.innerHTML = '<div class="big" aria-hidden="true">💸</div><p>Пока нет операций за выбранный период.<br>Добавьте первую на вкладке «💸 Ввод» — расход сохраняется за два касания.</p>';
+        list.appendChild(empty);
+
+        var hint = document.createElement('p');
+        hint.className = 'swipe-hint';
+        hint.textContent = 'Свайп влево — удалить · тап — редактировать';
+        list.appendChild(hint);
+      }
+
+      function opRow(o) {
+        var wrap = document.createElement('div');
+        wrap.className = 'op-wrap';
+        wrap.dataset.id = o.id;
+
+        var del = document.createElement('button');
+        del.className = 'op-del';
+        del.textContent = 'Удалить';
+        del.setAttribute('aria-label', 'Удалить операцию');
+        del.addEventListener('click', function () { removeOp(o.id); });
+
+        var row = document.createElement('div');
+        row.className = 'op';
+        row.setAttribute('role', 'button');
+        row.setAttribute('tabindex', '0');
+        row.setAttribute('aria-label', o.name + ', ' + (o.type === 'expense' ? 'минус ' : o.type === 'income' ? 'плюс ' : '') + fmt(o.amount));
+
+        var sub = [];
+        sub.push(ACC[o.acc] || '');
+        if (o.shop) sub.push(o.shop);
+        if (o.note) sub.push(o.note);
+        if (o.type === 'transfer') sub = ['Перевод · ' + (ACC[o.acc] || '') + ' → ' + (ACC[o.acc2] || '')];
+
+        row.innerHTML =
+          '<span class="op-emoji" aria-hidden="true">' + o.emoji + '</span>' +
+          '<span class="op-main"><b></b><span></span></span>' +
+          '<span class="op-amt ' + o.type + '"></span>';
+        row.querySelector('b').textContent = o.name;
+        row.querySelector('.op-main span').textContent = sub.filter(Boolean).join(' · ');
+        var sign = o.type === 'income' ? '+' : (o.type === 'expense' ? '−' : '');
+        row.querySelector('.op-amt').textContent = sign + fmt(o.amount);
+
+        var openX = 0;
+        row.addEventListener('click', function () {
+          if (openX) { row.style.transform = ''; openX = 0; return; }
+          location.href = 'input.html?edit=' + encodeURIComponent(o.id);
+        });
+        row.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') location.href = 'input.html?edit=' + encodeURIComponent(o.id);
+        });
+        row.addEventListener('pointerdown', function (e) {
+          if (e.target.closest('.op-del')) return;
+          var sx = e.clientX, dx = 0, dragging = true;
+          function move(ev) {
+            if (!dragging) return;
+            dx = Math.min(0, Math.max(-80, ev.clientX - sx));
+            row.style.transition = 'none';
+            row.style.transform = 'translateX(' + dx + 'px)';
+          }
+          function up() {
+            dragging = false;
+            row.style.transition = '';
+            if (dx < -45) { row.style.transform = 'translateX(-76px)'; openX = -76; }
+            else { row.style.transform = ''; openX = 0; }
+            window.removeEventListener('pointermove', move);
+            window.removeEventListener('pointerup', up);
+          }
+          window.addEventListener('pointermove', move);
+          window.addEventListener('pointerup', up);
+        });
+
+        wrap.appendChild(del);
+        wrap.appendChild(row);
+        return wrap;
+      }
+
+      function removeOp(id) {
+        var idx = store.ops.findIndex(function (o) { return o.id === id; });
+        if (idx < 0) return;
+        deleted = { op: store.ops[idx], index: idx };
+        store.remove(id);
+        render();
+        snack('Операция удалена', 'Вернуть', function () {
+          if (!deleted) return;
+          store.ops.splice(Math.min(deleted.index, store.ops.length), 0, deleted.op);
+          store.save();
+          deleted = null;
+          render();
+        });
+      }
+
+      function snack(text, actionLabel, action) {
+        var bar = $('snackbar');
+        $('snack-text').textContent = text;
+        var btn = $('snack-btn');
+        if (actionLabel) {
+          btn.style.display = '';
+          btn.textContent = actionLabel;
+          btn.onclick = function () { action(); bar.classList.remove('is-visible'); };
+        } else { btn.style.display = 'none'; btn.onclick = null; }
+        bar.classList.add('is-visible');
+        clearTimeout(snack.t);
+        snack.t = setTimeout(function () { bar.classList.remove('is-visible'); }, 5000);
+      }
+
+      $('period-select').addEventListener('change', function () { filters.period = this.value; render(); });
+      $('acc-select').addEventListener('change', function () { filters.acc = this.value; render(); });
+      $('cat-chip-clear').addEventListener('click', function () { filters.cat = null; render(); });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

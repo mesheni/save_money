@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SaveMoney · вариант оформления Vibrant</title>
+  <style>
+    /* design-systems/vibrant/tokens.css — контракт вставлен дословно */
+    :root {
+      --bg: #fff8d7;
+      --surface: #ffffff;
+      --surface-warm: #ffef9f;
+      --fg: #1d1836;
+      --fg-2: #4c426c;
+      --muted: #796f91;
+      --meta: #ff6b00;
+      --border: #eadfba;
+      --border-soft: #f5eccd;
+      --accent: #ff6b00;
+      --accent-on: #ffffff;
+      --accent-hover: color-mix(in oklab, var(--accent), black 8%);
+      --accent-active: color-mix(in oklab, var(--accent), black 14%);
+      --success: #2e9d57;
+      --warn: #ffb020;
+      --danger: #e5484d;
+      --font-display: Inter, system-ui, sans-serif;
+      --font-body: Inter, system-ui, sans-serif;
+      --font-mono: "SF Mono", ui-monospace, Menlo, monospace;
+      --text-xs: 12px;
+      --text-sm: 14px;
+      --text-base: 16px;
+      --text-lg: 18px;
+      --text-xl: 24px;
+      --text-2xl: 36px;
+      --text-3xl: 54px;
+      --text-4xl: 76px;
+      --leading-body: 1.52;
+      --leading-tight: 1.06;
+      --tracking-display: -0.025em;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-12: 48px;
+      --section-y-desktop: 96px;
+      --section-y-tablet: 68px;
+      --section-y-phone: 48px;
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-pill: 9999px;
+      --elev-flat: none;
+      --elev-ring: 0 0 0 1px var(--border);
+      --elev-raised: 0 18px 44px rgba(29, 24, 54, 0.14);
+      --focus-ring: 0 0 0 4px rgba(255, 107, 0, 0.26);
+      --motion-fast: 150ms;
+      --motion-base: 240ms;
+      --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+      --container-max: 1180px;
+      --container-gutter-desktop: 36px;
+      --container-gutter-tablet: 24px;
+      --container-gutter-phone: 16px;
+    }
+
+    /* операционные цвета плана (§2) поверх контракта Vibrant */
+    :root {
+      --expense: #e5484d;
+      --income: #2e9d57;
+      --transfer: #4c426c;
+      --expense-text: color-mix(in srgb, var(--expense) 88%, black);
+      --income-text: color-mix(in srgb, var(--income) 72%, black);
+      --accent-text: color-mix(in srgb, var(--accent) 76%, black);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0; background: var(--bg); color: var(--fg);
+      font-family: var(--font-body); font-size: var(--text-base); line-height: var(--leading-body);
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    h1, h2, h3, p { margin: 0; }
+    h1, h2 { font-family: var(--font-display); letter-spacing: var(--tracking-display); }
+    :focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-sm); }
+
+    .container { max-width: var(--container-max); margin-inline: auto; padding-inline: var(--container-gutter-desktop); }
+    .section { padding-block: var(--section-y-tablet); }
+    @media (max-width: 760px) {
+      .container { padding-inline: var(--container-gutter-phone); }
+      .section { padding-block: var(--section-y-phone); }
+      .grid-4, .grid-3 { grid-template-columns: 1fr 1fr !important; }
+      .topnav nav { display: none; }
+    }
+    @media (max-width: 540px) { .grid-4, .grid-3 { grid-template-columns: 1fr !important; } }
+
+    .eyebrow {
+      font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent-text); margin: 0 0 var(--space-4);
+    }
+    .lead { font-size: var(--text-lg); color: var(--fg-2); max-width: 58ch; }
+
+    .topnav {
+      position: sticky; top: 0; z-index: 10;
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .topnav-inner { display: flex; align-items: center; justify-content: space-between; padding-block: var(--space-4); }
+    .logo { font: 800 var(--text-lg)/1 var(--font-display); letter-spacing: -0.01em; }
+    .logo em { font-style: normal; color: var(--accent); }
+    .topnav nav { display: flex; gap: var(--space-6); }
+    .topnav nav a { font-size: var(--text-sm); font-weight: 600; color: var(--fg-2); transition: color var(--motion-fast) var(--ease-standard); }
+    .topnav nav a:hover { color: var(--fg); }
+
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      padding: var(--space-4) var(--space-5); border-radius: var(--radius-md);
+      border: 1px solid var(--border); background: var(--surface); color: var(--fg);
+      font: 600 var(--text-sm)/1 var(--font-body);
+      box-shadow: var(--elev-ring);
+      transition: background var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard), transform var(--motion-fast) var(--ease-standard);
+    }
+    .btn:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-on); }
+    .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+    .tile {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+      padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-2);
+      transition: border-color var(--motion-fast) var(--ease-standard), transform var(--motion-fast) var(--ease-standard), box-shadow var(--motion-base) var(--ease-standard);
+    }
+    .tile:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); transform: translateY(-2px); box-shadow: var(--elev-raised); }
+    .tile .ic { font-size: 24px; line-height: 1.2; }
+    .tile h3 { font: 700 var(--text-lg)/1.25 var(--font-display); }
+    .tile p { font-size: var(--text-sm); color: var(--muted); }
+    .tile .go { color: var(--accent-text); font-weight: 700; font-size: var(--text-sm); }
+
+    .swatches { display: flex; flex-wrap: wrap; gap: var(--space-5); }
+    .sw { display: flex; align-items: center; gap: var(--space-3); font-size: var(--text-sm); font-weight: 600; }
+    .sw i { width: 34px; height: 34px; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+    .sw small { display: block; font-family: var(--font-mono); font-weight: 400; color: var(--muted); font-size: var(--text-xs); }
+
+    .note {
+      background: var(--surface-warm); border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: var(--space-4) var(--space-5);
+      font-size: var(--text-sm); color: var(--fg-2); max-width: 72ch;
+    }
+
+    .pagefoot { padding-block: var(--space-8); color: var(--muted); font-size: var(--text-sm); border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header class="topnav" data-od-id="topnav">
+    <div class="container topnav-inner">
+      <span class="logo">Save<em>Money</em> · Vibrant</span>
+      <nav aria-label="Вкладки варианта">
+        <a href="input.html">💸 Ввод</a>
+        <a href="history.html">📋 История</a>
+        <a href="reports.html">📊 Отчёты</a>
+        <a href="more.html">⋯ Ещё</a>
+      </nav>
+      <a class="btn" href="../index.html" data-od-id="back-to-main">Основная версия</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" data-od-id="hero">
+      <div class="container" style="max-width: 720px;">
+        <p class="eyebrow">Вариант оформления · design system «Vibrant»</p>
+        <h1 style="font-size: var(--text-3xl); line-height: var(--leading-tight); font-weight: 800;">Тот же SaveMoney —<br>в тёплой и смелой коже</h1>
+        <p class="lead" style="margin-top: var(--space-4);">Структура, экраны и демо-данные один в один как в основной версии — отличается только оформление: тёплый фон, оранжевый акцент, крупные радиусы 24px и шрифт Inter. Основная версия в корне проекта не изменилась.</p>
+        <div style="display: flex; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-6);">
+          <a class="btn btn-primary" href="input.html">Открыть «Ввод» в Vibrant</a>
+          <a class="btn" href="../input.html">Сравнить с основной</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" data-od-id="palette">
+      <div class="container">
+        <p class="eyebrow">Палитра по контракту tokens.css</p>
+        <h2 style="font-size: var(--text-xl); font-weight: 750; margin-bottom: var(--space-5);">Как переклеились цвета</h2>
+        <div class="swatches">
+          <span class="sw"><i style="background: var(--bg);"></i><span>Фон<small>#fff8d7</small></span></span>
+          <span class="sw"><i style="background: var(--accent);"></i><span>Акцент · CTA<small>#ff6b00</small></span></span>
+          <span class="sw"><i style="background: var(--expense);"></i><span>Расход<small>#e5484d · danger</small></span></span>
+          <span class="sw"><i style="background: var(--income);"></i><span>Доход<small>#2e9d57 · success</small></span></span>
+          <span class="sw"><i style="background: var(--transfer);"></i><span>Перевод<small>#4c426c · fg-2</small></span></span>
+          <span class="sw"><i style="background: var(--fg);"></i><span>Текст<small>#1d1836</small></span></span>
+        </div>
+        <p class="note" style="margin-top: var(--space-5);">Операционные цвета плана отображены на токены системы: расход → danger, доход → success, перевод → fg-2. Мелкий акцентный текст использует контрастную производную --accent-text (76% акцента в чёрный) для контраста ≥ 4.5:1 — чистый #ff6b00 оставлен крупным заливкам кнопок по паре --accent-on.</p>
+      </div>
+    </section>
+
+    <section class="section" data-od-id="screens">
+      <div class="container">
+        <p class="eyebrow">Экраны варианта</p>
+        <h2 style="font-size: var(--text-xl); font-weight: 750; margin-bottom: var(--space-5);">Все 11 экранов перекрашены</h2>
+        <div class="grid-4" style="margin-bottom: var(--space-5);">
+          <a class="tile" href="input.html" data-od-id="tile-input">
+            <span class="ic" aria-hidden="true">💸</span>
+            <h3>Ввод</h3>
+            <p>Клавиатура, сегменты, чипы, угадывание категории</p>
+            <span class="go">Открыть →</span>
+          </a>
+          <a class="tile" href="history.html" data-od-id="tile-history">
+            <span class="ic" aria-hidden="true">📋</span>
+            <h3>История</h3>
+            <p>Дни с итогами, фильтры, свайп-удаление</p>
+            <span class="go">Открыть →</span>
+          </a>
+          <a class="tile" href="reports.html" data-od-id="tile-reports">
+            <span class="ic" aria-hidden="true">📊</span>
+            <h3>Отчёты</h3>
+            <p>Круговая, топ категорий, динамика, CSV</p>
+            <span class="go">Открыть →</span>
+          </a>
+          <a class="tile" href="budgets.html" data-od-id="tile-budgets">
+            <span class="ic" aria-hidden="true">🎯</span>
+            <h3>Бюджеты</h3>
+            <p>Цикл 12.09 → 11.10, план/факт, ⚠ перерасход</p>
+            <span class="go">Открыть →</span>
+          </a>
+        </div>
+        <div class="grid-3">
+          <a class="tile" href="more.html" data-od-id="tile-more"><span class="ic" aria-hidden="true">⋯</span><h3>Ещё · меню</h3><p>Все разделы со статусами фаз</p><span class="go">Открыть →</span></a>
+          <a class="tile" href="accounts.html" data-od-id="tile-accounts"><span class="ic" aria-hidden="true">💳</span><h3>Счета</h3><p>Баланс 48 250 ₽, карточка счёта</p><span class="go">Открыть →</span></a>
+          <a class="tile" href="debts.html" data-od-id="tile-debts"><span class="ic" aria-hidden="true">🤝</span><h3>Долги</h3><p>Прогресс, просрочка, автозакрытие</p><span class="go">Открыть →</span></a>
+          <a class="tile" href="salary.html" data-od-id="tile-salary"><span class="ic" aria-hidden="true">📅</span><h3>До зарплаты</h3><p>22 дня · ≈177 ₽/день · индикатор</p><span class="go">Открыть →</span></a>
+          <a class="tile" href="recurring.html" data-od-id="tile-recurring"><span class="ic" aria-hidden="true">🔁</span><h3>Регулярные</h3><p>ЖКХ, кредит, связь, подписки</p><span class="go">Открыть →</span></a>
+          <a class="tile" href="settings.html" data-od-id="tile-settings"><span class="ic" aria-hidden="true">⚙️</span><h3>Настройки</h3><p>Цикл, «сохранять сразу», экспорт CSV</p><span class="go">Открыть →</span></a>
+          <a class="tile" href="categories.html" data-od-id="tile-categories"><span class="ic" aria-hidden="true">🏷️</span><h3>Категории</h3><p>Дерево, свои категории с эмодзи</p><span class="go">Открыть →</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pagefoot" data-od-id="footer">
+    <div class="container row-between" style="display: flex; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap;">
+      <span>SaveMoney · вариант «Vibrant» · Фаза 1</span>
+      <span style="font-family: var(--font-mono); font-size: var(--text-xs);">данные общие с основной версией · localStorage</span>
+    </div>
+  </footer>
+</body>
+</html>

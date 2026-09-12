@@ -8,7 +8,9 @@
              Appearing="OnAppearing">
 
     <ContentPage.Resources>
-        <conv:BoolToColorConverter x:Key="ChipBg" TrueColor="#512BD4" FalseColor="#EFEFF4"/>
+        <conv:BoolToColorConverter x:Key="ChipBg"
+                                      TrueColor="#26FF6B00" TrueColorDark="#3DFF6B00"
+                                      FalseColor="{StaticResource SurfaceLight}" FalseColorDark="{StaticResource SurfaceDark}"/>
     </ContentPage.Resources>
 
     <ScrollView>
@@ -50,9 +52,9 @@
                 <Switch Grid.Column="1" IsToggled="{Binding Archived}"/>
             </Grid>
 
-            <Button Text="Сохранить" BackgroundColor="#2ECC71" TextColor="White" Command="{Binding SaveCommand}"/>
+            <Button Text="Сохранить" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}"/>
 
-            <Button Text="Удалить счёт" TextColor="#E74C3C" BackgroundColor="Transparent"
+            <Button Text="Удалить счёт" TextColor="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}" BackgroundColor="Transparent"
                     IsVisible="{Binding IsExisting}" Command="{Binding DeleteCommand}"/>
 
         </VerticalStackLayout>

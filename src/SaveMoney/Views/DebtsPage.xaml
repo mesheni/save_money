@@ -8,7 +8,9 @@
              Appearing="OnAppearing">
 
     <ContentPage.Resources>
-        <conv:BoolToColorConverter x:Key="OverdueColor" TrueColor="#E74C3C" FalseColor="Black"/>
+        <conv:BoolToColorConverter x:Key="OverdueColor"
+                                             TrueColor="#E05357" TrueColorDark="#F58C8F"
+                                             FalseColor="{StaticResource TextMutedLight}" FalseColorDark="{StaticResource TextMutedDark}"/>
     </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
@@ -28,15 +30,14 @@
                     <SwipeView>
                         <SwipeView.RightItems>
                             <SwipeItems>
-                                <SwipeItem Text="Удалить" BackgroundColor="#E74C3C" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
+                                <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                             </SwipeItems>
                         </SwipeView.RightItems>
                         <Grid Padding="6,10" ColumnDefinitions="44,*,Auto">
                             <Label Text="{Binding Icon}" FontSize="22" VerticalOptions="Start"/>
                             <VerticalStackLayout Grid.Column="1" Spacing="1">
                                 <Label Text="{Binding PersonName}" FontAttributes="Bold"/>
-                                <Label Text="{Binding Subtitle}" FontSize="12" Opacity="0.7"
-                                       TextColor="{Binding IsOverdue, Converter={StaticResource OverdueColor}}"/>
+                                <Label Text="{Binding Subtitle}" FontSize="12" TextColor="{Binding IsOverdue, Converter={StaticResource OverdueColor}}"/>
                                 <ProgressBar Progress="{Binding Progress}" HeightRequest="4" WidthRequest="160"
                                              HorizontalOptions="Start" VerticalOptions="Center"/>
                             </VerticalStackLayout>

@@ -8,7 +8,7 @@
              Appearing="OnAppearing">
 
     <ScrollView>
-        <VerticalStackLayout Padding="12,6" Spacing="10">
+        <VerticalStackLayout Padding="14,6" Spacing="12">
 
             <HorizontalStackLayout Spacing="8">
                 <Picker ItemsSource="{Binding PeriodOptions}" SelectedIndex="{Binding PeriodIndex}" WidthRequest="140"/>
@@ -16,33 +16,60 @@
                 <DatePicker Date="{Binding ToDate}" Format="d MMM yy" IsVisible="{Binding IsCustom}"/>
             </HorizontalStackLayout>
 
-            <Label Text="{Binding SummaryText}" FontAttributes="Bold" Padding="4,4,0,0"/>
+            <Border Style="{StaticResource Card}" Padding="18,16">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Расход за период" FontSize="13" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
+                    <Label Text="{Binding PeriodExpenseText}" FontSize="30" FontAttributes="Bold"/>
+                    <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" Margin="0,10,0,10"/>
+                    <Label Text="{Binding SummaryText}" FontSize="13.5" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding HasData}" Value="False">
+                                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </VerticalStackLayout>
+            </Border>
 
-            <lvc:PieChart Series="{Binding PieSeries}" HeightRequest="260" IsVisible="{Binding HasData}"/>
+            <Border Style="{StaticResource Card}" IsVisible="{Binding HasData}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="По категориям" Style="{StaticResource CardTitle}"/>
+                    <lvc:PieChart Series="{Binding PieSeries}" HeightRequest="220"/>
+                </VerticalStackLayout>
+            </Border>
 
-            <Label Text="Динамика" FontSize="13" Opacity="0.6" IsVisible="{Binding HasData}"/>
-            <lvc:CartesianChart Series="{Binding ColumnSeries}"
-                                XAxes="{Binding XAxes}" YAxes="{Binding YAxes}"
-                                HeightRequest="220" IsVisible="{Binding HasData}"/>
+            <Border Style="{StaticResource Card}" IsVisible="{Binding HasData}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Динамика" Style="{StaticResource CardTitle}"/>
+                    <lvc:CartesianChart Series="{Binding ColumnSeries}"
+                                        XAxes="{Binding XAxes}" YAxes="{Binding YAxes}"
+                                        HeightRequest="200"/>
+                </VerticalStackLayout>
+            </Border>
 
-            <Label Text="Топ категорий (расход)" FontSize="13" Opacity="0.6" Margin="0,8,0,0"
-                   IsVisible="{Binding HasData}"/>
-            <CollectionView ItemsSource="{Binding TopRows}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="vm:TopCategoryRow">
-                        <VerticalStackLayout Padding="4,6" Spacing="2">
-                            <Grid ColumnDefinitions="*,Auto,Auto">
-                                <Label Text="{Binding Display}"/>
-                                <Label Grid.Column="1" Text="{Binding PercentText}" FontSize="12" Opacity="0.6" Margin="8,0"/>
-                                <Label Grid.Column="2" Text="{Binding AmountText}" FontAttributes="Bold"/>
-                            </Grid>
-                            <ProgressBar Progress="{Binding Progress}" HeightRequest="4"/>
-                        </VerticalStackLayout>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+            <Border Style="{StaticResource Card}" IsVisible="{Binding HasData}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Топ категорий" Style="{StaticResource CardTitle}" Margin="0,0,0,4"/>
+                    <CollectionView ItemsSource="{Binding TopRows}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:TopCategoryRow">
+                                <VerticalStackLayout Padding="0,6" Spacing="4">
+                                    <Grid ColumnDefinitions="*,Auto,Auto">
+                                        <Label Text="{Binding Display}"/>
+                                        <Label Grid.Column="1" Text="{Binding PercentText}" FontSize="12"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" Margin="8,0"/>
+                                        <Label Grid.Column="2" Text="{Binding AmountText}" FontAttributes="Bold"/>
+                                    </Grid>
+                                    <ProgressBar Progress="{Binding Progress}" HeightRequest="7"/>
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
 
-            <Button Text="Экспорт CSV за период" Margin="0,8,0,10" Command="{Binding ExportCsvCommand}"/>
+            <Button Text="Экспорт CSV за период" Style="{StaticResource PrimaryButton}"
+                    Margin="0,4,0,12" Command="{Binding ExportCsvCommand}"/>
 
         </VerticalStackLayout>
     </ScrollView>

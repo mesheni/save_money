@@ -8,7 +8,9 @@
              Appearing="OnAppearing">
 
     <ContentPage.Resources>
-        <conv:BoolToColorConverter x:Key="AmountColor" TrueColor="#E74C3C" FalseColor="#2ECC71"/>
+        <conv:BoolToColorConverter x:Key="AmountColor"
+                                        TrueColor="#E05357" TrueColorDark="#F58C8F"
+                                        FalseColor="#2FA45D" FalseColorDark="#6FD597"/>
     </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
@@ -22,7 +24,7 @@
                 <SwipeView>
                     <SwipeView.RightItems>
                         <SwipeItems>
-                            <SwipeItem Text="Удалить" BackgroundColor="#E74C3C" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
+                            <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                         </SwipeItems>
                     </SwipeView.RightItems>
                     <Grid Padding="6,10" ColumnDefinitions="*,Auto">
@@ -43,8 +45,7 @@
                                 </Label.Text>
                             </Label>
                         </VerticalStackLayout>
-                        <Label Grid.Column="1" Text="{Binding AmountText}" FontAttributes="Bold"
-                               TextColor="{Binding IsExpense, Converter={StaticResource AmountColor}}"/>
+                        <Label Grid.Column="1" Text="{Binding AmountText}" FontAttributes="Bold" TextColor="{Binding IsExpense, Converter={StaticResource AmountColor}}"/>
                         <Grid.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:RecurringViewModel}}}" CommandParameter="{Binding .}"/>
                         </Grid.GestureRecognizers>

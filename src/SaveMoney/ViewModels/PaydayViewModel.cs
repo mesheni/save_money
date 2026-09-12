@@ -52,6 +52,10 @@ public partial class PaydayViewModel(
     [ObservableProperty]
     public partial string StatusText { get; set; } = "";
 
+    /// <summary>ok / warn / minus — выбор цвета пилюли статуса в XAML.</summary>
+    [ObservableProperty]
+    public partial string StatusKind { get; set; } = "ok";
+
     [ObservableProperty]
     public partial string CycleText { get; set; } = "";
 
@@ -98,11 +102,21 @@ public partial class PaydayViewModel(
         var perDay = canSpend / Math.Max(1, daysLeft);
         PerDayText = $"≈ {MoneyFormat.Rubles(perDay)} в день";
 
-        StatusText = canSpend < 0
-            ? "⚠ До зарплаты денег не хватит"
-            : perDay < 500
-                ? "Денег впритык — трать аккуратнее"
-                : "✓ Хватит до зарплаты";
+        if (canSpend < 0)
+        {
+            StatusText = "⚠ До зарплаты денег не хватит";
+            StatusKind = "minus";
+        }
+        else if (perDay < 500)
+        {
+            StatusText = "Денег впритык — трать аккуратнее";
+            StatusKind = "warn";
+        }
+        else
+        {
+            StatusText = "✓ Хватит до зарплаты";
+            StatusKind = "ok";
+        }
 
         var info = _cycle.GetCurrentCycle();
         CycleText = $"Текущий цикл: {info.Display} ({info.TotalDays} дн.)";

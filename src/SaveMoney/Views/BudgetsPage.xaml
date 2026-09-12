@@ -8,7 +8,9 @@
              Appearing="OnAppearing">
 
     <ContentPage.Resources>
-        <conv:BoolToColorConverter x:Key="OverColor" TrueColor="#E74C3C" FalseColor="#2ECC71"/>
+        <conv:BoolToColorConverter x:Key="AmountColor"
+                                        TrueColor="#E05357" TrueColorDark="#F58C8F"
+                                        FalseColor="#2FA45D" FalseColorDark="#6FD597"/>
     </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
@@ -25,7 +27,7 @@
                     <SwipeView>
                         <SwipeView.RightItems>
                             <SwipeItems>
-                                <SwipeItem Text="Удалить" BackgroundColor="#E74C3C" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
+                                <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                             </SwipeItems>
                         </SwipeView.RightItems>
                         <VerticalStackLayout Padding="6,10" Spacing="4">
@@ -34,9 +36,8 @@
                                 <Label Grid.Column="1" Text="{Binding PercentText}" FontSize="12" Opacity="0.6" Margin="8,0"/>
                                 <Label Grid.Column="2" Text="{Binding FactText}" FontAttributes="Bold"/>
                             </Grid>
-                            <ProgressBar Progress="{Binding Progress}" HeightRequest="4"/>
-                            <Label Text="{Binding PlanText}" FontSize="12"
-                                   TextColor="{Binding IsOver, Converter={StaticResource OverColor}}"/>
+                            <ProgressBar Progress="{Binding Progress}" HeightRequest="7" ProgressColor="{Binding IsOver, Converter={StaticResource AmountColor}}"/>
+                            <Label Text="{Binding PlanText}" FontSize="12" TextColor="{Binding IsOver, Converter={StaticResource AmountColor}}"/>
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:BudgetsViewModel}}}" CommandParameter="{Binding .}"/>
                             </Grid.GestureRecognizers>

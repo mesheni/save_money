@@ -7,61 +7,88 @@
              Title="{Binding ModeText}"
              Appearing="OnAppearing">
 
-    <ContentPage.Resources>
-        <conv:BoolToColorConverter x:Key="ChipBg" TrueColor="#512BD4" FalseColor="#EFEFF4"/>
-        <conv:BoolToColorConverter x:Key="ChipText" TrueColor="White" FalseColor="Black"/>
-        <x:String x:Key="Accent">#512BD4</x:String>
-    </ContentPage.Resources>
-
     <ScrollView>
-        <VerticalStackLayout Padding="10,4" Spacing="8">
+        <VerticalStackLayout Padding="14,4" Spacing="10">
 
-            <Label Text="{Binding BalanceText, StringFormat='Баланс: {0}'}"
-                   HorizontalOptions="Center" FontSize="13" Opacity="0.6"/>
+            <VerticalStackLayout Spacing="0" Padding="0,4,0,2">
+                <Label Text="Баланс по счетам" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
+                       HorizontalOptions="Center"/>
 
-            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="4">
-                <Button Grid.Column="0" Text="Расход"
-                        BackgroundColor="{Binding ExpenseColor}"
-                        TextColor="{Binding IsExpenseMode, Converter={StaticResource ChipText}}"
-                        Command="{Binding SetExpenseCommand}"/>
-                <Button Grid.Column="1" Text="Доход"
-                        BackgroundColor="{Binding IncomeColor}"
-                        TextColor="{Binding IsIncome, Converter={StaticResource ChipText}}"
-                        Command="{Binding SetIncomeCommand}"/>
-                <Button Grid.Column="2" Text="Перевод"
-                        BackgroundColor="{Binding TransferColor}"
-                        TextColor="{Binding IsTransfer, Converter={StaticResource ChipText}}"
-                        Command="{Binding SetTransferCommand}"/>
-            </Grid>
+    <ContentPage.Resources>
+        <conv:BoolToColorConverter x:Key="ChipBg"
+                                      TrueColor="#26FF6B00" TrueColorDark="#3DFF6B00"
+                                      FalseColor="{StaticResource SurfaceLight}" FalseColorDark="{StaticResource SurfaceDark}"/>
+        <conv:BoolToColorConverter x:Key="ChipStroke"
+                                        TrueColor="#FF6B00" TrueColorDark="#FF6B00"
+                                        FalseColor="{StaticResource BorderLight}" FalseColorDark="{StaticResource BorderDark}"/>
+        <conv:BoolToColorConverter x:Key="ChipText"
+                                        TrueColor="#D95A00" TrueColorDark="#FF8A3D"
+                                        FalseColor="{StaticResource TextPrimaryLight}" FalseColorDark="{StaticResource TextPrimaryDark}"/>
+    </ContentPage.Resources>
+                <Label Text="{Binding BalanceText}" FontSize="20" FontAttributes="Bold"
+                       HorizontalOptions="Center"/>
+            </VerticalStackLayout>
 
-            <Border StrokeShape="RoundRectangle 12" BackgroundColor="#F6F6FA" Padding="12,6">
-                <Label Text="{Binding AmountDisplay}"
-                       FontSize="42" FontAttributes="Bold"
-                       HorizontalOptions="End"/>
+            <Border Style="{StaticResource SegContainer}">
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="3">
+                    <Button Grid.Column="0" Text="Расход" Style="{StaticResource SegButton}"
+                            Command="{Binding SetExpenseCommand}">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding IsExpenseMode}" Value="True">
+                                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
+                                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}"/>
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                    <Button Grid.Column="1" Text="Доход" Style="{StaticResource SegButton}"
+                            Command="{Binding SetIncomeCommand}">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding IsIncome}" Value="True">
+                                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
+                                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}"/>
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                    <Button Grid.Column="2" Text="Перевод" Style="{StaticResource SegButton}"
+                            Command="{Binding SetTransferCommand}">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding IsTransfer}" Value="True">
+                                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
+                                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}"/>
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                </Grid>
             </Border>
 
-            <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="6" RowSpacing="6">
-                <Button Grid.Row="0" Grid.Column="0" Text="1" Command="{Binding DigitCommand}" CommandParameter="1"/>
-                <Button Grid.Row="0" Grid.Column="1" Text="2" Command="{Binding DigitCommand}" CommandParameter="2"/>
-                <Button Grid.Row="0" Grid.Column="2" Text="3" Command="{Binding DigitCommand}" CommandParameter="3"/>
-                <Button Grid.Row="1" Grid.Column="0" Text="4" Command="{Binding DigitCommand}" CommandParameter="4"/>
-                <Button Grid.Row="1" Grid.Column="1" Text="5" Command="{Binding DigitCommand}" CommandParameter="5"/>
-                <Button Grid.Row="1" Grid.Column="2" Text="6" Command="{Binding DigitCommand}" CommandParameter="6"/>
-                <Button Grid.Row="2" Grid.Column="0" Text="7" Command="{Binding DigitCommand}" CommandParameter="7"/>
-                <Button Grid.Row="2" Grid.Column="1" Text="8" Command="{Binding DigitCommand}" CommandParameter="8"/>
-                <Button Grid.Row="2" Grid.Column="2" Text="9" Command="{Binding DigitCommand}" CommandParameter="9"/>
-                <Button Grid.Row="3" Grid.Column="0" Text="," Command="{Binding DigitCommand}" CommandParameter=","/>
-                <Button Grid.Row="3" Grid.Column="1" Text="0" Command="{Binding DigitCommand}" CommandParameter="0"/>
-                <Button Grid.Row="3" Grid.Column="2" Text="⌫" Command="{Binding DigitCommand}" CommandParameter="⌫"/>
+            <HorizontalStackLayout HorizontalOptions="End" Spacing="8" Padding="10,4">
+                <Label Text="{Binding AmountDisplay}" FontSize="42" FontAttributes="Bold"
+                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                <Label Text="₽" FontSize="22" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
+                       VerticalOptions="End" Margin="0,0,0,6"/>
+            </HorizontalStackLayout>
+
+            <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                <Button Grid.Row="0" Grid.Column="0" Text="1" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="1"/>
+                <Button Grid.Row="0" Grid.Column="1" Text="2" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="2"/>
+                <Button Grid.Row="0" Grid.Column="2" Text="3" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="3"/>
+                <Button Grid.Row="1" Grid.Column="0" Text="4" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="4"/>
+                <Button Grid.Row="1" Grid.Column="1" Text="5" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="5"/>
+                <Button Grid.Row="1" Grid.Column="2" Text="6" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="6"/>
+                <Button Grid.Row="2" Grid.Column="0" Text="7" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="7"/>
+                <Button Grid.Row="2" Grid.Column="1" Text="8" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="8"/>
+                <Button Grid.Row="2" Grid.Column="2" Text="9" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="9"/>
+                <Button Grid.Row="3" Grid.Column="0" Text="," Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter=","/>
+                <Button Grid.Row="3" Grid.Column="1" Text="0" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="0"/>
+                <Button Grid.Row="3" Grid.Column="2" Text="⌫" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="⌫"/>
             </Grid>
 
-            <Label Text="Счёт" FontSize="12" Opacity="0.6"/>
+            <Label Text="Счёт" Style="{StaticResource GroupLabel}"/>
             <CollectionView ItemsSource="{Binding Accounts}" ItemsLayout="HorizontalList" HeightRequest="46">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:AccountChip">
-                        <Border StrokeShape="RoundRectangle 21" Padding="14,9" Margin="0,0,8,0"
-                                BackgroundColor="{Binding IsSelected, Converter={StaticResource ChipBg}}">
-                            <Label Text="{Binding Name}" TextColor="{Binding IsSelected, Converter={StaticResource ChipText}}"/>
+                        <Border StrokeShape="RoundRectangle 20" Padding="13,9" Margin="0,0,8,0" BackgroundColor="{Binding IsSelected, Converter={StaticResource ChipBg}}" Stroke="{Binding IsSelected, Converter={StaticResource ChipStroke}}" StrokeThickness="1">
+                            <Label Text="{Binding Name}" FontSize="14" TextColor="{Binding IsSelected, Converter={StaticResource ChipText}}"/>
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding SelectAccountCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}" CommandParameter="{Binding .}"/>
                             </Border.GestureRecognizers>
@@ -70,14 +97,13 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <VerticalStackLayout Spacing="8" IsVisible="{Binding IsOperation}">
-                <Label Text="Категория" FontSize="12" Opacity="0.6"/>
+            <VerticalStackLayout Spacing="0" IsVisible="{Binding IsOperation}">
+                <Label Text="Категория" Style="{StaticResource GroupLabel}"/>
                 <CollectionView ItemsSource="{Binding RootCategories}" ItemsLayout="HorizontalList" HeightRequest="46">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:CategoryChip">
-                            <Border StrokeShape="RoundRectangle 21" Padding="12,9" Margin="0,0,8,0"
-                                    BackgroundColor="{Binding IsSelected, Converter={StaticResource ChipBg}}">
-                                <Label Text="{Binding Display}" TextColor="{Binding IsSelected, Converter={StaticResource ChipText}}"/>
+                            <Border StrokeShape="RoundRectangle 20" Padding="13,9" Margin="0,0,8,0" BackgroundColor="{Binding IsSelected, Converter={StaticResource ChipBg}}" Stroke="{Binding IsSelected, Converter={StaticResource ChipStroke}}" StrokeThickness="1">
+                                <Label Text="{Binding Display}" FontSize="14" TextColor="{Binding IsSelected, Converter={StaticResource ChipText}}"/>
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectRootCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}" CommandParameter="{Binding .}"/>
                                 </Border.GestureRecognizers>
@@ -86,12 +112,12 @@
                     </CollectionView.ItemTemplate>
                 </CollectionView>
                 <CollectionView ItemsSource="{Binding SubCategories}" ItemsLayout="HorizontalList" HeightRequest="46"
+                                Margin="0,8,0,0"
                                 IsVisible="{Binding HasSubCategories}">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:CategoryChip">
-                            <Border StrokeShape="RoundRectangle 21" Padding="12,9" Margin="0,0,8,0"
-                                    BackgroundColor="{Binding IsSelected, Converter={StaticResource ChipBg}}">
-                                <Label Text="{Binding Display}" TextColor="{Binding IsSelected, Converter={StaticResource ChipText}}"/>
+                            <Border StrokeShape="RoundRectangle 20" Padding="13,9" Margin="0,0,8,0" BackgroundColor="{Binding IsSelected, Converter={StaticResource ChipBg}}" Stroke="{Binding IsSelected, Converter={StaticResource ChipStroke}}" StrokeThickness="1">
+                                <Label Text="{Binding Display}" FontSize="14" TextColor="{Binding IsSelected, Converter={StaticResource ChipText}}"/>
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectSubCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}" CommandParameter="{Binding .}"/>
                                 </Border.GestureRecognizers>
@@ -101,14 +127,13 @@
                 </CollectionView>
             </VerticalStackLayout>
 
-            <VerticalStackLayout Spacing="8" IsVisible="{Binding IsTransfer}">
-                <Label Text="Куда" FontSize="12" Opacity="0.6"/>
+            <VerticalStackLayout Spacing="0" IsVisible="{Binding IsTransfer}">
+                <Label Text="Куда" Style="{StaticResource GroupLabel}"/>
                 <CollectionView ItemsSource="{Binding TargetAccounts}" ItemsLayout="HorizontalList" HeightRequest="46">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:AccountChip">
-                            <Border StrokeShape="RoundRectangle 21" Padding="14,9" Margin="0,0,8,0"
-                                    BackgroundColor="{Binding IsSelected, Converter={StaticResource ChipBg}}">
-                                <Label Text="{Binding Name}" TextColor="{Binding IsSelected, Converter={StaticResource ChipText}}"/>
+                            <Border StrokeShape="RoundRectangle 20" Padding="13,9" Margin="0,0,8,0" BackgroundColor="{Binding IsSelected, Converter={StaticResource ChipBg}}" Stroke="{Binding IsSelected, Converter={StaticResource ChipStroke}}" StrokeThickness="1">
+                                <Label Text="{Binding Name}" FontSize="14" TextColor="{Binding IsSelected, Converter={StaticResource ChipText}}"/>
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectTargetCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}" CommandParameter="{Binding .}"/>
                                 </Border.GestureRecognizers>
@@ -118,18 +143,22 @@
                 </CollectionView>
             </VerticalStackLayout>
 
-            <Entry Placeholder="Магазин (необязательно)" Text="{Binding Payee}"
-                   IsVisible="{Binding IsExpenseMode}"/>
-            <Entry Placeholder="Заметка (необязательно)" Text="{Binding Note}"/>
+            <VerticalStackLayout Spacing="5" Margin="0,12,0,0" IsVisible="{Binding IsExpenseMode}">
+                <Label Text="Магазин" Style="{StaticResource GroupLabel}" Margin="4,0,0,0"/>
+                <Entry Text="{Binding Payee}" Placeholder="Необязательно — по нему угадается категория"/>
+            </VerticalStackLayout>
 
-            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                <Label Text="Дата" FontSize="13" Opacity="0.6" VerticalOptions="Center"/>
+            <VerticalStackLayout Spacing="5" Margin="0,12,0,0">
+                <Label Text="Заметка" Style="{StaticResource GroupLabel}" Margin="4,0,0,0"/>
+                <Entry Text="{Binding Note}" Placeholder="Необязательно"/>
+            </VerticalStackLayout>
+
+            <HorizontalStackLayout Spacing="8" VerticalOptions="Center" Margin="4,12,0,0">
+                <Label Text="Дата" Style="{StaticResource GroupLabel}" Margin="0"/>
                 <DatePicker Date="{Binding Date}" Format="d MMM yyyy"/>
             </HorizontalStackLayout>
 
-            <Button Text="Сохранить" FontSize="18"
-                    BackgroundColor="#2ECC71" TextColor="White"
-                    Margin="0,4,0,10"
+            <Button Text="Сохранить" Style="{StaticResource PrimaryButton}" Margin="0,12,0,12"
                     Command="{Binding SaveCommand}"/>
 
         </VerticalStackLayout>

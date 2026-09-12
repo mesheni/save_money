@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.Graphics;
 using SaveMoney.Core.Database;
 using SaveMoney.Core.Models;
 using SaveMoney.Core.Services;
@@ -26,9 +25,6 @@ public partial class QuickAddViewModel(
 
     private string? _pendingEditId;
     private Transaction? _editing;
-
-    private static readonly Color SelectedColor = Color.FromArgb("#512BD4");
-    private static readonly Color UnselectedColor = Color.FromArgb("#EFEFF4");
 
     public ObservableCollection<AccountChip> Accounts { get; } = [];
     public ObservableCollection<AccountChip> TargetAccounts { get; } = [];
@@ -71,10 +67,6 @@ public partial class QuickAddViewModel(
 
     public bool IsOperation => !IsTransfer;
     public bool IsExpenseMode => !IsIncome && !IsTransfer;
-
-    public Color ExpenseColor => IsExpenseMode ? SelectedColor : UnselectedColor;
-    public Color IncomeColor => IsIncome ? SelectedColor : UnselectedColor;
-    public Color TransferColor => IsTransfer ? SelectedColor : UnselectedColor;
 
     /// <summary>Страница подставляет показ ошибок (DisplayAlert).</summary>
     public Func<string, string, Task>? AlertAsync { get; set; }
@@ -204,9 +196,7 @@ public partial class QuickAddViewModel(
     private void UpdateModeText()
     {
         ModeText = IsTransfer ? "Перевод" : IsIncome ? "Доход" : "Расход";
-    }
-
-    // --- Команды ---
+    }    // --- Команды ---
 
     [RelayCommand]
     private void Digit(string key)
@@ -274,9 +264,6 @@ public partial class QuickAddViewModel(
     {
         OnPropertyChanged(nameof(IsOperation));
         OnPropertyChanged(nameof(IsExpenseMode));
-        OnPropertyChanged(nameof(ExpenseColor));
-        OnPropertyChanged(nameof(IncomeColor));
-        OnPropertyChanged(nameof(TransferColor));
     }
 
     [RelayCommand]

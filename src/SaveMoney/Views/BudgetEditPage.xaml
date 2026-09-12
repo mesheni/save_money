@@ -14,7 +14,7 @@
         <Label Text="Лимит на цикл, ₽" FontSize="12" Opacity="0.6"/>
         <Entry Text="{Binding AmountText}" Placeholder="0" Keyboard="Text"/>
 
-        <Button Text="Сохранить" BackgroundColor="#2ECC71" TextColor="White" Command="{Binding SaveCommand}"/>
+        <Button Text="Сохранить" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}"/>
 
     </VerticalStackLayout>
 

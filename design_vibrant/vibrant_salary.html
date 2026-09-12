@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>До зарплаты · SaveMoney · Vibrant</title>
+  <style>
+    :root {
+      --bg:      oklch(99% 0.002 240);
+      --surface: oklch(100% 0 0);
+      --fg:      oklch(18% 0.012 250);
+      --muted:   oklch(54% 0.012 250);
+      --border:  oklch(92% 0.005 250);
+      --fg-soft: color-mix(in oklch, var(--fg) 6%, transparent);
+      --accent:  #512BD4;
+      --income:  #2ECC71;
+      --income-text: color-mix(in srgb, var(--income) 62%, black);
+      --income-soft: color-mix(in srgb, var(--income) 12%, transparent);
+      --expense-text: color-mix(in srgb, var(--expense) 82%, black);
+      --expense: #E74C3C;
+      --warn: #F39C12;
+      --warn-text: color-mix(in srgb, var(--warn) 72%, black);
+      --warn-soft: color-mix(in srgb, var(--warn) 15%, transparent);
+      --accent-soft: color-mix(in srgb, var(--accent) 10%, transparent);
+      --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      --font-body:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--fg);
+      font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { font: inherit; cursor: pointer; border: 0; background: none; color: inherit; padding: 0; }
+    select, input { font: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+
+    .stage {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 16px; padding: 40px 16px;
+    }
+    .device {
+      position: relative; width: 413px; padding: 10px; border-radius: 62px;
+      background: linear-gradient(160deg, oklch(40% 0.008 250), oklch(22% 0.006 250));
+      box-shadow: 0 40px 90px color-mix(in oklch, var(--fg) 24%, transparent),
+        inset 0 0 0 1.5px oklch(55% 0.01 250);
+    }
+    .side-btn { position: absolute; width: 3.5px; border-radius: 2px; background: oklch(32% 0.008 250); }
+    .side-btn.action { left: -3px; top: 176px; height: 26px; }
+    .side-btn.vol-up { left: -3px; top: 236px; height: 52px; }
+    .side-btn.vol-down { left: -3px; top: 298px; height: 52px; }
+    .side-btn.power { right: -3px; top: 262px; height: 78px; }
+    .screen {
+      position: relative; width: 393px; height: 852px; border-radius: 52px;
+      background: var(--bg); overflow: hidden; display: flex; flex-direction: column;
+    }
+    .stage-caption { font-size: 12px; color: var(--muted); letter-spacing: 0.04em; }
+    @media (max-width: 560px) { .device { zoom: 0.82; } }
+    @media (max-height: 1000px) { .device { zoom: 0.9; } }
+
+    .statusbar {
+      position: relative; z-index: 30; flex: none; height: 54px;
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 17px 30px 0;
+    }
+    .sb-time { font: 600 15px/1.2 var(--font-body); letter-spacing: -0.01em; }
+    .sb-icons { display: flex; align-items: center; gap: 7px; color: var(--fg); padding-top: 2px; }
+    .island {
+      position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+      width: 122px; height: 35px; border-radius: 24px; z-index: 40;
+      background: oklch(13% 0.004 250);
+    }
+    .island::after {
+      content: ''; position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%); width: 9px; height: 9px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, oklch(30% 0.03 260), oklch(12% 0.01 260) 70%);
+    }
+
+    .navbar { flex: none; display: flex; align-items: center; gap: 6px; padding: 6px 14px 10px; }
+    .navbar h1 { flex: 1; text-align: center; font: 650 17px/1.2 var(--font-display); margin: 0; letter-spacing: -0.01em; }
+    .back { flex: none; min-width: 64px; min-height: 44px; display: flex; align-items: center; color: var(--accent); font-size: 15px; font-weight: 550; padding: 0 8px; border-radius: 10px; }
+    .back:hover { background: var(--accent-soft); }
+    .nav-spacer { flex: none; width: 64px; }
+
+    .content { flex: 1; overflow-y: auto; padding: 4px 20px 112px; scrollbar-width: none; }
+    .content::-webkit-scrollbar { display: none; }
+    .stack { display: flex; flex-direction: column; gap: 12px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 16px; }
+    .card h2 { font: 600 14.5px/1.3 var(--font-body); letter-spacing: -0.01em; margin: 0 0 10px; }
+
+    /* дашборд */
+    .dash-title { font: 650 16px/1.3 var(--font-display); letter-spacing: -0.015em; }
+    .dash-title small { display: block; font: 500 12.5px/1.4 var(--font-body); color: var(--muted); margin-top: 1px; }
+    .d-row { display: flex; align-items: baseline; justify-content: space-between; padding: 9px 0; font-size: 13.5px; }
+    .d-row + .d-row { border-top: 1px solid var(--border); }
+    .d-row span { color: var(--muted); }
+    .d-row b { font-weight: 750; font-size: 15.5px; font-variant-numeric: tabular-nums; }
+    .d-row .neg { color: var(--expense-text); }
+    .d-row .pos { color: var(--income-text); }
+    .d-main b { font-size: 19px; }
+    .perday {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      margin-top: 10px; padding: 12px 14px; border-radius: 16px; background: var(--fg-soft);
+    }
+    .perday .p-num { font: 750 21px/1.1 var(--font-display); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+    .perday .p-num small { font: 500 12px/1 var(--font-body); color: var(--muted); letter-spacing: 0; }
+    .pill { flex: none; font-size: 11.5px; font-weight: 700; padding: 5px 11px; border-radius: 999px; }
+    .pill.ok { background: var(--income-soft); color: var(--income-text); }
+    .pill.warn { background: var(--warn-soft); color: var(--warn-text); }
+    .pill.minus { background: color-mix(in srgb, var(--expense) 12%, transparent); color: var(--expense-text); }
+    .up-list { margin-top: 10px; padding-top: 4px; }
+    .up-row { display: flex; justify-content: space-between; padding: 7px 0; font-size: 13px; border-top: 1px solid var(--border); }
+    .up-row span { color: var(--muted); }
+    .up-row b { font-weight: 650; font-variant-numeric: tabular-nums; color: var(--expense-text); }
+
+    /* настройки */
+    .set-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+    .set-row + .set-row { border-top: 1px solid var(--border); }
+    .set-row label { flex: 1; font-size: 13.5px; font-weight: 550; }
+    .set-row small { display: block; font-weight: 500; color: var(--muted); font-size: 11.5px; }
+    .num-input {
+      flex: none; width: 72px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 10px;
+      background: var(--surface); color: var(--fg); font-size: 14px; font-weight: 650; text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+    .num-input:focus { outline: none; border-color: var(--accent); }
+    .cycle-select {
+      appearance: none; -webkit-appearance: none; flex: none; min-height: 38px; padding: 6px 28px 6px 12px;
+      border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+      color: var(--fg); font-size: 13px; font-weight: 600; cursor: pointer;
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238a8886' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center;
+    }
+    .foot-note { text-align: center; font-size: 11.5px; color: var(--muted); padding: 14px 12px 0; }
+
+    .tabbar {
+      position: absolute; left: 0; right: 0; bottom: 0; z-index: 20;
+      display: flex; padding: 6px 10px 22px;
+      border-top: 1px solid var(--border);
+      background: color-mix(in oklch, var(--bg) 86%, transparent);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    }
+    .tab { flex: 1; min-height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 12px; color: var(--muted); transition: color 0.15s ease; }
+    .tab .tab-ic { font-size: 20px; line-height: 1.2; }
+    .tab .tab-more { font-size: 20px; line-height: 1.2; font-weight: 700; letter-spacing: 0.05em; }
+    .tab span { font: 500 10px/1 var(--font-body); letter-spacing: 0.01em; }
+    .tab:hover { color: var(--fg); }
+    .tab.is-active { color: var(--accent); }
+    .home-indicator {
+      position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);
+      width: 134px; height: 5px; border-radius: 3px;
+      background: color-mix(in oklch, var(--fg) 85%, transparent);
+    }
+    .snackbar {
+      position: absolute; left: 18px; right: 18px; bottom: 96px; z-index: 60;
+      background: var(--fg); color: var(--surface); border-radius: 16px;
+      padding: 12px 15px; font-size: 13px; font-weight: 500; display: none;
+      box-shadow: 0 10px 28px color-mix(in oklch, var(--fg) 30%, transparent);
+    }
+    .snackbar.is-visible { display: block; }
+  
+    /* ═══ Вариант оформления: Vibrant (design-system-vibrant) ═══
+       Перебиндиваем базовые токены SaveMoney на контракт Vibrant;
+       производные цвета (color-mix от var(--…)) пересчитываются сами. */
+    :root {
+      --bg: #fff8d7;
+      --surface: #ffffff;
+      --surface-warm: #ffef9f;
+      --fg: #1d1836;
+      --fg-2: #4c426c;
+      --muted: #796f91;
+      --border: #eadfba;
+      --accent: #ff6b00;
+      --accent-on: #ffffff;
+      --success: #2e9d57;
+      --warn: #ffb020;
+      --danger: #e5484d;
+
+      --expense: #e5484d;
+      --income: #2e9d57;
+      --transfer: #4c426c;
+
+      --expense-text: color-mix(in srgb, var(--expense) 88%, black);
+      --income-text: color-mix(in srgb, var(--income) 72%, black);
+      --transfer-text: var(--transfer);
+      --accent-text: color-mix(in srgb, var(--accent) 76%, black);
+      --accent-light: color-mix(in srgb, var(--accent) 55%, white);
+      --cat-cafe: var(--warn);
+      --cat-fun: color-mix(in srgb, var(--accent) 60%, var(--fg));
+      --cat-cloth: color-mix(in srgb, var(--success) 70%, var(--fg));
+
+      --font-display: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      --font-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+    /* мелкий акцентный текст — контрастная производная вместо чистого --accent */
+    .tab.is-active, .chip.is-on, .insight, .cat-chip, .guess-hint, .back,
+    .achip.is-on, .debt-ava { color: var(--accent-text); }  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="device" data-od-id="device">
+      <span class="side-btn action" aria-hidden="true"></span>
+      <span class="side-btn vol-up" aria-hidden="true"></span>
+      <span class="side-btn vol-down" aria-hidden="true"></span>
+      <span class="side-btn power" aria-hidden="true"></span>
+      <div class="screen">
+
+        <div class="statusbar" data-od-id="status-bar" aria-hidden="true">
+          <span class="sb-time">9:41</span>
+          <span class="sb-icons">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M2 4.6a9.6 9.6 0 0 1 13 0"/><path d="M4.6 7.4a5.7 5.7 0 0 1 7.8 0"/><circle cx="8.5" cy="10.2" r="1.5" fill="currentColor" stroke="none"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.6" y="0.6" width="20.3" height="10.8" rx="3.2" fill="none" stroke="currentColor" stroke-width="1" opacity="0.4"/><rect x="2.4" y="2.4" width="13.5" height="7.2" rx="1.7" fill="currentColor"/><path d="M22.8 4v4a2.3 2.3 0 0 0 0-4Z" fill="currentColor" opacity="0.4"/></svg>
+          </span>
+        </div>
+        <div class="island" aria-hidden="true"></div>
+
+        <header class="navbar" data-od-id="navbar">
+          <a class="back" href="more.html">‹ Ещё</a>
+          <h1>До зарплаты</h1>
+          <span class="nav-spacer" aria-hidden="true"></span>
+        </header>
+
+        <main class="content" data-od-id="salary-screen">
+          <div class="stack">
+
+            <section class="card" data-od-id="salary-dashboard">
+              <div class="dash-title" id="dash-title">До зарплаты (4-е число): 22 дня<small>сегодня 12 сентября · период до 4 октября</small></div>
+              <div class="up-list" style="margin-top:8px;padding-top:0;border-top:0;">
+                <div class="d-row"><span>Остаток средств</span><b id="d-rest">12 400 ₽</b></div>
+                <div class="d-row"><span>Предстоящие платежи</span><b class="neg" id="d-upcoming">−8 500 ₽</b></div>
+                <div class="d-row d-main"><span>Можно тратить</span><b class="pos" id="d-can">3 900 ₽</b></div>
+              </div>
+              <div class="perday">
+                <span class="p-num" id="d-perday">≈ 177 ₽<small> /день</small></span>
+                <span class="pill warn" id="d-pill">мало</span>
+              </div>
+              <div class="up-list" id="up-list"></div>
+            </section>
+
+            <section class="card" data-od-id="salary-settings">
+              <h2>Настройки периода</h2>
+              <div class="set-row">
+                <label for="zp-day">День зарплаты<small>выплаты приходят этого числа</small></label>
+                <input class="num-input" id="zp-day" type="number" min="1" max="31" value="4" />
+              </div>
+              <div class="set-row">
+                <label for="cycle-anchor">Якорь цикла<small>бюджеты считаются с этой даты</small></label>
+                <input class="num-input" id="cycle-anchor" type="number" min="1" max="31" value="12" />
+              </div>
+              <div class="set-row">
+                <label for="cycle-len">Длина цикла<small>30 = месяц, 14 = смена, 15 = полмесяца</small></label>
+                <select class="cycle-select" id="cycle-len">
+                  <option value="30" selected>30 дн</option>
+                  <option value="14">14 дн</option>
+                  <option value="15">15 дн</option>
+                </select>
+              </div>
+            </section>
+
+            <p class="foot-note">Один механизм периода (якорь + длина) работает для бюджетов,<br>«до зарплаты» и отчётных периодов — как в схеме БД плана (§9).</p>
+
+          </div>
+        </main>
+
+        <nav class="tabbar" data-od-id="tab-bar" aria-label="Основная навигация">
+          <a class="tab" href="input.html"><span class="tab-ic" aria-hidden="true">💸</span><span>Ввод</span></a>
+          <a class="tab" href="history.html"><span class="tab-ic" aria-hidden="true">📋</span><span>История</span></a>
+          <a class="tab" href="reports.html"><span class="tab-ic" aria-hidden="true">📊</span><span>Отчёты</span></a>
+          <a class="tab is-active" href="more.html" aria-current="page"><span class="tab-more" aria-hidden="true">⋯</span><span>Ещё</span></a>
+          <div class="home-indicator" aria-hidden="true"></div>
+        </nav>
+
+        <div class="snackbar" role="status" id="snackbar"></div>
+
+      </div>
+    </div>
+    <p class="stage-caption">iPhone 15 Pro · 393 × 852 · демо-данные · вариант Vibrant</p>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+      var REGULAR = [
+        { emoji: '🏠', name: 'ЖКХ',  amount: 8500, day: 25, paid: false },
+        { emoji: '🏦', name: 'Кредит', amount: 22000, day: 10, paid: true, paidOn: '10.09' },
+        { emoji: '📱', name: 'Связь', amount: 1500, day: 5, paid: true, paidOn: '05.09' },
+        { emoji: '🎬', name: 'Подписки', amount: 599, day: 1, paid: true, paidOn: '01.09' }
+      ];
+      var REST = 12400; /* конверт средств до ЗП */
+      var fmt = function (n) { return Math.round(n).toLocaleString('ru-RU') + ' ₽'; };
+
+      var cfg = { zpday: 4, anchor: 12, len: 30 };
+      try {
+        var z = localStorage.getItem('sm-zpday'); if (z) cfg.zpday = Math.min(31, Math.max(1, +z));
+        var c = JSON.parse(localStorage.getItem('sm-cycle'));
+        if (c && c.len) { cfg.anchor = c.anchor || 12; cfg.len = c.len; }
+      } catch (e) { /* по умолчанию */ }
+      function persist() {
+        try { localStorage.setItem('sm-zpday', String(cfg.zpday)); } catch (e) { /* приватный режим */ }
+        try { localStorage.setItem('sm-cycle', JSON.stringify({ anchor: cfg.anchor, len: cfg.len })); } catch (e) { /* приватный режим */ }
+      }
+
+      var $ = function (id) { return document.getElementById(id); };
+
+      function snack(text) {
+        var bar = $('snackbar');
+        bar.textContent = text;
+        bar.classList.add('is-visible');
+        clearTimeout(snack.t);
+        snack.t = setTimeout(function () { bar.classList.remove('is-visible'); }, 3200);
+      }
+
+      function render() {
+        var today = 12; /* сентябрь */
+        var days = cfg.zpday > today ? (30 - today) + cfg.zpday : cfg.zpday + (30 - today);
+        var upcomingList = REGULAR.filter(function (r) { return !r.paid && r.day > today; });
+        var upcoming = upcomingList.reduce(function (s, r) { return s + r.amount; }, 0);
+        var can = REST - upcoming;
+        var perday = days > 0 ? Math.floor(can / days) : 0;
+
+        $('dash-title').innerHTML = 'До зарплаты (' + cfg.zpday + '-е число): ' + days + ' ' + plural(days) +
+          '<small>сегодня 12 сентября · период до ' + cfg.zpday + ' октября</small>';
+        $('d-rest').textContent = fmt(REST);
+        $('d-upcoming').textContent = '−' + fmt(upcoming);
+        $('d-can').textContent = fmt(can);
+        $('d-perday').innerHTML = '≈ ' + fmt(perday) + '<small> /день</small>';
+        var pill = $('d-pill');
+        if (perday >= 500) { pill.className = 'pill ok'; pill.textContent = 'норм'; }
+        else if (perday >= 100) { pill.className = 'pill warn'; pill.textContent = 'мало'; }
+        else { pill.className = 'pill minus'; pill.textContent = 'минус'; }
+
+        var box = $('up-list');
+        box.innerHTML = '';
+        upcomingList.forEach(function (r) {
+          var row = document.createElement('div');
+          row.className = 'up-row';
+          row.innerHTML = '<span>' + r.emoji + ' ' + r.name + ' · до ' + r.day + ' сентября</span><b>−' + fmt(r.amount) + '</b>';
+          box.appendChild(row);
+        });
+        if (!upcomingList.length) {
+          box.innerHTML = '<div class="up-row"><span>Предстоящих платежей до ЗП нет</span></div>';
+        }
+
+        $('zp-day').value = cfg.zpday;
+        $('cycle-anchor').value = cfg.anchor;
+        $('cycle-len').value = String(cfg.len);
+        persist();
+      }
+
+      function plural(n) {
+        var m10 = n % 10, m100 = n % 100;
+        if (m10 === 1 && m100 !== 11) return 'день';
+        if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'дня';
+        return 'дней';
+      }
+
+      $('zp-day').addEventListener('change', function () {
+        var v = +this.value;
+        if (!(v >= 1 && v <= 31)) { this.value = cfg.zpday; return; }
+        cfg.zpday = v;
+        render();
+        snack('День зарплаты: ' + v + '-е число');
+      });
+      $('cycle-anchor').addEventListener('change', function () {
+        var v = +this.value;
+        if (!(v >= 1 && v <= 31)) { this.value = cfg.anchor; return; }
+        cfg.anchor = v;
+        render();
+        snack('Якорь цикла: ' + v + '-е число');
+      });
+      $('cycle-len').addEventListener('change', function () {
+        cfg.len = +this.value;
+        render();
+        snack('Длина цикла: ' + cfg.len + ' дн');
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

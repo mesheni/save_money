@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Долги · SaveMoney · Vibrant</title>
+  <style>
+    :root {
+      --bg:      oklch(99% 0.002 240);
+      --surface: oklch(100% 0 0);
+      --fg:      oklch(18% 0.012 250);
+      --muted:   oklch(54% 0.012 250);
+      --border:  oklch(92% 0.005 250);
+      --fg-soft: color-mix(in oklch, var(--fg) 6%, transparent);
+      --accent:  #512BD4;
+      --income:  #2ECC71;
+      --income-text: color-mix(in srgb, var(--income) 62%, black);
+      --expense: #E74C3C;
+      --expense-text: color-mix(in srgb, var(--expense) 82%, black);
+      --expense-soft: color-mix(in srgb, var(--expense) 10%, transparent);
+      --warn: #F39C12;
+      --warn-text: color-mix(in srgb, var(--warn) 72%, black);
+      --accent-soft: color-mix(in srgb, var(--accent) 10%, transparent);
+      --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      --font-body:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--fg);
+      font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { font: inherit; cursor: pointer; border: 0; background: none; color: inherit; padding: 0; }
+    input { font: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+
+    .stage {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 16px; padding: 40px 16px;
+    }
+    .device {
+      position: relative; width: 413px; padding: 10px; border-radius: 62px;
+      background: linear-gradient(160deg, oklch(40% 0.008 250), oklch(22% 0.006 250));
+      box-shadow: 0 40px 90px color-mix(in oklch, var(--fg) 24%, transparent),
+        inset 0 0 0 1.5px oklch(55% 0.01 250);
+    }
+    .side-btn { position: absolute; width: 3.5px; border-radius: 2px; background: oklch(32% 0.008 250); }
+    .side-btn.action { left: -3px; top: 176px; height: 26px; }
+    .side-btn.vol-up { left: -3px; top: 236px; height: 52px; }
+    .side-btn.vol-down { left: -3px; top: 298px; height: 52px; }
+    .side-btn.power { right: -3px; top: 262px; height: 78px; }
+    .screen {
+      position: relative; width: 393px; height: 852px; border-radius: 52px;
+      background: var(--bg); overflow: hidden; display: flex; flex-direction: column;
+    }
+    .stage-caption { font-size: 12px; color: var(--muted); letter-spacing: 0.04em; }
+    @media (max-width: 560px) { .device { zoom: 0.82; } }
+    @media (max-height: 1000px) { .device { zoom: 0.9; } }
+
+    .statusbar {
+      position: relative; z-index: 30; flex: none; height: 54px;
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 17px 30px 0;
+    }
+    .sb-time { font: 600 15px/1.2 var(--font-body); letter-spacing: -0.01em; }
+    .sb-icons { display: flex; align-items: center; gap: 7px; color: var(--fg); padding-top: 2px; }
+    .island {
+      position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+      width: 122px; height: 35px; border-radius: 24px; z-index: 40;
+      background: oklch(13% 0.004 250);
+    }
+    .island::after {
+      content: ''; position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%); width: 9px; height: 9px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, oklch(30% 0.03 260), oklch(12% 0.01 260) 70%);
+    }
+
+    .navbar { flex: none; display: flex; align-items: center; gap: 6px; padding: 6px 14px 10px; }
+    .navbar h1 { flex: 1; text-align: center; font: 650 17px/1.2 var(--font-display); margin: 0; letter-spacing: -0.01em; }
+    .back { flex: none; min-width: 64px; min-height: 44px; display: flex; align-items: center; color: var(--accent); font-size: 15px; font-weight: 550; padding: 0 8px; border-radius: 10px; }
+    .back:hover { background: var(--accent-soft); }
+    .nav-spacer { flex: none; width: 64px; }
+
+    .content { flex: 1; overflow-y: auto; padding: 4px 20px 112px; scrollbar-width: none; }
+    .content::-webkit-scrollbar { display: none; }
+
+    .seg { display: flex; background: var(--fg-soft); border-radius: 12px; padding: 3px; margin-bottom: 12px; }
+    .seg button { flex: 1; padding: 9px 0; border-radius: 10px; font-size: 13.5px; font-weight: 600; color: var(--muted); transition: background 0.15s ease, color 0.15s ease; }
+    .seg button.is-on { background: var(--surface); color: var(--fg); box-shadow: 0 1px 4px color-mix(in oklch, var(--fg) 12%, transparent); }
+
+    .list-head { display: flex; align-items: center; justify-content: space-between; margin: 2px 4px 10px; }
+    .list-head span { font-size: 13px; color: var(--muted); }
+    .add-btn {
+      width: 40px; height: 40px; border-radius: 12px; background: var(--accent);
+      color: var(--surface); font-size: 22px; font-weight: 600; line-height: 1;
+      display: grid; place-items: center; transition: background 0.15s ease, transform 0.05s ease;
+    }
+    .add-btn:hover { background: color-mix(in srgb, var(--accent) 88%, black); }
+    .add-btn:active { transform: translateY(1px); }
+
+    .debt-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; overflow: hidden; }
+    .debt-row { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 12px 14px; transition: background 0.15s ease; }
+    .debt-row:hover { background: var(--fg-soft); }
+    .debt-row + .debt-row { border-top: 1px solid var(--border); }
+    .debt-ava { flex: none; width: 38px; height: 38px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+    .debt-main { flex: 1; min-width: 0; }
+    .debt-main b { display: block; font-weight: 600; font-size: 14.5px; }
+    .debt-main .due { display: block; font-size: 12px; color: var(--muted); margin-top: 1px; }
+    .debt-main .over { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 650; color: var(--expense-text); margin-top: 3px; }
+    .debt-right { flex: none; text-align: right; }
+    .debt-right b { display: block; font-size: 15px; font-weight: 750; font-variant-numeric: tabular-nums; }
+    .debt-right span { font-size: 11px; color: var(--muted); }
+    .progress { height: 6px; border-radius: 3px; background: var(--fg-soft); overflow: hidden; margin-top: 7px; }
+    .progress i { display: block; height: 100%; border-radius: 3px; background: var(--accent); }
+    .empty { display: none; text-align: center; padding: 36px 24px 8px; }
+    .empty.is-visible { display: block; }
+    .empty p { color: var(--muted); font-size: 13.5px; margin: 6px 0 0; }
+    .foot-note { text-align: center; font-size: 11.5px; color: var(--muted); padding: 14px 12px 0; }
+
+    .sheet-backdrop {
+      position: absolute; inset: 0; z-index: 45;
+      background: color-mix(in oklch, var(--fg) 45%, transparent);
+      opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+    }
+    .sheet {
+      position: absolute; left: 0; right: 0; bottom: 0; z-index: 50;
+      background: var(--surface); border-radius: 22px 22px 0 0;
+      padding: 10px 20px 34px; transform: translateY(105%);
+      transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
+      box-shadow: 0 -12px 40px color-mix(in oklch, var(--fg) 18%, transparent);
+      max-height: 88%; overflow-y: auto; scrollbar-width: none;
+    }
+    .sheet::-webkit-scrollbar { display: none; }
+    .screen.sheet-open .sheet-backdrop { opacity: 1; pointer-events: auto; }
+    .screen.sheet-open .sheet { transform: translateY(0); }
+    .grabber { display: block; width: 36px; height: 4px; border-radius: 2px; background: var(--border); margin: 0 auto 10px; }
+    .sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .sheet-head h2 { font: 650 18px/1.2 var(--font-display); letter-spacing: -0.015em; margin: 0; }
+    .icon-btn { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: var(--muted); }
+    .icon-btn:hover { background: var(--fg-soft); color: var(--fg); }
+    .d-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .d-chip { font-size: 12.5px; font-weight: 600; padding: 6px 11px; border-radius: 999px; background: var(--fg-soft); color: var(--muted); }
+    .d-chip b { color: var(--fg); }
+    .field-label { display: block; font-size: 12.5px; font-weight: 600; color: var(--muted); margin-bottom: 7px; }
+    .acc-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .achip { padding: 8px 13px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); font-size: 13px; font-weight: 550; transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease; }
+    .achip:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+    .achip.is-on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 650; }
+    .pay-title { font: 600 11.5px/1 var(--font-body); letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin: 4px 0 8px; }
+    .pay-list { background: var(--fg-soft); border-radius: 12px; padding: 4px 12px; margin-bottom: 12px; }
+    .pay-row { display: flex; justify-content: space-between; padding: 9px 0; font-size: 13.5px; }
+    .pay-row + .pay-row { border-top: 1px solid var(--border); }
+    .pay-row b { font-weight: 650; font-variant-numeric: tabular-nums; }
+    .pay-row span { color: var(--muted); }
+    .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+    .field > label { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+    .input { width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--fg); font-size: 15px; }
+    .input:focus { outline: none; border-color: var(--accent); }
+    .input.error { border-color: var(--expense); }
+    .btn-primary { width: 100%; display: inline-flex; justify-content: center; padding: 13px 20px; border-radius: 12px; border: 0; background: var(--accent); color: var(--surface); font-size: 15px; font-weight: 700; transition: background 0.15s ease; }
+    .btn-primary:hover { background: color-mix(in srgb, var(--accent) 88%, black); }
+    .btn-secondary { width: 100%; display: inline-flex; justify-content: center; padding: 12px 20px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); font-size: 14px; font-weight: 650; margin-top: 10px; transition: border-color 0.15s ease; }
+    .btn-secondary:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+
+    .tabbar {
+      position: absolute; left: 0; right: 0; bottom: 0; z-index: 20;
+      display: flex; padding: 6px 10px 22px;
+      border-top: 1px solid var(--border);
+      background: color-mix(in oklch, var(--bg) 86%, transparent);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    }
+    .tab { flex: 1; min-height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 12px; color: var(--muted); transition: color 0.15s ease; }
+    .tab .tab-ic { font-size: 20px; line-height: 1.2; }
+    .tab .tab-more { font-size: 20px; line-height: 1.2; font-weight: 700; letter-spacing: 0.05em; }
+    .tab span { font: 500 10px/1 var(--font-body); letter-spacing: 0.01em; }
+    .tab:hover { color: var(--fg); }
+    .tab.is-active { color: var(--accent); }
+    .home-indicator {
+      position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);
+      width: 134px; height: 5px; border-radius: 3px;
+      background: color-mix(in oklch, var(--fg) 85%, transparent);
+    }
+    .snackbar {
+      position: absolute; left: 18px; right: 18px; bottom: 96px; z-index: 60;
+      background: var(--fg); color: var(--surface); border-radius: 16px;
+      padding: 12px 15px; font-size: 13px; font-weight: 500; display: none;
+      box-shadow: 0 10px 28px color-mix(in oklch, var(--fg) 30%, transparent);
+    }
+    .snackbar.is-visible { display: block; }
+  
+    /* ═══ Вариант оформления: Vibrant (design-system-vibrant) ═══
+       Перебиндиваем базовые токены SaveMoney на контракт Vibrant;
+       производные цвета (color-mix от var(--…)) пересчитываются сами. */
+    :root {
+      --bg: #fff8d7;
+      --surface: #ffffff;
+      --surface-warm: #ffef9f;
+      --fg: #1d1836;
+      --fg-2: #4c426c;
+      --muted: #796f91;
+      --border: #eadfba;
+      --accent: #ff6b00;
+      --accent-on: #ffffff;
+      --success: #2e9d57;
+      --warn: #ffb020;
+      --danger: #e5484d;
+
+      --expense: #e5484d;
+      --income: #2e9d57;
+      --transfer: #4c426c;
+
+      --expense-text: color-mix(in srgb, var(--expense) 88%, black);
+      --income-text: color-mix(in srgb, var(--income) 72%, black);
+      --transfer-text: var(--transfer);
+      --accent-text: color-mix(in srgb, var(--accent) 76%, black);
+      --accent-light: color-mix(in srgb, var(--accent) 55%, white);
+      --cat-cafe: var(--warn);
+      --cat-fun: color-mix(in srgb, var(--accent) 60%, var(--fg));
+      --cat-cloth: color-mix(in srgb, var(--success) 70%, var(--fg));
+
+      --font-display: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      --font-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+    /* мелкий акцентный текст — контрастная производная вместо чистого --accent */
+    .tab.is-active, .chip.is-on, .insight, .cat-chip, .guess-hint, .back,
+    .achip.is-on, .debt-ava { color: var(--accent-text); }  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="device" data-od-id="device">
+      <span class="side-btn action" aria-hidden="true"></span>
+      <span class="side-btn vol-up" aria-hidden="true"></span>
+      <span class="side-btn vol-down" aria-hidden="true"></span>
+      <span class="side-btn power" aria-hidden="true"></span>
+      <div class="screen" id="screen">
+
+        <div class="statusbar" data-od-id="status-bar" aria-hidden="true">
+          <span class="sb-time">9:41</span>
+          <span class="sb-icons">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M2 4.6a9.6 9.6 0 0 1 13 0"/><path d="M4.6 7.4a5.7 5.7 0 0 1 7.8 0"/><circle cx="8.5" cy="10.2" r="1.5" fill="currentColor" stroke="none"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.6" y="0.6" width="20.3" height="10.8" rx="3.2" fill="none" stroke="currentColor" stroke-width="1" opacity="0.4"/><rect x="2.4" y="2.4" width="13.5" height="7.2" rx="1.7" fill="currentColor"/><path d="M22.8 4v4a2.3 2.3 0 0 0 0-4Z" fill="currentColor" opacity="0.4"/></svg>
+          </span>
+        </div>
+        <div class="island" aria-hidden="true"></div>
+
+        <header class="navbar" data-od-id="navbar">
+          <a class="back" href="more.html">‹ Ещё</a>
+          <h1>Долги</h1>
+          <span class="nav-spacer" aria-hidden="true"></span>
+        </header>
+
+        <main class="content" data-od-id="debts-screen">
+          <div class="seg" role="group" aria-label="Направление долга" data-od-id="debt-tabs">
+            <button type="button" class="is-on" data-dir="in">Мне должны</button>
+            <button type="button" data-dir="out">Я должен</button>
+          </div>
+          <div class="list-head">
+            <span id="dir-total"></span>
+            <button class="add-btn" id="add-btn" aria-label="Добавить долг">＋</button>
+          </div>
+          <div class="debt-card" id="debt-list"></div>
+          <div class="empty" id="empty">
+            <div style="font-size:32px;" aria-hidden="true">🤝</div>
+            <p>Здесь пока чисто.<br>Нажмите «＋», чтобы записать долг.</p>
+          </div>
+          <p class="foot-note">Платёж по долгу может создать транзакцию на связанном счёте.<br>Долг закрывается автоматически при полном погашении.</p>
+        </main>
+
+        <nav class="tabbar" data-od-id="tab-bar" aria-label="Основная навигация">
+          <a class="tab" href="input.html"><span class="tab-ic" aria-hidden="true">💸</span><span>Ввод</span></a>
+          <a class="tab" href="history.html"><span class="tab-ic" aria-hidden="true">📋</span><span>История</span></a>
+          <a class="tab" href="reports.html"><span class="tab-ic" aria-hidden="true">📊</span><span>Отчёты</span></a>
+          <a class="tab is-active" href="more.html" aria-current="page"><span class="tab-more" aria-hidden="true">⋯</span><span>Ещё</span></a>
+          <div class="home-indicator" aria-hidden="true"></div>
+        </nav>
+
+        <div class="sheet-backdrop" id="backdrop"></div>
+        <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" data-od-id="debt-sheet">
+          <span class="grabber" aria-hidden="true"></span>
+          <div class="sheet-head">
+            <h2 id="sheet-title">Долг</h2>
+            <button class="icon-btn" id="sheet-close" aria-label="Закрыть">✕</button>
+          </div>
+          <div id="sheet-body"></div>
+        </section>
+
+        <div class="snackbar" role="status" id="snackbar"></div>
+
+      </div>
+    </div>
+    <p class="stage-caption">iPhone 15 Pro · 393 × 852 · демо-данные · вариант Vibrant</p>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+      var ACCS = ['💳 Сбер', '💵 Наличные', '💳 Т-Банк'];
+      var SEED = [
+        { id: 'd1', dir: 'in',  who: 'Аня Петрова',  amount: 5000,  paid: 2000, due: 'до 20 сен', overdue: false, acc: 0, payments: [['12.08', 1000], ['01.09', 1000]] },
+        { id: 'd2', dir: 'in',  who: 'Петя Сидоров', amount: 12000, paid: 0,    due: 'до 10 сен', overdue: true,  acc: 1, payments: [] },
+        { id: 'd3', dir: 'out', who: 'Мама',         amount: 15000, paid: 5000, due: 'до 1 окт',  overdue: false, acc: 0, payments: [['20.08', 5000]] }
+      ];
+      var fmt = function (n) { return Math.round(n).toLocaleString('ru-RU') + ' ₽'; };
+
+      var debts = (function () {
+        try {
+          var v = JSON.parse(localStorage.getItem('sm-debts'));
+          if (Array.isArray(v)) return v;
+        } catch (e) { /* сеем базу */ }
+        return JSON.parse(JSON.stringify(SEED));
+      })();
+      function persist() { try { localStorage.setItem('sm-debts', JSON.stringify(debts)); } catch (e) { /* приватный режим */ } }
+
+      var $ = function (id) { return document.getElementById(id); };
+      var dir = 'in';
+
+      function snack(text) {
+        var bar = $('snackbar');
+        bar.textContent = text;
+        bar.classList.add('is-visible');
+        clearTimeout(snack.t);
+        snack.t = setTimeout(function () { bar.classList.remove('is-visible'); }, 3400);
+      }
+
+      function initials(name) { return name.slice(0, 1).toUpperCase(); }
+
+      function render() {
+        var box = $('debt-list');
+        box.innerHTML = '';
+        var total = 0;
+        var list = debts.filter(function (d) { return d.dir === dir; });
+        list.forEach(function (d) {
+          total += d.amount - d.paid;
+          var pct = d.amount ? d.paid / d.amount * 100 : 0;
+          var row = document.createElement('button');
+          row.className = 'debt-row';
+          row.innerHTML =
+            '<span class="debt-ava" aria-hidden="true"></span>' +
+            '<span class="debt-main"><b></b><span class="due"></span>' +
+            (d.overdue ? '<span class="over">⚠ просрочено (' + d.due.replace('до ', '') + ')</span>' : '') +
+            '</span>' +
+            '<span class="debt-right"><b></b><span></span></span>';
+          row.querySelector('.debt-ava').textContent = initials(d.who);
+          row.querySelector('.debt-main b').textContent = d.who;
+          row.querySelector('.due').textContent = d.due + ' · погашено ' + fmt(d.paid);
+          row.querySelector('.debt-right b').textContent = fmt(d.amount - d.paid);
+          row.querySelector('.debt-right span').textContent = 'из ' + fmt(d.amount);
+          var wrap = document.createElement('div');
+          wrap.style.padding = '0 14px 12px';
+          var p = document.createElement('div');
+          p.className = 'progress';
+          p.setAttribute('role', 'img');
+          p.setAttribute('aria-label', 'Погашено ' + Math.round(pct) + '%');
+          p.innerHTML = '<i style="width:' + Math.min(pct, 100) + '%"></i>';
+          wrap.appendChild(p);
+          row.addEventListener('click', function () { openCard(d); });
+          box.appendChild(row);
+          box.appendChild(wrap);
+        });
+        var empty = $('empty');
+        empty.classList.toggle('is-visible', list.length === 0);
+        $('dir-total').textContent = list.length
+          ? (dir === 'in' ? 'Вам должны: ' : 'Вы должны: ') + fmt(total)
+          : 'Нет долгов в этом списке';
+        persist();
+      }
+
+      function openSheet(title, html) {
+        $('sheet-title').textContent = title;
+        $('sheet-body').innerHTML = html;
+        $('screen').classList.add('sheet-open');
+      }
+      function closeSheet() { $('screen').classList.remove('sheet-open'); }
+      $('sheet-close').addEventListener('click', closeSheet);
+      $('backdrop').addEventListener('click', closeSheet);
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSheet(); });
+
+      function openCard(d) {
+        var pays = d.payments.length
+          ? d.payments.map(function (p) { return '<div class="pay-row"><span>' + p[0] + '</span><b>' + fmt(p[1]) + '</b></div>'; }).join('')
+          : '<div class="pay-row"><span>Платежей пока нет</span></div>';
+        var chips = ACCS.map(function (a, i) {
+          return '<button class="achip' + (i === d.acc ? ' is-on' : '') + '" data-i="' + i + '">' + a + '</button>';
+        }).join('');
+        openSheet(d.who,
+          '<div class="d-meta">' +
+          '<span class="d-chip">Кто: <b>' + d.who + '</b></span>' +
+          '<span class="d-chip">Сумма: <b>' + fmt(d.amount) + '</b></span>' +
+          '<span class="d-chip">Осталось: <b>' + fmt(d.amount - d.paid) + '</b></span>' +
+          '<span class="d-chip">' + (d.dir === 'in' ? 'Мне должны' : 'Я должен') + '</span>' +
+          '</div>' +
+          '<span class="field-label">Счёт для возврата</span>' +
+          '<div class="acc-chips" id="d-accs">' + chips + '</div>' +
+          '<div class="pay-title">Платежи</div>' +
+          '<div class="pay-list">' + pays + '</div>' +
+          '<div class="field"><label for="pay-amount">Новый платёж, ₽</label><input class="input" id="pay-amount" inputmode="decimal" placeholder="Например: 1000" /></div>' +
+          '<button class="btn-primary" id="pay-add">＋ Платёж</button>' +
+          '<button class="btn-secondary" id="debt-del">Удалить запись</button>');
+
+        $('d-accs').addEventListener('click', function (e) {
+          var b = e.target.closest('.achip');
+          if (!b) return;
+          d.acc = +b.dataset.i;
+          this.querySelectorAll('.achip').forEach(function (x) { x.classList.toggle('is-on', x === b); });
+          persist();
+        });
+        $('pay-add').addEventListener('click', function () {
+          var v = parseFloat(($('pay-amount').value || '').replace(/\s/g, '').replace(',', '.'));
+          var inp = $('pay-amount');
+          if (!isFinite(v) || v <= 0) { inp.classList.add('error'); inp.focus(); return; }
+          v = Math.min(v, d.amount - d.paid);
+          var dd = new Date();
+          d.payments.push([('0' + dd.getDate()).slice(-2) + '.0' + (dd.getMonth() + 1), Math.round(v)]);
+          d.paid = Math.round(d.paid + v);
+          d.overdue = false;
+          persist();
+          if (d.paid >= d.amount) {
+            debts = debts.filter(function (x) { return x.id !== d.id; });
+            persist();
+            closeSheet();
+            render();
+            snack('Долг «' + d.who + '» закрыт автоматически · транзакция создана на счёте ' + ACCS[d.acc]);
+          } else {
+            closeSheet();
+            render();
+            snack('Платёж ' + fmt(v) + ' записан · транзакция на счёте ' + ACCS[d.acc]);
+          }
+        });
+        $('debt-del').addEventListener('click', function () {
+          debts = debts.filter(function (x) { return x.id !== d.id; });
+          persist();
+          closeSheet();
+          render();
+          snack('Запись удалена');
+        });
+      }
+
+      $('add-btn').addEventListener('click', function () {
+        openSheet('Новый долг',
+          '<div class="field"><label for="nd-who">Кто</label><input class="input" id="nd-who" placeholder="Имя человека" /></div>' +
+          '<div class="field"><label for="nd-amount">Сумма, ₽</label><input class="input" id="nd-amount" inputmode="decimal" placeholder="0" /></div>' +
+          '<div class="field"><label for="nd-due">Срок</label><input class="input" id="nd-due" placeholder="Например: до 20 сен" /></div>' +
+          '<span class="field-label" id="nd-dir-label">Направление</span>' +
+          '<div class="seg" id="nd-dir" role="group" aria-labelledby="nd-dir-label">' +
+          '<button type="button" class="is-on" data-d="in">Мне должны</button><button type="button" data-d="out">Я должен</button></div>' +
+          '<button class="btn-primary" id="nd-save" style="margin-top:4px;">Записать</button>');
+        var nd = { dir: 'in' };
+        $('nd-dir').addEventListener('click', function (e) {
+          var b = e.target.closest('button[data-d]');
+          if (!b) return;
+          nd.dir = b.dataset.d;
+          this.querySelectorAll('button').forEach(function (x) { x.classList.toggle('is-on', x === b); });
+        });
+        $('nd-save').addEventListener('click', function () {
+          var who = $('nd-who').value.trim();
+          var amount = parseFloat(($('nd-amount').value || '').replace(/\s/g, '').replace(',', '.'));
+          if (!who || !isFinite(amount) || amount <= 0) { snack('Укажите имя и сумму больше нуля'); return; }
+          debts.push({ id: 'd' + Date.now(), dir: nd.dir, who: who, amount: Math.round(amount), paid: 0, due: $('nd-due').value.trim() || 'без срока', overdue: false, acc: 0, payments: [] });
+          persist();
+          dir = nd.dir;
+          document.querySelectorAll('.seg [data-dir]').forEach(function (b) { b.classList.toggle('is-on', b.dataset.dir === dir); });
+          render();
+          closeSheet();
+          snack('Долг записан');
+        });
+      });
+
+      document.querySelector('.seg').addEventListener('click', function (e) {
+        var b = e.target.closest('button[data-dir]');
+        if (!b) return;
+        dir = b.dataset.dir;
+        this.querySelectorAll('button').forEach(function (x) { x.classList.toggle('is-on', x === b); });
+        render();
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
