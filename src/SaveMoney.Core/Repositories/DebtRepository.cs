@@ -21,13 +21,13 @@ public class DebtRepository(SQLiteConnection db) : Repository<Debt>(db)
           .OrderBy(p => p.DateUnix)
           .ToList();
 
-    /// <summary>Сколько осталось погасить по долгу.</summary>
+    /// <summary>Сколько осталось погасить по долгу. Переплата не уводит остаток в минус.</summary>
     public long GetRemaining(Debt debt)
     {
         var paid = Db.ExecuteScalar<long>(
             "SELECT COALESCE(SUM(amount_minor), 0) FROM debt_payments WHERE debt_id = ? AND is_deleted = 0",
             debt.Id);
-        return debt.AmountMinor - paid;
+        return Math.Max(0, debt.AmountMinor - paid);
     }
 
     /// <summary>Добавляет платёж и закрывает долг, если погашен полностью.</summary>

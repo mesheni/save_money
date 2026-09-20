@@ -14,6 +14,7 @@ namespace SaveMoney.ViewModels;
 /// </summary>
 [QueryProperty(nameof(EditId), "id")]
 [QueryProperty(nameof(PresetAmount), "amount")]
+[QueryProperty(nameof(WidgetSource), "source")]
 public partial class QuickAddViewModel(
     AppDatabase db,
     TransactionService transactions,
@@ -25,6 +26,9 @@ public partial class QuickAddViewModel(
 
     private string? _pendingEditId;
     private Transaction? _editing;
+
+    /// <summary>Время суток исходной транзакции — правка не должна переписывать его на «сейчас».</summary>
+    private TimeSpan _editTimeOfDay = DateTime.Now.TimeOfDay;
 
     public ObservableCollection<AccountChip> Accounts { get; } = [];
     public ObservableCollection<AccountChip> TargetAccounts { get; } = [];
@@ -83,11 +87,22 @@ public partial class QuickAddViewModel(
     /// <summary>Сумма, предзаполненная с виджета ("100" или "1250,50").</summary>
     public string? PresetAmount { get; set; }
 
+    /// <summary>Признак «экран открыт с виджета» — транзакция сохранится с source=widget.</summary>
+    public string? WidgetSource { get; set; }
+
     public async Task InitializeAsync()
     {
-        if (!IsEditing && !string.IsNullOrEmpty(PresetAmount))
+        if (!IsEditing)
         {
-            AmountText = PresetAmount;
+            if (!string.IsNullOrEmpty(PresetAmount))
+            {
+                AmountText = PresetAmount;
+                PresetAmount = null; // подставляем один раз — повторное Appearing не должно возвращать сумму
+            }
+
+            // Вкладка «Ввод» живёт всё время процесса: без этого новые записи
+            // после дней в фоне молча датировались последним открытием.
+            Date = DateTime.Now;
         }
 
         LoadAccounts();
@@ -295,19 +310,45 @@ public partial class QuickAddViewModel(
     [RelayCommand]
     private void SelectRoot(CategoryChip? chip)
     {
-        if (chip is not null)
+        if (chip is null)
         {
-            SelectRoot(chip);
+            return;
+        }
+
+        SelectRoot(chip);
+        if (!HasSubCategories)
+        {
+            TryQuickSave();
         }
     }
 
     [RelayCommand]
     private void SelectSub(CategoryChip? chip)
     {
-        if (chip is not null)
+        if (chip is null)
         {
-            SelectChip(SubCategories, chip);
+            return;
         }
+
+        SelectChip(SubCategories, chip);
+        TryQuickSave();
+    }
+
+    /// <summary>
+    /// Настройка «сохранять сразу при выборе категории» (ввод за 2 касания):
+    /// тап по категории с уже введённой суммой немедленно записывает операцию.
+    /// </summary>
+    private void TryQuickSave()
+    {
+        if (IsEditing
+            || IsTransfer
+            || MoneyFormat.ParseInput(AmountText) <= 0
+            || !_db.Settings.GetBool(SettingKeys.QuickSaveOnCategory, false))
+        {
+            return;
+        }
+
+        _ = SaveAsync();
     }
 
     [RelayCommand]
@@ -330,7 +371,10 @@ public partial class QuickAddViewModel(
         var kind = IsTransfer ? TransactionKind.Transfer : IsIncome ? TransactionKind.Income : TransactionKind.Expense;
         var dateUnix = ToUnix(Date);
 
-        var tx = _editing ?? new Transaction { Source = TransactionSource.Manual };
+        var tx = _editing ?? new Transaction
+        {
+            Source = WidgetSource == "widget" ? TransactionSource.Widget : TransactionSource.Manual,
+        };
         tx.AccountId = accountChip.Id;
         tx.AmountMinor = amountMinor;
         tx.Kind = kind;
@@ -395,6 +439,12 @@ public partial class QuickAddViewModel(
         Date = DateTime.Now;
         RefreshBalance();
         ReloadCategories();
+
+        if (WidgetSource == "widget")
+        {
+            // Экран с виджета открыт поверх вкладки «Ввод» — после сохранения возвращаемся на вкладку.
+            await Shell.Current.GoToAsync("..");
+        }
     }
 
     private async Task LoadForEditAsync(string id)
@@ -422,7 +472,9 @@ public partial class QuickAddViewModel(
         }
 
         AmountText = MoneyFormat.ForInput(tx.AmountMinor);
-        Date = DateTimeOffset.FromUnixTimeSeconds(tx.DateUnix).ToLocalTime().DateTime;
+        var txDate = DateTimeOffset.FromUnixTimeSeconds(tx.DateUnix).ToLocalTime().DateTime;
+        Date = txDate;
+        _editTimeOfDay = txDate.TimeOfDay;
         Note = tx.Note ?? "";
         Payee = tx.Payee ?? "";
 
@@ -462,8 +514,8 @@ public partial class QuickAddViewModel(
         }
     }
 
-    private static long ToUnix(DateTime local) =>
-        new DateTimeOffset(local.Year, local.Month, local.Day, DateTime.Now.Hour, DateTime.Now.Minute, 0,
+    private long ToUnix(DateTime local) =>
+        new DateTimeOffset(local.Year, local.Month, local.Day, _editTimeOfDay.Hours, _editTimeOfDay.Minutes, 0,
             TimeZoneInfo.Local.GetUtcOffset(local)).ToUnixTimeSeconds();
 
     partial void OnIsIncomeChanged(bool value) => NotifyModeChanged();

@@ -23,7 +23,7 @@ public partial class MoreViewModel : ObservableObject
     ];
 
     public string VersionText =>
-        $"SaveMoney {AppInfo.VersionString} · Фаза 3";
+        $"SaveMoney {AppInfo.VersionString}";
 
     [RelayCommand]
     private void Open(MoreMenuItem? item)

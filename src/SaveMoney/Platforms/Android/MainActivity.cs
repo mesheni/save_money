@@ -24,13 +24,14 @@ public class MainActivity : MauiAppCompatActivity
 	}
 
 	/// <summary>
-	/// Тап по кнопке виджета открывает экран ввода с суммой. При холодном старте Shell
-	/// ещё не готов — навигация откладывается до прогрева интерфейса.
+	/// Тап по кнопке виджета открывает экран ввода с суммой (пустая сумма — кнопка «✎»,
+	/// просто открывает ввод). При холодном старте Shell ещё не готов — ждём его прогрева.
 	/// </summary>
 	private void HandleWidgetIntent(Intent? intent)
 	{
+		// extra есть только у интентов виджета; пустая строка означает «без предзаполненной суммы»
 		var amount = intent?.GetStringExtra(ExtraQuickAmount);
-		if (string.IsNullOrEmpty(amount))
+		if (amount is null)
 		{
 			return;
 		}
@@ -39,11 +40,22 @@ public class MainActivity : MauiAppCompatActivity
 
 		_ = MainThread.InvokeOnMainThreadAsync(async () =>
 		{
-			await Task.Delay(600);
-			if (Shell.Current is not null)
+			// Фиксированная задержка ненадёжна: на медленном холодном старте 600 мс не хватало
+			// и тап молча терялся. Ждём появления Shell, но не дольше ~5 секунд.
+			for (var attempt = 0; attempt < 100 && Shell.Current is null; attempt++)
 			{
-				await Shell.Current.GoToAsync($"transaction?amount={Uri.EscapeDataString(amount)}");
+				await Task.Delay(50);
 			}
+
+			if (Shell.Current is null)
+			{
+				return;
+			}
+
+			var route = string.IsNullOrEmpty(amount)
+				? "transaction?source=widget"
+				: $"transaction?amount={Uri.EscapeDataString(amount)}&source=widget";
+			await Shell.Current.GoToAsync(route);
 		});
 	}
 }

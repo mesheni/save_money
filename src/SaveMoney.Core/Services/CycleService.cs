@@ -68,12 +68,15 @@ public sealed class CycleService(AppDatabase database)
     public void SetPaydayDay(int day) =>
         _db.Settings.SetInt(SettingKeys.PaydayDay, Math.Clamp(day, 1, 28));
 
-    /// <summary>Ближайшая дата зарплаты после текущего момента.</summary>
+    /// <summary>
+    /// Ближайшая дата зарплаты. В сам день зарплаты возвращается сегодняшний день
+    /// (иначе ветка «Зарплата сегодня!» недостижима, а «₽ в день» считался бы на месяц вперёд).
+    /// </summary>
     public DateTime GetNextPayday(DateTime now)
     {
         var day = GetPaydayDay();
         var candidate = MakePayday(now.Year, now.Month, day);
-        if (candidate <= now)
+        if (candidate.Date < now.Date)
         {
             var nextMonth = candidate.AddMonths(1);
             candidate = MakePayday(nextMonth.Year, nextMonth.Month, day);

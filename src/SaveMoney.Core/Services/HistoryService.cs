@@ -11,13 +11,24 @@ public class HistoryItem
     public required string Kind { get; init; }
     public required long AmountMinor { get; init; }
 
-    /// <summary>Расход — отрицательная, доход/перевод — положительная (для показа одним полем).</summary>
-    public long SignedAmountMinor => Kind == TransactionKind.Expense ? -AmountMinor : AmountMinor;
+    /// <summary>Перевод-списание с показанного счёта (комиссия/обмен делают суммы сторон разными).</summary>
+    public required bool IsTransferOut { get; init; }
+
+    /// <summary>Расход и перевод-списание — отрицательные; доход и перевод-зачисление — положительные.</summary>
+    public long SignedAmountMinor => Kind switch
+    {
+        TransactionKind.Expense => -AmountMinor,
+        TransactionKind.Transfer => IsTransferOut ? -AmountMinor : AmountMinor,
+        _ => AmountMinor,
+    };
 
     public required string Title { get; init; }
     public string? Subtitle { get; init; }
     public string Icon { get; init; } = "❓";
-    public bool IsExpense => Kind == TransactionKind.Expense;
+
+    /// <summary>Цвет суммы: красный для расхода и ухода денег при переводе.</summary>
+    public bool IsExpense => Kind == TransactionKind.Expense
+        || (Kind == TransactionKind.Transfer && IsTransferOut);
 }
 
 /// <summary>Группа транзакций одного локального дня.</summary>
@@ -83,12 +94,20 @@ public sealed class HistoryService(AppDatabase database)
                 subtitleParts.Add(tx.Note!);
             }
 
+            // Сторона перевода определяет знак и сумму: со счёта-источника уходит его
+            // собственная сумма (может отличаться от зачисленной), на счёт-получатель
+            // приходит TransferAmountMinor.
+            var isTransferOut = tx.Kind != TransactionKind.Transfer || tx.TransferAccountId != accountId;
+
             var item = new HistoryItem
             {
                 Id = tx.Id,
                 DateUnix = tx.DateUnix,
                 Kind = tx.Kind,
-                AmountMinor = tx.TransferAmountMinor ?? tx.AmountMinor,
+                AmountMinor = tx.Kind == TransactionKind.Transfer && isTransferOut
+                    ? tx.AmountMinor
+                    : tx.TransferAmountMinor ?? tx.AmountMinor,
+                IsTransferOut = isTransferOut,
                 Title = title,
                 Subtitle = string.Join(" · ", subtitleParts),
                 Icon = icon,

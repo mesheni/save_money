@@ -25,6 +25,9 @@ public partial class DebtsViewModel(AppDatabase db) : ObservableObject
 
     public ObservableCollection<DebtRowVM> Rows { get; } = [];
 
+    [ObservableProperty]
+    public partial bool HasNoRows { get; set; } = true;
+
     public IReadOnlyList<string> DirectionOptions { get; } = ["Мне должны", "Я должен"];
 
     [ObservableProperty]
@@ -76,6 +79,7 @@ public partial class DebtsViewModel(AppDatabase db) : ObservableObject
         SummaryText = DirectionIndex == 1
             ? $"Я должен: {MoneyFormat.Rubles(total)}"
             : $"Мне должны: {MoneyFormat.Rubles(total)}";
+        HasNoRows = Rows.Count == 0;
     }
 
     partial void OnDirectionIndexChanged(int value) => Reload();
@@ -304,11 +308,13 @@ public partial class DebtDetailViewModel(AppDatabase db, DebtService debts) : Ob
 
     public async Task InitializeAsync()
     {
-        if (DebtId is null || _debt is not null)
+        if (DebtId is null)
         {
             return;
         }
 
+        // Перечитываем при каждом появлении: после правки долга экран должен
+        // показать актуальные данные, а не снимок первого открытия.
         _debt = _db.Debts.Get(DebtId);
         if (_debt is null)
         {

@@ -32,7 +32,15 @@ public static class DbMigrator
         // Пример будущей миграции:
         // if (version < 2) { db.Execute("ALTER TABLE transactions ADD COLUMN ..."); }
 
-        if (version != CurrentVersion)
+        if (version > CurrentVersion)
+        {
+            // Откат версии позволил бы старой сборке перезаписать user_version,
+            // и следующий апгрейд повторил бы миграции по уже изменённой схеме.
+            throw new NotSupportedException(
+                $"База данных (версия {version}) новее, чем поддерживает приложение ({CurrentVersion}). Обновите приложение.");
+        }
+
+        if (version < CurrentVersion)
         {
             db.Execute($"PRAGMA user_version = {CurrentVersion}");
         }

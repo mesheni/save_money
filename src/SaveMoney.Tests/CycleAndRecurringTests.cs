@@ -62,6 +62,36 @@ public class CycleAndRecurringTests : IDisposable
         Assert.Equal(28, service.GetPaydayDay());
     }
 
+    [Fact]
+    public void Payday_OnPaydayDay_IsToday_WithZeroDaysLeft()
+    {
+        var service = new CycleService(_test.Db);
+        service.SetPaydayDay(12);
+
+        var now = new DateTime(2026, 9, 12, 21, 30, 0);
+        Assert.Equal(new DateTime(2026, 9, 12), service.GetNextPayday(now));
+        Assert.Equal(0, service.GetDaysUntilPayday(now));
+    }
+
+    [Fact]
+    public void Payday_MonthEnd_InShortMonth()
+    {
+        var service = new CycleService(_test.Db);
+        service.SetPaydayDay(28);
+
+        // 28 февраля (2026 — не високосный): зарплата сегодня, а не через месяц
+        var feb28 = new DateTime(2026, 2, 28, 15, 0, 0);
+        Assert.Equal(new DateTime(2026, 2, 28), service.GetNextPayday(feb28));
+        Assert.Equal(0, service.GetDaysUntilPayday(feb28));
+
+        var feb27 = new DateTime(2026, 2, 27, 15, 0, 0);
+        Assert.Equal(new DateTime(2026, 2, 28), service.GetNextPayday(feb27));
+        Assert.Equal(1, service.GetDaysUntilPayday(feb27));
+
+        var mar1 = new DateTime(2026, 3, 1, 10, 0, 0);
+        Assert.Equal(new DateTime(2026, 3, 28), service.GetNextPayday(mar1));
+    }
+
     // --- RecurringService ---
 
     private static long Unix(DateTime local) =>
@@ -134,6 +164,48 @@ public class CycleAndRecurringTests : IDisposable
         var saved = Assert.Single(_test.Db.RecurringPayments.GetAllActive());
         Assert.True(saved.NextDateUnix > DateTimeOffset.Now.ToUnixTimeSeconds());
         Assert.Equal(0, service.MaterializeDue(DateTimeOffset.Now.ToUnixTimeSeconds()));
+    }
+
+    [Fact]
+    public void Recurring_MaterializeDue_SkipsBrokenRow_AndStillMaterializesTheRest()
+    {
+        var service = MakeService();
+        var account = new Account { Name = "Карта" };
+        _test.Db.Accounts.Save(account);
+
+        var nowUnix = DateTimeOffset.Now.ToUnixTimeSeconds();
+
+        // Битая запись (нулевой размер, например после кривого восстановления) раньше
+        // роняла весь цикл материализации и старт приложения вместе с ним.
+        _test.Db.RecurringPayments.Save(new RecurringPayment
+        {
+            AccountId = account.Id,
+            AmountMinor = 0,
+            Kind = TransactionKind.Expense,
+            RecurrenceType = "monthly",
+            DayOfMonth = 10,
+            NextDateUnix = Unix(DateTime.Now.AddDays(-40)),
+        });
+
+        _test.Db.RecurringPayments.Save(new RecurringPayment
+        {
+            AccountId = account.Id,
+            AmountMinor = 5_000,
+            Kind = TransactionKind.Expense,
+            RecurrenceType = "monthly",
+            DayOfMonth = 15,
+            NextDateUnix = Unix(DateTime.Now.AddDays(-2)),
+        });
+
+        var created = service.MaterializeDue(nowUnix);
+
+        // Здоровая запись материализовалась, сбойная — не уронила цикл
+        Assert.Equal(1, created);
+        Assert.Single(_test.Db.Transactions.GetRecent());
+
+        // Сбойная перенесена в будущее — не остаётся «наступившей» при каждом запуске
+        var broken = _test.Db.RecurringPayments.GetAllActive().Single(r => r.AmountMinor == 0);
+        Assert.True(broken.NextDateUnix > nowUnix);
     }
 
     private RecurringService MakeService()

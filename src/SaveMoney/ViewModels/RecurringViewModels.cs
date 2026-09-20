@@ -24,6 +24,9 @@ public partial class RecurringViewModel(AppDatabase db) : ObservableObject
 
     public ObservableCollection<RecurringRowVM> Rows { get; } = [];
 
+    [ObservableProperty]
+    public partial bool HasNoRows { get; set; } = true;
+
     public Task InitializeAsync()
     {
         Rows.Clear();
@@ -44,6 +47,7 @@ public partial class RecurringViewModel(AppDatabase db) : ObservableObject
             });
         }
 
+        HasNoRows = Rows.Count == 0;
         return Task.CompletedTask;
     }
 

@@ -28,6 +28,18 @@ public partial class App : Application
 
     protected override void OnStart()
     {
+        MaterializeRecurring();
+    }
+
+    protected override void OnResume()
+    {
+        // Android держит приложение в фоне днями: если догонять платежи только
+        // при холодном старте, балансы и бюджеты молча устаревают.
+        MaterializeRecurring();
+    }
+
+    private static void MaterializeRecurring()
+    {
         // Создаём транзакции по наступившим регулярным платежам (идемпотентно).
         MauiProgram.Services.GetRequiredService<RecurringService>()
             .MaterializeDue(DateTimeOffset.Now.ToUnixTimeSeconds());

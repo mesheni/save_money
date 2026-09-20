@@ -48,6 +48,7 @@ public static class MoneyFormat
             return 0;
         }
 
-        return (long)Math.Round(value * 100m);
+        // Свободные поля ввода принимают 3+ знака: 100,125 → 10013 коп., округление от нуля.
+        return (long)Math.Round(value * 100m, MidpointRounding.AwayFromZero);
     }
 }

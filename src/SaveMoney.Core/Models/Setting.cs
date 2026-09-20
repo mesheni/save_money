@@ -11,6 +11,9 @@ public static class SettingKeys
     public const string CycleDays = "cycle_days";
     public const string Theme = "theme";
     public const string IsPro = "is_pro";
+
+    /// <summary>Ввод за 2 касания: тап по категории с введённой суммой сразу сохраняет операцию.</summary>
+    public const string QuickSaveOnCategory = "quick_save_on_category";
 }
 
 /// <summary>Простое key-value хранилище настроек (не синхронизируется).</summary>

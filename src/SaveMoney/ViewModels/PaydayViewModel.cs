@@ -92,9 +92,10 @@ public partial class PaydayViewModel(
         var upcomingExpense = upcoming.Where(r => r.Kind == TransactionKind.Expense).Sum(r => r.AmountMinor);
         var upcomingIncome = upcoming.Where(r => r.Kind == TransactionKind.Income).Sum(r => r.AmountMinor);
 
+        var upcomingNet = upcomingExpense - upcomingIncome;
         UpcomingText = upcoming.Count == 0
             ? "Предстоящих регулярных платежей до зарплаты нет"
-            : $"Предстоящие платежи: −{MoneyFormat.Rubles(upcomingExpense - upcomingIncome)} ({upcoming.Count})";
+            : $"Предстоящие платежи: {MoneyFormat.SignedRubles(-upcomingNet)} ({upcoming.Count})";
 
         var canSpend = total - upcomingExpense + upcomingIncome;
         CanSpendText = $"Можно тратить: {MoneyFormat.Rubles(canSpend)}";

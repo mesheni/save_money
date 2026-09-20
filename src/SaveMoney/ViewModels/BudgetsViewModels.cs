@@ -137,9 +137,12 @@ public partial class BudgetEditViewModel(AppDatabase db, CycleService cycle) : O
 
         _loaded = true;
 
-        var selectedId = CategoryIndex > 0 && CategoryIndex <= _categoryIds.Count
-            ? _categoryIds[CategoryIndex - 1]
-            : _editing?.CategoryId;
+        // Редактируемый бюджет грузим до построения списка категорий,
+        // иначе пикер не восстановит категорию и сохранение её затрёт.
+        if (_id is not null)
+        {
+            _editing = _db.Budgets.Get(_id);
+        }
 
         CategoryOptions.Clear();
         _categoryIds = [];
@@ -151,9 +154,9 @@ public partial class BudgetEditViewModel(AppDatabase db, CycleService cycle) : O
         }
 
         var newIndex = 0;
-        if (selectedId is not null)
+        if (_editing?.CategoryId is not null)
         {
-            var idx = _categoryIds.IndexOf(selectedId);
+            var idx = _categoryIds.IndexOf(_editing.CategoryId);
             if (idx >= 0)
             {
                 newIndex = idx + 1;
@@ -162,12 +165,6 @@ public partial class BudgetEditViewModel(AppDatabase db, CycleService cycle) : O
 
         CategoryIndex = newIndex;
 
-        if (_id is null || _editing is not null)
-        {
-            return Task.CompletedTask;
-        }
-
-        _editing = _db.Budgets.Get(_id);
         if (_editing is not null)
         {
             Title = "Бюджет";

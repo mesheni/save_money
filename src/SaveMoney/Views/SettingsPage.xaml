@@ -13,6 +13,14 @@
                 <Picker Grid.Column="1" ItemsSource="{Binding ThemeOptions}" SelectedIndex="{Binding ThemeIndex}"/>
             </Grid>
 
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                <VerticalStackLayout Spacing="1">
+                    <Label Text="Сохранять сразу при выборе категории" VerticalOptions="Center"/>
+                    <Label Text="Ввод за 2 касания: сумма + категория" FontSize="12" Opacity="0.6"/>
+                </VerticalStackLayout>
+                <Switch Grid.Column="1" IsToggled="{Binding QuickSaveOnCategory}" VerticalOptions="Center"/>
+            </Grid>
+
             <Button Text="Экспортировать все операции в CSV" Command="{Binding ExportAllCsvCommand}"/>
             <Button Text="Резервная копия базы данных" Command="{Binding BackupDatabaseAsyncCommand}"/>
 

@@ -17,6 +17,10 @@ public partial class SettingsViewModel(AppDatabase db, CsvExportService csv) : O
     [ObservableProperty]
     public partial int ThemeIndex { get; set; }
 
+    /// <summary>Ввод за 2 касания: тап по категории с введённой суммой сразу сохраняет операцию.</summary>
+    [ObservableProperty]
+    public partial bool QuickSaveOnCategory { get; set; }
+
     [ObservableProperty]
     public partial string AboutText { get; set; } =
         $"SaveMoney {AppInfo.VersionString}\n\n" +
@@ -39,8 +43,19 @@ public partial class SettingsViewModel(AppDatabase db, CsvExportService csv) : O
             "dark" => 2,
             _ => 0,
         };
+        QuickSaveOnCategory = _db.Settings.GetBool(SettingKeys.QuickSaveOnCategory, false);
 
         return Task.CompletedTask;
+    }
+
+    partial void OnQuickSaveOnCategoryChanged(bool value)
+    {
+        if (!_loaded)
+        {
+            return;
+        }
+
+        _db.Settings.SetBool(SettingKeys.QuickSaveOnCategory, value);
     }
 
     partial void OnThemeIndexChanged(int value)
@@ -81,8 +96,10 @@ public partial class SettingsViewModel(AppDatabase db, CsvExportService csv) : O
     {
         try
         {
+            // Секунды в имени: VACUUM INTO падает, если файл уже существует,
+            // а две копии в одну минуту — обычный случай.
             var path = Path.Combine(FileSystem.AppDataDirectory,
-                $"savemoney-backup-{DateTime.Now:yyyyMMdd_HHmm}.db");
+                $"savemoney-backup-{DateTime.Now:yyyyMMdd_HHmmss}.db");
             _db.Connection.Execute($"VACUUM INTO '{path.Replace("'", "''")}'");
 
             await Share.RequestAsync(new ShareFileRequest

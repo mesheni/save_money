@@ -73,6 +73,38 @@ public class HistoryAndCategoryServiceTests : IDisposable
     }
 
     [Fact]
+    public void HistoryItem_Transfer_SourceSeesMinus_TargetSeesItsOwnAmount()
+    {
+        var from = new Account { Name = "А" };
+        var to = new Account { Name = "Б" };
+        _test.Db.Accounts.Save(from);
+        _test.Db.Accounts.Save(to);
+
+        // Перевод с комиссией: со счёта А уходит 12 000, на Б приходит 11 800
+        _test.Db.Transactions.Save(new Transaction
+        {
+            AccountId = from.Id,
+            AmountMinor = 12_000,
+            Kind = TransactionKind.Transfer,
+            DateUnix = Unix(2026, 9, 10),
+            TransferAccountId = to.Id,
+            TransferAmountMinor = 11_800,
+        });
+
+        var service = new HistoryService(_test.Db);
+
+        // Сторона списания: минус и расходный цвет, своя (исходящая) сумма
+        var sourceItem = service.GetGroups(Unix(2026, 9, 1), Unix(2026, 9, 30), from.Id).Single().Items.Single();
+        Assert.Equal(-12_000, sourceItem.SignedAmountMinor);
+        Assert.True(sourceItem.IsExpense);
+
+        // Сторона зачисления: плюс и входящая сумма
+        var targetItem = service.GetGroups(Unix(2026, 9, 1), Unix(2026, 9, 30), to.Id).Single().Items.Single();
+        Assert.Equal(11_800, targetItem.SignedAmountMinor);
+        Assert.False(targetItem.IsExpense);
+    }
+
+    [Fact]
     public void CategoryService_AddRoot_AppendsSort_AndDeleteCascades()
     {
         var service = new CategoryService(_test.Db);

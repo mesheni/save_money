@@ -12,6 +12,11 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:MoreMenuItem">
                         <Grid Padding="14,12" ColumnDefinitions="38,*,Auto,8" ColumnSpacing="12">
+                            <Grid.Triggers>
+                                <DataTrigger TargetType="Grid" Binding="{Binding IsEnabled}" Value="False">
+                                    <Setter Property="Opacity" Value="0.4"/>
+                                </DataTrigger>
+                            </Grid.Triggers>
                             <Border WidthRequest="38" HeightRequest="38" StrokeThickness="0"
                                     StrokeShape="RoundRectangle 11"
                                     BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}">

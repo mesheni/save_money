@@ -73,18 +73,28 @@ public sealed class RecurringService(AppDatabase database, TransactionService tr
         var created = 0;
         foreach (var recurring in GetDue(nowUnix))
         {
-            _transactions.Save(new Transaction
+            // Одна сбойная запись (битый бэкап, нулевая сумма) не должна ронять старт
+            // приложения и останавливать материализацию остальных платежей.
+            try
             {
-                AccountId = recurring.AccountId,
-                CategoryId = recurring.CategoryId,
-                AmountMinor = recurring.AmountMinor,
-                Kind = recurring.Kind,
-                Payee = recurring.Payee,
-                Note = recurring.Note,
-                DateUnix = recurring.NextDateUnix,
-                Source = TransactionSource.Recurring,
-            });
-            created++;
+                _transactions.Save(new Transaction
+                {
+                    AccountId = recurring.AccountId,
+                    CategoryId = recurring.CategoryId,
+                    AmountMinor = recurring.AmountMinor,
+                    Kind = recurring.Kind,
+                    Payee = recurring.Payee,
+                    Note = recurring.Note,
+                    DateUnix = recurring.NextDateUnix,
+                    Source = TransactionSource.Recurring,
+                });
+                created++;
+            }
+            catch (ArgumentException)
+            {
+                // Транзакцию пропускаем, но срок всё равно переносим — иначе битая
+                // запись будет оставаться «наступившей» при каждом запуске.
+            }
 
             var next = recurring.NextDateUnix;
             while (next <= nowUnix)

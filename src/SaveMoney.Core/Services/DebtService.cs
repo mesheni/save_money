@@ -36,7 +36,16 @@ public sealed class DebtService(AppDatabase database, TransactionService transac
             .FirstOrDefault(c => c.Kind == kind && c.Name == RepaymentCategoryName);
         if (category is null)
         {
-            return;
+            // Системную категорию могли переименовать: молчаливый пропуск терял бы
+            // обещанную транзакцию — пересоздаём категорию и записываем платёж.
+            category = new Category
+            {
+                Name = RepaymentCategoryName,
+                Icon = kind == TransactionKind.Income ? "↩️" : "💳",
+                Kind = kind,
+                IsDefault = true,
+            };
+            _db.Categories.Save(category);
         }
 
         _transactions.Save(new Transaction
