@@ -2,16 +2,9 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:SaveMoney.ViewModels"
-             xmlns:conv="clr-namespace:SaveMoney.Converters"
              x:Class="SaveMoney.Views.DebtsPage"
              Title="Долги"
              Appearing="OnAppearing">
-
-    <ContentPage.Resources>
-        <conv:BoolToColorConverter x:Key="OverdueColor"
-                                             TrueColor="#E05357" TrueColorDark="#F58C8F"
-                                             FalseColor="{StaticResource TextMutedLight}" FalseColorDark="{StaticResource TextMutedDark}"/>
-    </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="＋" Command="{Binding AddCommand}"/>
@@ -37,7 +30,14 @@
                             <Label Text="{Binding Icon}" FontSize="22" VerticalOptions="Start"/>
                             <VerticalStackLayout Grid.Column="1" Spacing="1">
                                 <Label Text="{Binding PersonName}" FontAttributes="Bold"/>
-                                <Label Text="{Binding Subtitle}" FontSize="12" TextColor="{Binding IsOverdue, Converter={StaticResource OverdueColor}}"/>
+                                <Label Text="{Binding Subtitle}" FontSize="12"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsOverdue}" Value="True">
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
                                 <ProgressBar Progress="{Binding Progress}" HeightRequest="4" WidthRequest="160"
                                              HorizontalOptions="Start" VerticalOptions="Center"/>
                             </VerticalStackLayout>
@@ -53,6 +53,9 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
+        <Label Grid.Row="2" Text="Долгов нет — нажмите ＋, чтобы записать"
+               IsVisible="{Binding HasNoRows}" VerticalOptions="Center" HorizontalOptions="Center" Opacity="0.5"/>
 
     </Grid>
 

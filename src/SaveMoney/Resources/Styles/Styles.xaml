@@ -180,9 +180,9 @@
         <Setter Property="FontSize" Value="14" />
     </Style>
 
-    <!-- Цветные суммы (расход/доход) и выборные состояния чипов делаются конвертером
-         BoolToColorConverter в ресурсах страниц: Style.Triggers с DataTrigger не
-         поддерживаются SourceGen-инфлятором внутри ResourceDictionary. -->
+    <!-- Цветные суммы (расход/доход) и выборные состояния чипов делаются inline-триггерами
+         DataTrigger на элементах (со значениями через AppThemeBinding): Style.Triggers с
+         DataTrigger не поддерживаются SourceGen-инфлятором внутри ResourceDictionary. -->
 
     <Style x:Key="DayHeader" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />

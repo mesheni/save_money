@@ -2,16 +2,9 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:SaveMoney.ViewModels"
-             xmlns:conv="clr-namespace:SaveMoney.Converters"
              x:Class="SaveMoney.Views.RecurringPage"
              Title="Регулярные платежи"
              Appearing="OnAppearing">
-
-    <ContentPage.Resources>
-        <conv:BoolToColorConverter x:Key="AmountColor"
-                                        TrueColor="#E05357" TrueColorDark="#F58C8F"
-                                        FalseColor="#2FA45D" FalseColorDark="#6FD597"/>
-    </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="＋" Command="{Binding AddCommand}"/>
@@ -38,14 +31,21 @@
                             </Label>
                             <Label FontSize="12" Opacity="0.6">
                                 <Label.Text>
-                                    <MultiBinding StringFormat="{0} · далее {1}">
+                                    <MultiBinding StringFormat="{0} · {1}">
                                         <Binding Path="AccountText"/>
                                         <Binding Path="NextDateText"/>
                                     </MultiBinding>
                                 </Label.Text>
                             </Label>
                         </VerticalStackLayout>
-                        <Label Grid.Column="1" Text="{Binding AmountText}" FontAttributes="Bold" TextColor="{Binding IsExpense, Converter={StaticResource AmountColor}}"/>
+                        <Label Grid.Column="1" Text="{Binding AmountText}" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsExpense}" Value="True">
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}"/>
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
                         <Grid.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:RecurringViewModel}}}" CommandParameter="{Binding .}"/>
                         </Grid.GestureRecognizers>
@@ -54,6 +54,9 @@
             </DataTemplate>
         </CollectionView.ItemTemplate>
     </CollectionView>
+
+        <Label Text="Регулярных платежей нет — нажмите ＋, чтобы добавить"
+               IsVisible="{Binding HasNoRows}" VerticalOptions="Center" HorizontalOptions="Center" Opacity="0.5"/>
     </Grid>
 
 </ContentPage>

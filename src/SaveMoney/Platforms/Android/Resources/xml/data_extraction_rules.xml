@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- API 31+ (dataExtractionRules): база исключена из облачного бэкапа Google,
+     но переносится на новое устройство напрямую (D2D), чтобы данные не терялись.
+     Ручная копия — «Ещё → Настройки → Резервная копия базы данных». -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="file" path="savemoney.db" />
+        <exclude domain="file" path="savemoney.db-journal" />
+    </cloud-backup>
+</data-extraction-rules>

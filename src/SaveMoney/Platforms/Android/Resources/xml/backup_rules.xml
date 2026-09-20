@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- API 26–30 (fullBackupContent): база с финансовыми данными не уходит в облачный бэкап.
+     Ручная копия — «Ещё → Настройки → Резервная копия базы данных». -->
+<full-backup-content>
+    <exclude domain="file" path="savemoney.db" />
+    <exclude domain="file" path="savemoney.db-journal" />
+</full-backup-content>

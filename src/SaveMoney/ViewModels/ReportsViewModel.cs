@@ -74,7 +74,8 @@ public partial class ReportsViewModel(
     [ObservableProperty]
     public partial Axis[] XAxes { get; set; } = [new Axis()];
 
-    public Axis[] YAxes { get; } = [new Axis { MinLimit = 0 }];
+    [ObservableProperty]
+    public partial Axis[] YAxes { get; set; } = [new Axis { MinLimit = 0 }];
 
     public ObservableCollection<TopCategoryRow> TopRows { get; } = [];
 
@@ -187,7 +188,19 @@ public partial class ReportsViewModel(
             },
         ];
 
-        XAxes = [new Axis { Labels = points.Select(p => p.Label).ToArray(), LabelsRotation = 45 }];
+        // Подписи осей перекрашиваем под текущую тему: дефолтная серая краска
+        // LiveCharts не читается на тёмной карточке.
+        var labelsPaint = new SolidColorPaint(TextPaintForTheme());
+        XAxes = [new Axis { Labels = points.Select(p => p.Label).ToArray(), LabelsRotation = 45, LabelsPaint = labelsPaint }];
+        YAxes = [new Axis { MinLimit = 0, LabelsPaint = labelsPaint }];
+    }
+
+    private static SKColor TextPaintForTheme()
+    {
+        // Токены TextMuted: светлая #796F91 / тёмная #A79FC6
+        return Application.Current?.RequestedTheme == AppTheme.Dark
+            ? new SKColor(0xA7, 0x9F, 0xC6)
+            : new SKColor(0x79, 0x6F, 0x91);
     }
 
     private void BuildTop(long from, long to)

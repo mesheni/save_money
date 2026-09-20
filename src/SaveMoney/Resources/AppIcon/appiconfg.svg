@@ -3,7 +3,7 @@
     <!-- Кошелёк: корпус -->
     <rect x="88" y="128" width="280" height="200" rx="32" fill="#FFFFFF"/>
     <!-- Шов -->
-    <rect x="112" y="160" width="232" height="8" rx="4" fill="#512BD4" opacity="0.35"/>
+    <rect x="112" y="160" width="232" height="8" rx="4" fill="#FF6B00" opacity="0.35"/>
     <!-- Карман для монет -->
     <rect x="256" y="216" width="152" height="112" rx="28" fill="#2ECC71"/>
     <circle cx="316" cy="272" r="18" fill="#FFFFFF"/>
