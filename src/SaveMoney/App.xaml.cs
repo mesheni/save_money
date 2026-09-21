@@ -41,7 +41,15 @@ public partial class App : Application
     private static void MaterializeRecurring()
     {
         // Создаём транзакции по наступившим регулярным платежам (идемпотентно).
-        MauiProgram.Services.GetRequiredService<RecurringService>()
-            .MaterializeDue(DateTimeOffset.Now.ToUnixTimeSeconds());
+        // Сбой (например, недоступная база) не должен убивать старт/возврат в приложение.
+        try
+        {
+            MauiProgram.Services.GetRequiredService<RecurringService>()
+                .MaterializeDue(DateTimeOffset.Now.ToUnixTimeSeconds());
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"MaterializeDue failed: {ex}");
+        }
     }
 }

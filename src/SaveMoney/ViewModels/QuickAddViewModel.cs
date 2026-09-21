@@ -315,7 +315,9 @@ public partial class QuickAddViewModel(
             return;
         }
 
-        SelectRoot(chip);
+        // Вызываем двухарговую перегрузку явно: SelectRoot(chip) разрешился бы
+        // в саму команду (меньше параметров — лучше) и ушёл в бесконечную рекурсию.
+        SelectRoot(chip, trySelectChildId: null);
         if (!HasSubCategories)
         {
             TryQuickSave();

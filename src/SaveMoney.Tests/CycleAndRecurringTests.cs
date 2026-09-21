@@ -208,6 +208,49 @@ public class CycleAndRecurringTests : IDisposable
         Assert.True(broken.NextDateUnix > nowUnix);
     }
 
+    [Fact]
+    public void Recurring_MaterializeDue_SkipsCorruptNextDate_AndStillMaterializesTheRest()
+    {
+        var service = MakeService();
+        var account = new Account { Name = "Карта" };
+        _test.Db.Accounts.Save(account);
+
+        var nowUnix = DateTimeOffset.Now.ToUnixTimeSeconds();
+
+        // Невозможная дата (битый бэкап): DateTimeOffset.FromUnixTimeSeconds кидает
+        // ArgumentOutOfRangeException — раньше это роняло старт/возврат в приложение.
+        _test.Db.RecurringPayments.Save(new RecurringPayment
+        {
+            AccountId = account.Id,
+            AmountMinor = 3_000,
+            Kind = TransactionKind.Expense,
+            RecurrenceType = "monthly",
+            DayOfMonth = 10,
+            NextDateUnix = long.MinValue,
+        });
+
+        _test.Db.RecurringPayments.Save(new RecurringPayment
+        {
+            AccountId = account.Id,
+            AmountMinor = 5_000,
+            Kind = TransactionKind.Expense,
+            RecurrenceType = "monthly",
+            DayOfMonth = 15,
+            NextDateUnix = Unix(DateTime.Now.AddDays(-2)),
+        });
+
+        var created = service.MaterializeDue(nowUnix);
+
+        // Здоровая материализована, битая не уронила цикл
+        Assert.Equal(1, created);
+        var tx = Assert.Single(_test.Db.Transactions.GetRecent());
+        Assert.Equal(5_000, tx.AmountMinor);
+
+        // Битая осталась как была (дату продвинуть нельзя; не материализуется, но не мешает)
+        var corrupt = _test.Db.RecurringPayments.GetAllActive().Single(r => r.AmountMinor == 3_000);
+        Assert.Equal(long.MinValue, corrupt.NextDateUnix);
+    }
+
     private RecurringService MakeService()
     {
         var transactions = new TransactionService(_test.Db);
