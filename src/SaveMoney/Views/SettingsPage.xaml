@@ -8,26 +8,37 @@
     <ScrollView>
         <VerticalStackLayout Padding="16,10" Spacing="14">
 
-            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                <Label Text="Тема" VerticalOptions="Center"/>
-                <Picker Grid.Column="1" ItemsSource="{Binding ThemeOptions}" SelectedIndex="{Binding ThemeIndex}"/>
-            </Grid>
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="14">
 
-            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
-                <VerticalStackLayout Spacing="1">
-                    <Label Text="Сохранять сразу при выборе категории" VerticalOptions="Center"/>
-                    <Label Text="Ввод за 2 касания: сумма + категория" FontSize="12" Opacity="0.6"/>
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Text="Тема" VerticalOptions="Center"/>
+                        <Picker Grid.Column="1" ItemsSource="{Binding ThemeOptions}" SelectedIndex="{Binding ThemeIndex}"/>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" HorizontalOptions="Fill"
+                             Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <VerticalStackLayout Spacing="1" VerticalOptions="Center">
+                            <Label Text="Сохранять сразу при выборе категории" VerticalOptions="Center"/>
+                            <Label Text="Ввод за 2 касания: сумма + категория" FontSize="12" Opacity="0.6"/>
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="1" IsToggled="{Binding QuickSaveOnCategory}" VerticalOptions="Center"/>
+                    </Grid>
+
                 </VerticalStackLayout>
-                <Switch Grid.Column="1" IsToggled="{Binding QuickSaveOnCategory}" VerticalOptions="Center"/>
-            </Grid>
+            </Border>
 
-            <Button Text="Экспортировать все операции в CSV" Command="{Binding ExportAllCsvCommand}"/>
-            <Button Text="Резервная копия базы данных" Command="{Binding BackupDatabaseAsyncCommand}"/>
+            <Button Text="Экспортировать все операции в CSV" Style="{StaticResource PrimaryButton}"
+                    Command="{Binding ExportAllCsvCommand}"/>
+            <Button Text="Резервная копия базы данных" Style="{StaticResource GhostButton}"
+                    Command="{Binding BackupDatabaseAsyncCommand}"/>
 
             <Label Text="День зарплаты и цикл настраиваются на экране «Ещё → До зарплаты»."
                    FontSize="13" Opacity="0.6"/>
 
-            <Label Text="{Binding AboutText}" FontSize="13" Opacity="0.7" Margin="0,10,0,10"/>
+            <Label Text="{Binding AboutText}" FontSize="13" Opacity="0.7" Margin="0,4,0,10"/>
 
         </VerticalStackLayout>
     </ScrollView>

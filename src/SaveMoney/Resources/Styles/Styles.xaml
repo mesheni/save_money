@@ -115,12 +115,33 @@
 
     <!-- ═══ Vibrant: карточка r24 ═══ -->
 
+    <!-- Elevation из контракта (elev-raised: 0 18px 44px rgba(29,24,54,.14)), масштаб для мобилы -->
     <Style x:Key="Card" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
         <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
         <Setter Property="StrokeShape" Value="RoundRectangle 24" />
         <Setter Property="StrokeThickness" Value="1" />
         <Setter Property="Padding" Value="16" />
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="#1D1836" Opacity="0.10" Radius="18" Offset="0,6" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Карточная строка списка: Accounts/Categories/Recurring/Debts/Budgets/платежи -->
+    <Style x:Key="ListRow" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="Padding" Value="14,10" />
+        <Setter Property="Margin" Value="0,4" />
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="#1D1836" Opacity="0.06" Radius="10" Offset="0,3" />
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- ═══ Vibrant: сегменты расход/доход/перевод ═══ -->
@@ -199,6 +220,11 @@
         <Setter Property="StrokeThickness" Value="1" />
         <Setter Property="Padding" Value="12,8" />
         <Setter Property="Margin" Value="0,10,0,2" />
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="#1D1836" Opacity="0.06" Radius="10" Offset="0,3" />
+            </Setter.Value>
+        </Setter>
     </Style>
 
 </ResourceDictionary>

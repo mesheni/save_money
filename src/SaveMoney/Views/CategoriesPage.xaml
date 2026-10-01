@@ -24,27 +24,33 @@
         <CollectionView Grid.Row="1" ItemsSource="{Binding Rows}">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="vm:CategoryRowVM">
-                    <Grid Padding="6,10" ColumnDefinitions="*,Auto,Auto" Margin="{Binding RowMargin}">
-                        <Label Grid.Column="0" FontSize="15">
-                            <Label.Text>
-                                <MultiBinding StringFormat="{0} {1}">
-                                    <Binding Path="Icon"/>
-                                    <Binding Path="Name"/>
-                                </MultiBinding>
-                            </Label.Text>
-                        </Label>
-                        <Button Grid.Column="1" Text="{x:Static ctl:Glyphs.Add}" FontFamily="MaterialSymbolsRounded" FontSize="17" Padding="10,6" Style="{StaticResource GhostButton}"
+                    <Border Style="{StaticResource ListRow}" Margin="{Binding RowMargin}">
+                        <Grid ColumnDefinitions="*,Auto,Auto">
+                            <Label Grid.Column="0" FontSize="15">
+                                <Label.Text>
+                                    <MultiBinding StringFormat="{0} {1}">
+                                        <Binding Path="Icon"/>
+                                        <Binding Path="Name"/>
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+                            <Button Grid.Column="1" Text="{x:Static ctl:Glyphs.Add}" FontFamily="MaterialSymbolsRounded" FontSize="17" Padding="10,6" Style="{StaticResource GhostButton}"
                                 IsVisible="{Binding ShowAddChild}"
                                 Command="{Binding AddChildCommand, Source={RelativeSource AncestorType={x:Type vm:CategoriesViewModel}}}"
                                 CommandParameter="{Binding .}"/>
-                        <Button Grid.Column="2" Text="{x:Static ctl:Glyphs.Delete}" FontFamily="MaterialSymbolsRounded" FontSize="17" Padding="10,6" Style="{StaticResource DangerButton}"
+                            <Button Grid.Column="2" Text="{x:Static ctl:Glyphs.Delete}" FontFamily="MaterialSymbolsRounded" FontSize="17" Padding="10,6" Style="{StaticResource DangerButton}"
                                 IsVisible="{Binding CanDelete}"
                                 Command="{Binding DeleteCommand, Source={RelativeSource AncestorType={x:Type vm:CategoriesViewModel}}}"
                                 CommandParameter="{Binding .}"/>
-                    </Grid>
+                        </Grid>
+                    </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
+        <Label Grid.Row="1" Text="Категорий нет — добавьте первую кнопкой сверху"
+               IsVisible="{Binding HasNoRows}" VerticalOptions="Center" HorizontalOptions="Center"
+               TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
 
     </Grid>
 

@@ -7,13 +7,13 @@
              Appearing="OnAppearing">
 
     <ScrollView>
-        <VerticalStackLayout Padding="16,10" Spacing="12">
+        <VerticalStackLayout Padding="16,10" Spacing="14">
 
-            <Border StrokeShape="RoundRectangle 12" BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" Padding="16,12">
+            <Border Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="4">
                     <Label Text="{Binding PersonTitle}" FontSize="24" FontFamily="InterSemiBold"/>
                     <Label Text="{Binding DirectionText}" FontSize="13" Opacity="0.6"/>
-                    <Label Text="{Binding RemainingText}" FontSize="30" FontFamily="InterSemiBold"/>
+                    <Label Text="{Binding RemainingText}" FontSize="30" FontFamily="InterBold"/>
                     <Label Text="{Binding TotalText, StringFormat='из {0}'}" FontSize="13" Opacity="0.6"/>
                     <Label Text="{Binding DueText}" FontSize="13" Opacity="0.6"/>
                     <Label Text="Долг закрыт ✓" TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}" FontFamily="InterSemiBold"
@@ -21,30 +21,32 @@
                 </VerticalStackLayout>
             </Border>
 
-            <Label Text="Платежи" FontSize="12" Opacity="0.6"/>
+            <Label Text="Платежи" Style="{StaticResource GroupLabel}"/>
             <CollectionView ItemsSource="{Binding Payments}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:PaymentRowVM">
-                        <Grid Padding="4,6" ColumnDefinitions="*,Auto">
-                            <Label Text="{Binding DateText}" Opacity="0.7"/>
-                            <Label Grid.Column="1" Text="{Binding AmountText}" FontFamily="InterSemiBold"/>
-                        </Grid>
+                        <Border Style="{StaticResource ListRow}">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="{Binding DateText}" Opacity="0.7" VerticalOptions="Center"/>
+                                <Label Grid.Column="1" Text="{Binding AmountText}" FontFamily="InterSemiBold" VerticalOptions="Center"/>
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
             <VerticalStackLayout Spacing="10" IsVisible="{Binding !IsSettled}">
-                <Label Text="Добавить платёж" FontSize="16" FontFamily="InterSemiBold"/>
+                <Label Text="Добавить платёж" Style="{StaticResource GroupLabel}"/>
                 <Entry Text="{Binding PaymentAmountText}" Placeholder="Сумма, ₽" Keyboard="Text"/>
                 <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
                     <Label Text="Дата" VerticalOptions="Center"/>
                     <DatePicker Date="{Binding PaymentDate}" Format="d MMM yyyy"/>
                 </HorizontalStackLayout>
-                <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding CanLinkTransaction}">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" IsVisible="{Binding CanLinkTransaction}">
                     <Label Text="Провести по связанному счёту" VerticalOptions="Center"/>
-                    <Switch Grid.Column="1" IsToggled="{Binding CreateTransaction}"/>
+                    <Switch Grid.Column="1" IsToggled="{Binding CreateTransaction}" VerticalOptions="Center"/>
                 </Grid>
-                <Button Text="Добавить платёж" BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}" TextColor="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}" Command="{Binding AddPaymentCommand}"/>
+                <Button Text="Добавить платёж" Style="{StaticResource PrimaryButton}" Command="{Binding AddPaymentCommand}"/>
                 <Button Text="Закрыть досрочно" Style="{StaticResource GhostButton}" Command="{Binding SettleCommand}"/>
             </VerticalStackLayout>
 

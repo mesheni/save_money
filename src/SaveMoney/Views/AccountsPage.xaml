@@ -29,23 +29,35 @@
                                 <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                             </SwipeItems>
                         </SwipeView.RightItems>
-                        <Grid Padding="6,12" ColumnDefinitions="Auto,44,*,Auto" ColumnSpacing="8">
-                            <Border Grid.Column="0" WidthRequest="12" HeightRequest="12" StrokeShape="RoundRectangle 6"
-                                    BackgroundColor="{Binding ColorHex}" StrokeThickness="0" VerticalOptions="Center"/>
-                            <Label Grid.Column="1" Text="{Binding Icon}" FontSize="20"/>
-                            <VerticalStackLayout Grid.Column="2">
-                                <Label Text="{Binding Name}" FontFamily="InterSemiBold"/>
-                                <Label Text="{Binding Subtitle}" FontSize="12" Opacity="0.5"/>
-                            </VerticalStackLayout>
-                            <Label Grid.Column="3" Text="{Binding BalanceText}" FontFamily="InterSemiBold" VerticalOptions="Center"/>
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:AccountsViewModel}}}" CommandParameter="{Binding .}"/>
-                            </Grid.GestureRecognizers>
-                        </Grid>
+                        <Border Style="{StaticResource ListRow}">
+                            <Grid ColumnDefinitions="38,*,Auto" ColumnSpacing="12">
+                                <Border WidthRequest="38" HeightRequest="38" StrokeThickness="0" StrokeShape="RoundRectangle 11"
+                                        BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}">
+                                    <Label Text="{Binding Icon}" FontSize="19"
+                                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                    <HorizontalStackLayout Spacing="6">
+                                        <Border WidthRequest="8" HeightRequest="8" StrokeShape="RoundRectangle 4"
+                                                BackgroundColor="{Binding ColorHex}" StrokeThickness="0" VerticalOptions="Center"/>
+                                        <Label Text="{Binding Name}" FontFamily="InterSemiBold" VerticalOptions="Center"/>
+                                    </HorizontalStackLayout>
+                                    <Label Text="{Binding Subtitle}" FontSize="12" Opacity="0.5"/>
+                                </VerticalStackLayout>
+                                <Label Grid.Column="2" Text="{Binding BalanceText}" FontFamily="InterSemiBold" VerticalOptions="Center"/>
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:AccountsViewModel}}}" CommandParameter="{Binding .}"/>
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </Border>
                     </SwipeView>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
+        <Label Grid.Row="1" Text="Счетов пока нет — добавьте первый кнопкой сверху"
+               IsVisible="{Binding HasNoRows}" VerticalOptions="Center" HorizontalOptions="Center"
+               TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
 
     </Grid>
 

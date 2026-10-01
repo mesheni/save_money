@@ -35,6 +35,9 @@ public partial class CategoriesViewModel(AppDatabase db, CategoryService categor
     [ObservableProperty]
     public partial int KindIndex { get; set; }
 
+    [ObservableProperty]
+    public partial bool HasNoRows { get; set; } = true;
+
     private string Kind => KindIndex == 1 ? CategoryKind.Income : CategoryKind.Expense;
 
     public Task InitializeAsync()
@@ -65,10 +68,12 @@ public partial class CategoriesViewModel(AppDatabase db, CategoryService categor
                     Name = child.Name,
                     Icon = child.Icon ?? "❓",
                     IsRoot = false,
-                    CanDelete = !child.IsDefault,
-                });
-            }
+                CanDelete = !child.IsDefault,
+            });
         }
+
+        HasNoRows = Rows.Count == 0;
+    }
     }
 
     partial void OnKindIndexChanged(int value) => Reload();

@@ -2,12 +2,18 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:SaveMoney.ViewModels"
+             xmlns:ctl="clr-namespace:SaveMoney.Controls"
              x:Class="SaveMoney.Views.RecurringPage"
              Title="Регулярные платежи"
              Appearing="OnAppearing">
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="＋" Command="{Binding AddCommand}"/>
+        <ToolbarItem Command="{Binding AddCommand}">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource Glyph="{x:Static ctl:Glyphs.Add}" FontFamily="MaterialSymbolsRounded" Size="20"
+                                 Color="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
     </ContentPage.ToolbarItems>
 
     <Grid Padding="12,6">
@@ -20,42 +26,45 @@
                             <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                         </SwipeItems>
                     </SwipeView.RightItems>
-                    <Grid Padding="6,10" ColumnDefinitions="*,Auto">
-                        <VerticalStackLayout Spacing="1">
-                            <Label Text="{Binding TitleText}" FontFamily="InterSemiBold">
+                    <Border Style="{StaticResource ListRow}">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="1">
+                                <Label Text="{Binding TitleText}" FontFamily="InterSemiBold">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsActive}" Value="False">
+                                            <Setter Property="Opacity" Value="0.5"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Label FontSize="12" Opacity="0.6">
+                                    <Label.Text>
+                                        <MultiBinding StringFormat="{0} · {1}">
+                                            <Binding Path="AccountText"/>
+                                            <Binding Path="NextDateText"/>
+                                        </MultiBinding>
+                                    </Label.Text>
+                                </Label>
+                            </VerticalStackLayout>
+                            <Label Grid.Column="1" Text="{Binding AmountText}" FontFamily="InterSemiBold"
+                                   TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}"
+                                   VerticalOptions="Center">
                                 <Label.Triggers>
-                                    <DataTrigger TargetType="Label" Binding="{Binding IsActive}" Value="False">
-                                        <Setter Property="Opacity" Value="0.5"/>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsExpense}" Value="True">
+                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}"/>
                                     </DataTrigger>
                                 </Label.Triggers>
                             </Label>
-                            <Label FontSize="12" Opacity="0.6">
-                                <Label.Text>
-                                    <MultiBinding StringFormat="{0} · {1}">
-                                        <Binding Path="AccountText"/>
-                                        <Binding Path="NextDateText"/>
-                                    </MultiBinding>
-                                </Label.Text>
-                            </Label>
-                        </VerticalStackLayout>
-                        <Label Grid.Column="1" Text="{Binding AmountText}" FontFamily="InterSemiBold"
-                               TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}">
-                            <Label.Triggers>
-                                <DataTrigger TargetType="Label" Binding="{Binding IsExpense}" Value="True">
-                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}"/>
-                                </DataTrigger>
-                            </Label.Triggers>
-                        </Label>
-                        <Grid.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:RecurringViewModel}}}" CommandParameter="{Binding .}"/>
-                        </Grid.GestureRecognizers>
-                    </Grid>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:RecurringViewModel}}}" CommandParameter="{Binding .}"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                    </Border>
                 </SwipeView>
             </DataTemplate>
         </CollectionView.ItemTemplate>
     </CollectionView>
 
-        <Label Text="Регулярных платежей нет — нажмите ＋, чтобы добавить"
+        <Label Text="Регулярных платежей нет — добавьте первый кнопкой сверху"
                IsVisible="{Binding HasNoRows}" VerticalOptions="Center" HorizontalOptions="Center" Opacity="0.5"/>
     </Grid>
 

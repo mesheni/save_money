@@ -2,12 +2,18 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:SaveMoney.ViewModels"
+             xmlns:ctl="clr-namespace:SaveMoney.Controls"
              x:Class="SaveMoney.Views.BudgetsPage"
              Title="Бюджеты"
              Appearing="OnAppearing">
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="＋" Command="{Binding AddCommand}"/>
+        <ToolbarItem Command="{Binding AddCommand}">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource Glyph="{x:Static ctl:Glyphs.Add}" FontFamily="MaterialSymbolsRounded" Size="20"
+                                 Color="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
     </ContentPage.ToolbarItems>
 
     <Grid RowDefinitions="Auto,*" Padding="12,6">
@@ -23,38 +29,40 @@
                                 <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                             </SwipeItems>
                         </SwipeView.RightItems>
-                        <VerticalStackLayout Padding="6,10" Spacing="4">
-                            <Grid ColumnDefinitions="*,Auto,Auto">
-                                <Label Text="{Binding Name}" FontFamily="InterSemiBold"/>
-                                <Label Grid.Column="1" Text="{Binding PercentText}" FontSize="12" Opacity="0.6" Margin="8,0"/>
-                                <Label Grid.Column="2" Text="{Binding FactText}" FontFamily="InterSemiBold"/>
-                            </Grid>
-                            <ProgressBar Progress="{Binding Progress}" HeightRequest="7"
-                                         ProgressColor="{AppThemeBinding Light={StaticResource IncomeLight}, Dark={StaticResource IncomeDark}}">
-                                <ProgressBar.Triggers>
-                                    <DataTrigger TargetType="ProgressBar" Binding="{Binding IsOver}" Value="True">
-                                        <Setter Property="ProgressColor" Value="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}"/>
-                                    </DataTrigger>
-                                </ProgressBar.Triggers>
-                            </ProgressBar>
-                            <Label Text="{Binding PlanText}" FontSize="12"
-                                   TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}">
-                                <Label.Triggers>
-                                    <DataTrigger TargetType="Label" Binding="{Binding IsOver}" Value="True">
-                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}"/>
-                                    </DataTrigger>
-                                </Label.Triggers>
-                            </Label>
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:BudgetsViewModel}}}" CommandParameter="{Binding .}"/>
-                            </Grid.GestureRecognizers>
-                        </VerticalStackLayout>
+                        <Border Style="{StaticResource ListRow}">
+                            <VerticalStackLayout Spacing="6">
+                                <Grid ColumnDefinitions="*,Auto,Auto">
+                                    <Label Text="{Binding Name}" FontFamily="InterSemiBold"/>
+                                    <Label Grid.Column="1" Text="{Binding PercentText}" FontSize="12" Opacity="0.6" Margin="8,0"/>
+                                    <Label Grid.Column="2" Text="{Binding FactText}" FontFamily="InterSemiBold"/>
+                                </Grid>
+                                <ProgressBar Progress="{Binding Progress}" HeightRequest="7"
+                                             ProgressColor="{AppThemeBinding Light={StaticResource IncomeLight}, Dark={StaticResource IncomeDark}}">
+                                    <ProgressBar.Triggers>
+                                        <DataTrigger TargetType="ProgressBar" Binding="{Binding IsOver}" Value="True">
+                                            <Setter Property="ProgressColor" Value="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}"/>
+                                        </DataTrigger>
+                                    </ProgressBar.Triggers>
+                                </ProgressBar>
+                                <Label Text="{Binding PlanText}" FontSize="12"
+                                       TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsOver}" Value="True">
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:BudgetsViewModel}}}" CommandParameter="{Binding .}"/>
+                                </Grid.GestureRecognizers>
+                            </VerticalStackLayout>
+                        </Border>
                     </SwipeView>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Label Grid.Row="1" Text="Бюджетов пока нет — нажмите ＋, чтобы задать лимит"
+        <Label Grid.Row="1" Text="Бюджетов пока нет — задайте первый лимит кнопкой сверху"
                IsVisible="{Binding !HasBudgets}" VerticalOptions="Center" HorizontalOptions="Center" Opacity="0.5"/>
 
     </Grid>

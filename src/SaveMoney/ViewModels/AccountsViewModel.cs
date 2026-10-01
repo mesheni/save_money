@@ -50,6 +50,9 @@ public partial class AccountsViewModel(AppDatabase db, BalanceService balance) :
     [ObservableProperty]
     public partial string TotalText { get; set; } = "";
 
+    [ObservableProperty]
+    public partial bool HasNoRows { get; set; } = true;
+
     public Task InitializeAsync()
     {
         Rows.Clear();
@@ -67,6 +70,7 @@ public partial class AccountsViewModel(AppDatabase db, BalanceService balance) :
         }
 
         TotalText = $"Всего: {MoneyFormat.Rubles(_balance.GetTotalBalance())}";
+        HasNoRows = Rows.Count == 0;
         return Task.CompletedTask;
     }
 
