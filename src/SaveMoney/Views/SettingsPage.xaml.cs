@@ -1,4 +1,5 @@
 using Microsoft.Maui.Controls;
+using SaveMoney.Helpers;
 using SaveMoney.ViewModels;
 
 namespace SaveMoney.Views;
@@ -17,6 +18,7 @@ public partial class SettingsPage : ContentPage
         if (BindingContext is SettingsViewModel vm)
         {
             await vm.InitializeAsync();
+            await RootStack.Children.OfType<View>().FadeInUpStaggeredAsync();
         }
     }
 }

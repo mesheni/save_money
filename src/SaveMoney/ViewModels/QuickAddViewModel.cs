@@ -45,6 +45,9 @@ public partial class QuickAddViewModel(
     [ObservableProperty]
     public partial string BalanceText { get; set; } = "…";
 
+    /// <summary>Баланс числом (в рублях) — для count-up анимации на странице.</summary>
+    public double BalanceValue => _balance.GetTotalBalance() / 100.0;
+
     [ObservableProperty]
     public partial bool IsIncome { get; set; }
 
@@ -77,6 +80,9 @@ public partial class QuickAddViewModel(
 
     /// <summary>Страница подставляет закрытие экрана после правки.</summary>
     public Func<Task>? CloseAsync { get; set; }
+
+    /// <summary>Страница подставляет тост «Сохранено» после успешной записи.</summary>
+    public Func<Task>? SavedAsync { get; set; }
 
     public string? EditId
     {
@@ -446,6 +452,14 @@ public partial class QuickAddViewModel(
         {
             // Экран с виджета открыт поверх вкладки «Ввод» — после сохранения возвращаемся на вкладку.
             await Shell.Current.GoToAsync("..");
+        }
+        else
+        {
+            // Тост не показываем на экране правки и на экране с виджета (страница закрывается).
+            if (SavedAsync is not null)
+            {
+                await SavedAsync();
+            }
         }
     }
 

@@ -49,7 +49,7 @@
                                             </DataTrigger>
                                         </Label.Triggers>
                                     </Label>
-                                    <ProgressBar Progress="{Binding Progress}" HeightRequest="4" WidthRequest="160"
+                                    <ctl:AnimatedProgressBar Progress="{Binding Progress}" HeightRequest="4" WidthRequest="160"
                                                  HorizontalOptions="Start" VerticalOptions="Center"/>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout Grid.Column="2" HorizontalOptions="End" VerticalOptions="Center">

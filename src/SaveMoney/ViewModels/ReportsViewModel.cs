@@ -62,6 +62,9 @@ public partial class ReportsViewModel(
     [ObservableProperty]
     public partial string PeriodExpenseText { get; set; } = "—";
 
+    /// <summary>Расход за период числом (в рублях) — для count-up анимации на странице.</summary>
+    public double PeriodExpenseValue { get; private set; }
+
     [ObservableProperty]
     public partial bool HasData { get; set; } = true;
 
@@ -121,6 +124,7 @@ public partial class ReportsViewModel(
         var (income, expense) = _reports.GetTotals(from, to);
 
         HasData = income != 0 || expense != 0;
+        PeriodExpenseValue = expense / 100.0;
         PeriodExpenseText = HasData ? MoneyFormat.Rubles(expense) : "—";
         SummaryText = HasData
             ? $"Доход {MoneyFormat.Rubles(income)}"

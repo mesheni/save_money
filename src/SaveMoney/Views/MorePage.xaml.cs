@@ -1,4 +1,5 @@
 using Microsoft.Maui.Controls;
+using SaveMoney.Helpers;
 using SaveMoney.ViewModels;
 
 namespace SaveMoney.Views;
@@ -9,5 +10,11 @@ public partial class MorePage : ContentPage
     {
         InitializeComponent();
         BindingContext = viewModel;
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await RootGrid.Children.OfType<View>().FadeInUpStaggeredAsync();
     }
 }

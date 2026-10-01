@@ -7,7 +7,7 @@
              Appearing="OnAppearing">
 
     <ScrollView>
-        <VerticalStackLayout Padding="14,6" Spacing="14">
+        <VerticalStackLayout x:Name="RootStack" Padding="14,6" Spacing="14">
 
             <Border Style="{StaticResource Card}" Padding="18,16">
                 <VerticalStackLayout Spacing="4">

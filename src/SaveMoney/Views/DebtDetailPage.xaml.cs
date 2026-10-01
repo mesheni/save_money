@@ -1,4 +1,5 @@
 using Microsoft.Maui.Controls;
+using SaveMoney.Helpers;
 using SaveMoney.ViewModels;
 
 namespace SaveMoney.Views;
@@ -18,5 +19,6 @@ public partial class DebtDetailPage : ContentPage
     private async void OnAppearing(object? sender, EventArgs e)
     {
         await _viewModel.InitializeAsync();
+        await RootStack.Children.OfType<View>().FadeInUpStaggeredAsync();
     }
 }

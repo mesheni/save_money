@@ -36,14 +36,14 @@
                                     <Label Grid.Column="1" Text="{Binding PercentText}" FontSize="12" Opacity="0.6" Margin="8,0"/>
                                     <Label Grid.Column="2" Text="{Binding FactText}" FontFamily="InterSemiBold"/>
                                 </Grid>
-                                <ProgressBar Progress="{Binding Progress}" HeightRequest="7"
+                                <ctl:AnimatedProgressBar Progress="{Binding Progress}" HeightRequest="7"
                                              ProgressColor="{AppThemeBinding Light={StaticResource IncomeLight}, Dark={StaticResource IncomeDark}}">
                                     <ProgressBar.Triggers>
                                         <DataTrigger TargetType="ProgressBar" Binding="{Binding IsOver}" Value="True">
                                             <Setter Property="ProgressColor" Value="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}"/>
                                         </DataTrigger>
                                     </ProgressBar.Triggers>
-                                </ProgressBar>
+                                </ctl:AnimatedProgressBar>
                                 <Label Text="{Binding PlanText}" FontSize="12"
                                        TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}">
                                     <Label.Triggers>

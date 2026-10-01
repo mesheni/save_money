@@ -6,7 +6,7 @@
              x:Class="SaveMoney.Views.MorePage"
              Title="Ещё">
 
-    <Grid RowDefinitions="*,Auto" Padding="14,6">
+    <Grid x:Name="RootGrid" RowDefinitions="*,Auto" Padding="14,6">
 
         <Border Grid.Row="0" Style="{StaticResource Card}" Padding="0" VerticalOptions="Start">
             <CollectionView ItemsSource="{Binding Items}">

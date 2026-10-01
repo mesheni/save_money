@@ -6,18 +6,19 @@
              Title="{Binding ModeText}"
              Appearing="OnAppearing">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="14,4" Spacing="10">
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout Padding="14,4" Spacing="10">
 
-            <VerticalStackLayout Spacing="0" Padding="0,4,0,2">
-                <Label Text="Баланс по счетам" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
-                       HorizontalOptions="Center"/>
-                <Label Text="{Binding BalanceText}" FontSize="20" FontFamily="InterSemiBold"
-                       HorizontalOptions="Center"/>
-            </VerticalStackLayout>
+                <VerticalStackLayout Spacing="0" Padding="0,4,0,2">
+                    <Label Text="Баланс по счетам" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
+                           HorizontalOptions="Center"/>
+                    <Label x:Name="BalanceLabel" Text="{Binding BalanceText}" FontSize="20" FontFamily="InterSemiBold"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
 
-            <Border Style="{StaticResource SegContainer}">
-                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="3">
+                <Border Style="{StaticResource SegContainer}">
+                    <Grid x:Name="SegGrid" ColumnDefinitions="*,*,*" ColumnSpacing="3">
                     <Button Grid.Column="0" Text="Расход" Style="{StaticResource SegButton}"
                             Command="{Binding SetExpenseCommand}">
                         <Button.Triggers>
@@ -55,7 +56,7 @@
                        VerticalOptions="End" Margin="0,0,0,6"/>
             </HorizontalStackLayout>
 
-            <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+            <Grid x:Name="Keypad" ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
                 <Button Grid.Row="0" Grid.Column="0" Text="1" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="1"/>
                 <Button Grid.Row="0" Grid.Column="1" Text="2" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="2"/>
                 <Button Grid.Row="0" Grid.Column="2" Text="3" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="3"/>
@@ -205,10 +206,21 @@
                 <DatePicker Date="{Binding Date}" Format="d MMM yyyy"/>
             </HorizontalStackLayout>
 
-            <Button Text="Сохранить" Style="{StaticResource PrimaryButton}" Margin="0,12,0,12"
+            <Button x:Name="SaveButton" Text="Сохранить" Style="{StaticResource PrimaryButton}" Margin="0,12,0,12"
                     Command="{Binding SaveCommand}"/>
 
         </VerticalStackLayout>
-    </ScrollView>
+        </ScrollView>
+
+        <!-- Тост «Сохранено»: вписан в дизайн-систему вместо системного снекбара -->
+        <Border x:Name="SavedToast" IsVisible="False" Opacity="0"
+                StrokeThickness="0" StrokeShape="RoundRectangle 999" Padding="18,10"
+                BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"
+                HorizontalOptions="Center" VerticalOptions="End" Margin="16,0,16,16"
+                InputTransparent="True">
+            <Label Text="Сохранено ✓" TextColor="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}"
+                   FontFamily="InterSemiBold" FontSize="14" />
+        </Border>
+    </Grid>
 
 </ContentPage>
