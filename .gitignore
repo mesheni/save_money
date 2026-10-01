@@ -49,3 +49,6 @@ sysout.txt
 
 ## ZCode session files
 .zcode/
+
+# ZCode session files
+.zcodeignore
