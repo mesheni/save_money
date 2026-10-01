@@ -12,7 +12,7 @@
 
     <Grid RowDefinitions="Auto,*" Padding="12,6">
 
-        <Label Grid.Row="0" Text="{Binding CycleText}" FontAttributes="Bold" Padding="4,6,0,8"/>
+        <Label Grid.Row="0" Text="{Binding CycleText}" FontFamily="InterSemiBold" Padding="4,6,0,8"/>
 
         <CollectionView Grid.Row="1" ItemsSource="{Binding Rows}">
             <CollectionView.ItemTemplate>
@@ -25,9 +25,9 @@
                         </SwipeView.RightItems>
                         <VerticalStackLayout Padding="6,10" Spacing="4">
                             <Grid ColumnDefinitions="*,Auto,Auto">
-                                <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                <Label Text="{Binding Name}" FontFamily="InterSemiBold"/>
                                 <Label Grid.Column="1" Text="{Binding PercentText}" FontSize="12" Opacity="0.6" Margin="8,0"/>
-                                <Label Grid.Column="2" Text="{Binding FactText}" FontAttributes="Bold"/>
+                                <Label Grid.Column="2" Text="{Binding FactText}" FontFamily="InterSemiBold"/>
                             </Grid>
                             <ProgressBar Progress="{Binding Progress}" HeightRequest="7"
                                          ProgressColor="{AppThemeBinding Light={StaticResource IncomeLight}, Dark={StaticResource IncomeDark}}">

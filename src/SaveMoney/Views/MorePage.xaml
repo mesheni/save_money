@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:SaveMoney.ViewModels"
+             xmlns:ctl="clr-namespace:SaveMoney.Controls"
              x:Class="SaveMoney.Views.MorePage"
              Title="Ещё">
 
@@ -24,10 +25,10 @@
                                        HorizontalOptions="Center" VerticalOptions="Center"/>
                             </Border>
                             <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
-                                <Label Text="{Binding Title}" FontSize="15" FontAttributes="Bold"/>
+                                <Label Text="{Binding Title}" FontSize="15" FontFamily="InterSemiBold"/>
                                 <Label Text="{Binding Subtitle}" Style="{StaticResource MutedText}"/>
                             </VerticalStackLayout>
-                            <Label Grid.Column="2" Text="›" FontSize="17"
+                            <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18"
                                    TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" VerticalOptions="Center"/>
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OpenCommand, Source={RelativeSource AncestorType={x:Type vm:MoreViewModel}}}" CommandParameter="{Binding .}"/>

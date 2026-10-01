@@ -22,7 +22,7 @@
                     </SwipeView.RightItems>
                     <Grid Padding="6,10" ColumnDefinitions="*,Auto">
                         <VerticalStackLayout Spacing="1">
-                            <Label Text="{Binding TitleText}" FontAttributes="Bold">
+                            <Label Text="{Binding TitleText}" FontFamily="InterSemiBold">
                                 <Label.Triggers>
                                     <DataTrigger TargetType="Label" Binding="{Binding IsActive}" Value="False">
                                         <Setter Property="Opacity" Value="0.5"/>
@@ -38,7 +38,7 @@
                                 </Label.Text>
                             </Label>
                         </VerticalStackLayout>
-                        <Label Grid.Column="1" Text="{Binding AmountText}" FontAttributes="Bold"
+                        <Label Grid.Column="1" Text="{Binding AmountText}" FontFamily="InterSemiBold"
                                TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}">
                             <Label.Triggers>
                                 <DataTrigger TargetType="Label" Binding="{Binding IsExpense}" Value="True">

@@ -17,7 +17,7 @@
                     <Label Text="{Binding BalanceText}" FontSize="13" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                     <Label Text="{Binding UpcomingText}" FontSize="13" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
 
-                    <Label Text="{Binding CanSpendText}" FontSize="30" FontAttributes="Bold"
+                    <Label Text="{Binding CanSpendText}" FontSize="30" FontFamily="InterSemiBold"
                            Margin="0,8,0,0"/>
 
                     <HorizontalStackLayout Spacing="10">
@@ -25,7 +25,7 @@
                                VerticalOptions="Center"/>
                         <Border StrokeThickness="0" StrokeShape="RoundRectangle 999" Padding="11,5"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource IncomeSoftLight}, Dark={StaticResource IncomeSoftDark}}" HorizontalOptions="Start">
-                            <Label Text="{Binding StatusText}" FontSize="12" FontAttributes="Bold"
+                            <Label Text="{Binding StatusText}" FontSize="12" FontFamily="InterSemiBold"
                                    TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}"/>
                             <Border.Triggers>
                                 <DataTrigger TargetType="Border" Binding="{Binding StatusKind}" Value="warn">

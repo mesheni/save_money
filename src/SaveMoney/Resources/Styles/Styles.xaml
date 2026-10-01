@@ -23,18 +23,19 @@
     </Style>
 
     <Style TargetType="Label">
+        <Setter Property="FontFamily" Value="InterRegular" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
         <Setter Property="FontSize" Value="14" />
     </Style>
 
     <Style TargetType="Button">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
         <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
         <Setter Property="BorderWidth" Value="1" />
         <Setter Property="CornerRadius" Value="16" />
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="Padding" Value="14,10" />
         <Setter Property="MinimumHeightRequest" Value="44" />
     </Style>
@@ -46,6 +47,7 @@
     </Style>
 
     <Style TargetType="Entry">
+        <Setter Property="FontFamily" Value="InterRegular" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
         <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
@@ -54,6 +56,7 @@
     </Style>
 
     <Style TargetType="Picker">
+        <Setter Property="FontFamily" Value="InterRegular" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
         <Setter Property="TitleColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
@@ -62,6 +65,7 @@
     </Style>
 
     <Style TargetType="DatePicker">
+        <Setter Property="FontFamily" Value="InterRegular" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
         <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="FontSize" Value="15" />
@@ -84,16 +88,16 @@
     <!-- ═══ Vibrant: подписи ═══ -->
 
     <Style x:Key="GroupLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
         <Setter Property="FontSize" Value="12" />
-        <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="Margin" Value="4,14,4,6" />
     </Style>
 
     <Style x:Key="CardTitle" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
         <Setter Property="FontSize" Value="15" />
-        <Setter Property="FontAttributes" Value="Bold" />
     </Style>
 
     <Style x:Key="MutedText" TargetType="Label">
@@ -102,9 +106,9 @@
     </Style>
 
     <Style x:Key="Headline" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterBold" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
         <Setter Property="FontSize" Value="30" />
-        <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="HorizontalOptions" Value="Center" />
         <Setter Property="HorizontalTextAlignment" Value="Center" />
     </Style>
@@ -129,6 +133,7 @@
     </Style>
 
     <Style x:Key="SegButton" TargetType="Button">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
         <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="BorderColor" Value="Transparent" />
         <Setter Property="BorderWidth" Value="0" />
@@ -141,6 +146,7 @@
     <!-- ═══ Vibrant: клавиатура ═══ -->
 
     <Style x:Key="Key" TargetType="Button">
+        <Setter Property="FontFamily" Value="InterRegular" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
         <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
         <Setter Property="BorderWidth" Value="1" />
@@ -153,17 +159,18 @@
     <!-- ═══ Vibrant: кнопки действий ═══ -->
 
     <Style x:Key="PrimaryButton" TargetType="Button">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}" />
         <Setter Property="TextColor" Value="#FFFFFF" />
         <Setter Property="BorderColor" Value="Transparent" />
         <Setter Property="BorderWidth" Value="0" />
         <Setter Property="CornerRadius" Value="16" />
         <Setter Property="FontSize" Value="15" />
-        <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="HeightRequest" Value="50" />
     </Style>
 
     <Style x:Key="GhostButton" TargetType="Button">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
         <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="BorderColor" Value="Transparent" />
         <Setter Property="BorderWidth" Value="0" />
@@ -172,6 +179,7 @@
     </Style>
 
     <Style x:Key="DangerButton" TargetType="Button">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource ExpenseSoftLight}, Dark={StaticResource ExpenseSoftDark}}" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}" />
         <Setter Property="BorderColor" Value="Transparent" />

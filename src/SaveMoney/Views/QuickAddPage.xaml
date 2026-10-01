@@ -12,7 +12,7 @@
             <VerticalStackLayout Spacing="0" Padding="0,4,0,2">
                 <Label Text="Баланс по счетам" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
                        HorizontalOptions="Center"/>
-                <Label Text="{Binding BalanceText}" FontSize="20" FontAttributes="Bold"
+                <Label Text="{Binding BalanceText}" FontSize="20" FontFamily="InterSemiBold"
                        HorizontalOptions="Center"/>
             </VerticalStackLayout>
 
@@ -49,7 +49,7 @@
             </Border>
 
             <HorizontalStackLayout HorizontalOptions="End" Spacing="8" Padding="10,4">
-                <Label Text="{Binding AmountDisplay}" FontSize="42" FontAttributes="Bold"
+                <Label Text="{Binding AmountDisplay}" FontSize="42" FontFamily="InterSemiBold"
                        TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
                 <Label Text="₽" FontSize="22" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
                        VerticalOptions="End" Margin="0,0,0,6"/>

@@ -61,3 +61,10 @@ CI (`.github/workflows/ci.yml`) гоняет тесты и обе сборки �
 
 Подробности и статус фаз — в [DEVPLAN.md](DEVPLAN.md), макеты экранов — в
 [UIPLAN.md](UIPLAN.md).
+
+## Шрифты и лицензии
+
+- [Inter](https://github.com/rsms/inter) (rsms) — SIL Open Font License 1.1.
+- [Material Symbols Rounded](https://github.com/google/material-design-icons) (Google) —
+  Apache License 2.0; в приложение включён субсет только используемых глифов
+  (`Resources/Fonts/MaterialSymbolsRounded-sub.ttf`, набор глифов — `Controls/Glyphs.cs`).

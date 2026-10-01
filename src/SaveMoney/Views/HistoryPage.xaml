@@ -21,11 +21,11 @@
                 <DataTemplate x:DataType="vm:HistoryGroupVM">
                     <Border Style="{StaticResource DayHeader}">
                         <Grid ColumnDefinitions="*,Auto,Auto">
-                            <Label Text="{Binding HeaderText}" FontAttributes="Bold" FontSize="13"/>
+                            <Label Text="{Binding HeaderText}" FontFamily="InterSemiBold" FontSize="13"/>
                             <Label Grid.Column="1" Text="{Binding IncomeText}" TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}"
-                                   FontSize="13" FontAttributes="Bold" Margin="10,0"/>
+                                   FontSize="13" FontFamily="InterSemiBold" Margin="10,0"/>
                             <Label Grid.Column="2" Text="{Binding ExpenseText}" TextColor="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}"
-                                   FontSize="13" FontAttributes="Bold"/>
+                                   FontSize="13" FontFamily="InterSemiBold"/>
                         </Grid>
                     </Border>
                 </DataTemplate>
@@ -41,10 +41,10 @@
                         <Grid Padding="8,10" ColumnDefinitions="44,*,Auto">
                             <Label Text="{Binding Icon}" FontSize="22" VerticalOptions="Start"/>
                             <VerticalStackLayout Grid.Column="1" Spacing="1">
-                                <Label Text="{Binding Title}" FontAttributes="Bold"/>
+                                <Label Text="{Binding Title}" FontFamily="InterSemiBold"/>
                                 <Label Text="{Binding Subtitle}" Style="{StaticResource MutedText}"/>
                             </VerticalStackLayout>
-                            <Label Grid.Column="2" Text="{Binding AmountText}" FontAttributes="Bold"
+                            <Label Grid.Column="2" Text="{Binding AmountText}" FontFamily="InterSemiBold"
                                    TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}">
                                 <Label.Triggers>
                                     <DataTrigger TargetType="Label" Binding="{Binding IsExpense}" Value="True">

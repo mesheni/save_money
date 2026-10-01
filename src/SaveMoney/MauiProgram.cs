@@ -21,8 +21,10 @@ public static class MauiProgram
             .UseLiveCharts()
             .ConfigureFonts(fonts =>
             {
-                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                fonts.AddFont("Inter-Regular.ttf", "InterRegular");
+                fonts.AddFont("Inter-SemiBold.ttf", "InterSemiBold");
+                fonts.AddFont("Inter-Bold.ttf", "InterBold");
+                fonts.AddFont("MaterialSymbolsRounded-sub.ttf", "MaterialSymbolsRounded");
             });
 
         var dbPath = Path.Combine(FileSystem.AppDataDirectory, "savemoney.db");
