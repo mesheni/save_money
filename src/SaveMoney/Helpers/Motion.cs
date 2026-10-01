@@ -11,8 +11,11 @@ public static class Motion
     /// <summary>Появления и переходы, мс.</summary>
     public const uint Normal = 240;
 
+    /// <summary>Та же кривая как чистая функция — для LiveCharts (Func&lt;float,float&gt;).</summary>
+    public static readonly Func<double, double> VibrantFunc = Bezier(0.2, 0, 0, 1);
+
     /// <summary>Кривая из дизайн-контракта: cubic-bezier(0.2, 0, 0, 1).</summary>
-    public static readonly Easing Vibrant = new(Bezier(0.2, 0, 0, 1));
+    public static readonly Easing Vibrant = new(VibrantFunc);
 
     /// <summary>
     /// Функция easing кубической Безье с опорными точками (0,0) и (1,1).

@@ -154,6 +154,8 @@ public partial class ReportsViewModel(
                 Name = $"{slice.Icon} {slice.Name}",
                 Values = [slice.AmountMinor / 100.0],
                 Fill = new SolidColorPaint(Palette[sliceIndex % Palette.Length]),
+                InnerRadius = 60,
+                Pushout = 10,
             });
             sliceIndex++;
         }
@@ -166,6 +168,8 @@ public partial class ReportsViewModel(
                 Name = "Прочие",
                 Values = [rest / 100.0],
                 Fill = new SolidColorPaint(new SKColor(0xEA, 0xDF, 0xBA)),
+                InnerRadius = 60,
+                Pushout = 10,
             });
         }
 
@@ -182,13 +186,17 @@ public partial class ReportsViewModel(
             {
                 Name = "Расход",
                 Values = points.Select(p => p.ExpenseMinor / 100.0).ToArray(),
-                Fill = new SolidColorPaint(new SKColor(0xE5, 0x48, 0x4D)),
+                Fill = new LiveChartsCore.SkiaSharpView.Painting.LinearGradientPaint(
+                    new SKColor(0xE5, 0x48, 0x4D), new SKColor(0xFF, 0x8A, 0x8E)),
+                MaxBarWidth = 26,
             },
             new ColumnSeries<double>
             {
                 Name = "Доход",
                 Values = points.Select(p => p.IncomeMinor / 100.0).ToArray(),
-                Fill = new SolidColorPaint(new SKColor(0x2E, 0x9D, 0x57)),
+                Fill = new LiveChartsCore.SkiaSharpView.Painting.LinearGradientPaint(
+                    new SKColor(0x2E, 0x9D, 0x57), new SKColor(0x5F, 0xC9, 0x83)),
+                MaxBarWidth = 26,
             },
         ];
 
