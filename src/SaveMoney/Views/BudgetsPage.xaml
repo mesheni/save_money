@@ -63,7 +63,7 @@
         </CollectionView>
 
         <Label Grid.Row="1" Text="Бюджетов пока нет — задайте первый лимит кнопкой сверху"
-               IsVisible="{Binding !HasBudgets}" VerticalOptions="Center" HorizontalOptions="Center" Opacity="0.5"/>
+               IsVisible="{Binding HasNoBudgets}" VerticalOptions="Center" HorizontalOptions="Center" Opacity="0.5"/>
 
     </Grid>
 

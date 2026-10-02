@@ -228,14 +228,16 @@
                         FontFamily="MaterialSymbolsRounded" FontSize="20" Text="{x:Static ctl:Glyphs.MoreHoriz}"/>
 
                 <Button x:Name="SaveButton" Grid.Row="2" Grid.RowSpan="2" Grid.Column="3"
-                        Text="Сохранить" FontSize="13" Style="{StaticResource PrimaryButton}"
+                        Text="Сохранить" FontSize="12" Padding="2,0" Style="{StaticResource PrimaryButton}"
                         Command="{Binding SaveCommand}"/>
             </Grid>
 
         </Grid>
 
-        <!-- Тост «Сохранено»: вписан в дизайн-систему вместо системного снекбара -->
-        <Border x:Name="SavedToast" IsVisible="False" Opacity="0"
+        <!-- Тост «Сохранено»: вписан в дизайн-систему вместо системного снекбара.
+             Занимает ВСЕ строки грида (RowSpan): без этого живёт в строке баланса
+             и перекрывает шапку. -->
+        <Border x:Name="SavedToast" Grid.Row="0" Grid.RowSpan="5" IsVisible="False" Opacity="0"
                 StrokeThickness="0" StrokeShape="RoundRectangle 999" Padding="18,10"
                 BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"
                 HorizontalOptions="Center" VerticalOptions="End" Margin="16,0,16,16"

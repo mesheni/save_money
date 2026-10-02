@@ -157,15 +157,18 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
     private void RebuildTargetAccounts(string? selectId = null)
     {
         var currentId = Accounts.FirstOrDefault(a => a.IsSelected)?.Id;
-        var previousTarget = TargetAccounts.FirstOrDefault(a => a.IsSelected)?.Id;
+        var previousTargetId = TargetAccounts.FirstOrDefault(a => a.IsSelected)?.Id;
 
         TargetAccounts.Clear();
-        foreach (var chip in Accounts.Where(a => a.Id != currentId))
+        foreach (var account in Accounts.Where(a => a.Id != currentId))
         {
-            TargetAccounts.Add(chip);
+            // Отдельные экземпляры, а не те же чипы: общие объекты подсвечивали
+            // получателя прямо в строке «Счёт» (две оранжевых чипа) и ломали выбор
+            // счёта-источника при сохранении перевода.
+            TargetAccounts.Add(new AccountChip { Id = account.Id, Name = account.Name });
         }
 
-        var targetId = selectId ?? previousTarget ?? TargetAccounts.FirstOrDefault()?.Id;
+        var targetId = selectId ?? previousTargetId ?? TargetAccounts.FirstOrDefault()?.Id;
         foreach (var chip in TargetAccounts)
         {
             chip.IsSelected = chip.Id == targetId;
@@ -466,6 +469,7 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
         Note = "";
         Payee = "";
         Date = DateTime.Now;
+        IsExpanded = false; // свежая операция — панель «Ещё» снова свёрнута
         RefreshBalance();
         ReloadCategories();
 

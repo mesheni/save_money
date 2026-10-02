@@ -13,7 +13,10 @@
 
             <!-- FlexLayout с переносом: на узких экранах «Свой период» с двумя DatePicker не обрезается -->
             <FlexLayout Wrap="Wrap" AlignItems="Center">
-                <Picker ItemsSource="{Binding PeriodOptions}" SelectedIndex="{Binding PeriodIndex}" WidthRequest="140" Margin="0,0,8,0"/>
+                <!-- Пикер: явные цвета — на Android без них текст периода сливается с фоном -->
+            <Picker ItemsSource="{Binding PeriodOptions}" SelectedIndex="{Binding PeriodIndex}" WidthRequest="140" Margin="0,0,8,0" HeightRequest="44"
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                    TitleColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
                 <DatePicker Date="{Binding FromDate}" Format="d MMM yy" IsVisible="{Binding IsCustom}" Margin="0,0,8,0"/>
                 <DatePicker Date="{Binding ToDate}" Format="d MMM yy" IsVisible="{Binding IsCustom}"/>
             </FlexLayout>

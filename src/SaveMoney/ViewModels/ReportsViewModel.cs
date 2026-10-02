@@ -137,7 +137,11 @@ public partial class ReportsViewModel(
 
     private void BuildPie(long from, long to)
     {
-        var slices = _reports.GetExpenseByCategory(from, to);
+        // Нулевые суммы выкидываем: срез с 0 при нормализации LiveCharts
+        // рисуется полным кругом («0,00 ₽» выглядел как заполненный донат).
+        var slices = _reports.GetExpenseByCategory(from, to)
+            .Where(s => s.AmountMinor > 0)
+            .ToList();
         if (slices.Count == 0)
         {
             PieSeries = [];
@@ -186,16 +190,16 @@ public partial class ReportsViewModel(
             {
                 Name = "Расход",
                 Values = points.Select(p => p.ExpenseMinor / 100.0).ToArray(),
-                Fill = new LiveChartsCore.SkiaSharpView.Painting.LinearGradientPaint(
-                    new SKColor(0xE5, 0x48, 0x4D), new SKColor(0xFF, 0x8A, 0x8E)),
+                // Сплошная заливка: LinearGradientPaint на Android рисует столбцы
+                // волосяной линией вместо полного столбца.
+                Fill = new SolidColorPaint(new SKColor(0xE5, 0x48, 0x4D)),
                 MaxBarWidth = 26,
             },
             new ColumnSeries<double>
             {
                 Name = "Доход",
                 Values = points.Select(p => p.IncomeMinor / 100.0).ToArray(),
-                Fill = new LiveChartsCore.SkiaSharpView.Painting.LinearGradientPaint(
-                    new SKColor(0x2E, 0x9D, 0x57), new SKColor(0x5F, 0xC9, 0x83)),
+                Fill = new SolidColorPaint(new SKColor(0x2E, 0x9D, 0x57)),
                 MaxBarWidth = 26,
             },
         ];
@@ -217,7 +221,8 @@ public partial class ReportsViewModel(
 
     private void BuildTop(long from, long to)
     {
-        var slices = _reports.GetExpenseByCategory(from, to);
+        var slices = _reports.GetExpenseByCategory(from, to)
+            .Where(s => s.AmountMinor > 0);
 
         TopRows.Clear();
         foreach (var slice in slices.Take(10))

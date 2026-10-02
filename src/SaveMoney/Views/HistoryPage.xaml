@@ -38,31 +38,33 @@
                                 <SwipeItem Text="Удалить" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                             </SwipeItems>
                         </SwipeView.RightItems>
-                        <Grid Padding="8,10" ColumnDefinitions="44,*,Auto">
-                            <Label Text="{Binding Icon}" FontSize="22" VerticalOptions="Start"/>
-                            <VerticalStackLayout Grid.Column="1" Spacing="1">
-                                <Label Text="{Binding Title}" FontFamily="InterSemiBold"/>
-                                <Label Text="{Binding Subtitle}" Style="{StaticResource MutedText}"/>
-                            </VerticalStackLayout>
-                            <Label Grid.Column="2" Text="{Binding AmountText}" FontFamily="InterSemiBold"
-                                   TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}">
-                                <Label.Triggers>
-                                    <DataTrigger TargetType="Label" Binding="{Binding IsExpense}" Value="True">
-                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}"/>
-                                    </DataTrigger>
-                                </Label.Triggers>
-                            </Label>
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:HistoryViewModel}}}" CommandParameter="{Binding .}"/>
-                            </Grid.GestureRecognizers>
-                        </Grid>
+                        <Border Style="{StaticResource ListRow}">
+                            <Grid ColumnDefinitions="44,*,Auto">
+                                <Label Text="{Binding Icon}" FontSize="22" VerticalOptions="Start"/>
+                                <VerticalStackLayout Grid.Column="1" Spacing="1">
+                                    <Label Text="{Binding Title}" FontFamily="InterSemiBold"/>
+                                    <Label Text="{Binding Subtitle}" Style="{StaticResource MutedText}"/>
+                                </VerticalStackLayout>
+                                <Label Grid.Column="2" Text="{Binding AmountText}" FontFamily="InterSemiBold"
+                                       TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsExpense}" Value="True">
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:HistoryViewModel}}}" CommandParameter="{Binding .}"/>
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </Border>
                     </SwipeView>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
         <Label Grid.Row="2" Text="Пока пусто — добавьте первую операцию на вкладке «Ввод»"
-               IsVisible="{Binding !HasItems}" VerticalOptions="Center" HorizontalOptions="Center"
+               IsVisible="{Binding HasNoRows}" VerticalOptions="Center" HorizontalOptions="Center"
                TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
 
     </Grid>

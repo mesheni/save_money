@@ -64,6 +64,13 @@ public partial class HistoryViewModel(AppDatabase db, HistoryService history) : 
     [ObservableProperty]
     public partial bool HasItems { get; set; } = true;
 
+    /// <summary>Пустой список. Отдельное положительное свойство: биндинг с «!»
+    /// (IsVisible="{Binding !HasItems}") не выживает при SourceGen-инфляторе —
+    /// надпись «Пока пусто» рисовалась поверх непустого списка.</summary>
+    public bool HasNoRows => !HasItems;
+
+    partial void OnHasItemsChanged(bool value) => OnPropertyChanged(nameof(HasNoRows));
+
     public async Task InitializeAsync()
     {
         var selectedId = AccountIndex > 0 && AccountIndex <= _accountIds.Count ? _accountIds[AccountIndex - 1] : null;

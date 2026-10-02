@@ -35,7 +35,7 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <VerticalStackLayout Spacing="10" IsVisible="{Binding !IsSettled}">
+            <VerticalStackLayout Spacing="10" IsVisible="{Binding IsOpen}">
                 <Label Text="Добавить платёж" Style="{StaticResource GroupLabel}"/>
                 <Entry Text="{Binding PaymentAmountText}" Placeholder="Сумма, ₽" Keyboard="Text"/>
                 <HorizontalStackLayout Spacing="8" VerticalOptions="Center">

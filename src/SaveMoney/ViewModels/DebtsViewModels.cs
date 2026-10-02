@@ -299,6 +299,11 @@ public partial class DebtDetailViewModel(AppDatabase db, DebtService debts) : Ob
     [ObservableProperty]
     public partial bool IsSettled { get; set; }
 
+    /// <summary>Положительная пара к IsSettled: биндинг с «!» не выживает при SourceGen.</summary>
+    public bool IsOpen => !IsSettled;
+
+    partial void OnIsSettledChanged(bool value) => OnPropertyChanged(nameof(IsOpen));
+
     [ObservableProperty]
     public partial bool CanLinkTransaction { get; set; }
 

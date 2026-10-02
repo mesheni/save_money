@@ -13,6 +13,7 @@ public partial class ReportsPage : ContentPage
 {
     private readonly ReportsViewModel _viewModel;
     private bool _entranceAnimated;
+    private bool _expenseCountUpRunning;
 
     public ReportsPage(ReportsViewModel viewModel)
     {
@@ -77,16 +78,26 @@ public partial class ReportsPage : ContentPage
     private async void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         // Count-up суммы расхода при каждой пересборке отчёта (смена периода/дат).
-        // Кадры пишем в свойство VM: прямой set Label.Text стирает one-way binding
-        // и после первой анимации метка перестаёт обновляться.
+        // Кадры пишем в свойство VM (прямой set Label.Text стёр бы binding) — поэтому
+        // каждый кадр снова поднимает PropertyChanged. Без флага анимация
+        // перезапускалась бы с нуля на каждом кадре и сумма навсегда оставалась «0,00».
         if (e.PropertyName == nameof(ReportsViewModel.PeriodExpenseText)
             && _viewModel.HasData
-            && PeriodExpenseLabel is not null)
+            && PeriodExpenseLabel is not null
+            && !_expenseCountUpRunning)
         {
-            await PeriodExpenseLabel.CountUpAsync(
-                0,
-                _viewModel.PeriodExpenseValue,
-                value => _viewModel.PeriodExpenseText = MoneyFormat.Rubles((long)Math.Round(value * 100)));
+            _expenseCountUpRunning = true;
+            try
+            {
+                await PeriodExpenseLabel.CountUpAsync(
+                    0,
+                    _viewModel.PeriodExpenseValue,
+                    value => _viewModel.PeriodExpenseText = MoneyFormat.Rubles((long)Math.Round(value * 100)));
+            }
+            finally
+            {
+                _expenseCountUpRunning = false;
+            }
         }
     }
 }

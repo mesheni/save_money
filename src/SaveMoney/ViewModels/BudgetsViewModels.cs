@@ -33,6 +33,11 @@ public partial class BudgetsViewModel(AppDatabase db, BudgetService budgets, Cyc
     [ObservableProperty]
     public partial bool HasBudgets { get; set; } = true;
 
+    /// <summary>Положительная пара к HasBudgets: биндинг с «!» не выживает при SourceGen.</summary>
+    public bool HasNoBudgets => !HasBudgets;
+
+    partial void OnHasBudgetsChanged(bool value) => OnPropertyChanged(nameof(HasNoBudgets));
+
     public Task InitializeAsync()
     {
         var info = _cycle.GetCurrentCycle();
