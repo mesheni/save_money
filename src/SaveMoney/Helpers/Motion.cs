@@ -84,13 +84,18 @@ public static class MotionExtensions
         await view.ScaleTo(1, Motion.Micro + 90, Motion.Vibrant);
     }
 
-    /// <summary>Счётчик: перебирает значение в Label от from до to.</summary>
-    public static Task CountUpAsync(this Label label, double to, Func<double, string> format, double from = 0, uint ms = 500)
+    /// <summary>
+    /// Счётчик: перебирает значение от from до to, прогоняя каждый кадр через apply.
+    /// Важно: apply должен писать в свойство VM, а не в Label.Text напрямую —
+    /// прямой set у привязанного Label стирает one-way binding, и метка
+    /// перестаёт обновляться до пересоздания страницы.
+    /// </summary>
+    public static Task CountUpAsync(this Label ticker, double from, double to, Action<double> apply, uint ms = 500)
     {
         var tcs = new TaskCompletionSource();
-        label.Text = format(from);
-        new Animation(v => label.Text = format(from + (to - from) * v))
-            .Commit(label, "CountUp", length: ms, easing: Motion.Vibrant, finished: (_, _) => tcs.TrySetResult());
+        apply(from);
+        new Animation(v => apply(from + (to - from) * v))
+            .Commit(ticker, "CountUp", length: ms, easing: Motion.Vibrant, finished: (_, _) => tcs.TrySetResult());
         return tcs.Task;
     }
 }

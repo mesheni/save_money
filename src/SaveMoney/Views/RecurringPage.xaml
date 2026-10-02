@@ -36,14 +36,7 @@
                                         </DataTrigger>
                                     </Label.Triggers>
                                 </Label>
-                                <Label FontSize="12" Opacity="0.6">
-                                    <Label.Text>
-                                        <MultiBinding StringFormat="{0} · {1}">
-                                            <Binding Path="AccountText"/>
-                                            <Binding Path="NextDateText"/>
-                                        </MultiBinding>
-                                    </Label.Text>
-                                </Label>
+                                <Label FontSize="12" Opacity="0.6" Text="{Binding SubText}"/>
                             </VerticalStackLayout>
                             <Label Grid.Column="1" Text="{Binding AmountText}" FontFamily="InterSemiBold"
                                    TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}"

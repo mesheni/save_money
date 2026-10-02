@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using SaveMoney.Core.Database;
 using SaveMoney.Core.Models;
 using SaveMoney.Core.Services;
+using SaveMoney.Messaging;
 
 namespace SaveMoney.ViewModels;
 
@@ -139,8 +140,19 @@ public partial class AccountEditViewModel(AppDatabase db) : ObservableObject
         account.Archived = Archived;
         account.Color = Colors.FirstOrDefault(c => c.IsSelected)?.Hex;
 
-        _db.Accounts.Save(account);
-        await Shell.Current.GoToAsync("..");
+        try
+        {
+            _db.Accounts.Save(account);
+        }
+        catch (Exception ex)
+        {
+            await AlertAsync?.Invoke("Ошибка", ex.Message)!;
+            return;
+        }
+
+        // Начальный баланс/флаг «в общем балансе» влияют на «Баланс по счетам».
+        TransactionsChangedMessage.Broadcast();
+        await Shell.Current.Navigation.PopAsync();
     }
 
     [RelayCommand]
@@ -161,6 +173,7 @@ public partial class AccountEditViewModel(AppDatabase db) : ObservableObject
         }
 
         _db.Accounts.SoftDelete(_editing);
-        await Shell.Current.GoToAsync("..");
+        TransactionsChangedMessage.Broadcast();
+        await Shell.Current.Navigation.PopAsync();
     }
 }

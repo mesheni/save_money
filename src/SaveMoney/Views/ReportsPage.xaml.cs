@@ -44,6 +44,8 @@ public partial class ReportsPage : ContentPage
 
     private static void ApplyChartStyle(PieChart chart, SolidColorPaint background, SolidColorPaint text)
     {
+        // Без явного фона поверхность Skia на WinUI рисуется чёрным прямоугольником.
+        chart.BackgroundColor = Colors.Transparent;
         chart.TooltipBackgroundPaint = background;
         chart.TooltipTextPaint = text;
         chart.TooltipTextSize = 13;
@@ -53,6 +55,7 @@ public partial class ReportsPage : ContentPage
 
     private static void ApplyChartStyle(CartesianChart chart, SolidColorPaint background, SolidColorPaint text)
     {
+        chart.BackgroundColor = Colors.Transparent;
         chart.TooltipBackgroundPaint = background;
         chart.TooltipTextPaint = text;
         chart.TooltipTextSize = 13;
@@ -74,13 +77,16 @@ public partial class ReportsPage : ContentPage
     private async void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         // Count-up суммы расхода при каждой пересборке отчёта (смена периода/дат).
+        // Кадры пишем в свойство VM: прямой set Label.Text стирает one-way binding
+        // и после первой анимации метка перестаёт обновляться.
         if (e.PropertyName == nameof(ReportsViewModel.PeriodExpenseText)
             && _viewModel.HasData
             && PeriodExpenseLabel is not null)
         {
             await PeriodExpenseLabel.CountUpAsync(
+                0,
                 _viewModel.PeriodExpenseValue,
-                value => MoneyFormat.Rubles((long)Math.Round(value * 100)));
+                value => _viewModel.PeriodExpenseText = MoneyFormat.Rubles((long)Math.Round(value * 100)));
         }
     }
 }

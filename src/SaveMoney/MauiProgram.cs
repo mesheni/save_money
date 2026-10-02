@@ -5,6 +5,10 @@ using SaveMoney.Core.Database;
 using SaveMoney.Core.Services;
 using SaveMoney.ViewModels;
 using SaveMoney.Views;
+using SkiaSharp.Views.Maui.Controls;
+using SkiaSharp.Views.Maui.Handlers;
+using SKCanvasView = SkiaSharp.Views.Maui.Controls.SKCanvasView;
+using SKGLView = SkiaSharp.Views.Maui.Controls.SKGLView;
 
 namespace SaveMoney;
 
@@ -19,6 +23,14 @@ public static class MauiProgram
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
             .UseLiveCharts()
+            // UseLiveCharts регистрирует только хендлеры ChartView/EmptyContentView.
+            // Внутренние виды рендера LiveCharts — наследники SKCanvasView/SKGLView;
+            // без их хендлеров график падает с HandlerNotFoundException (CPURenderMode).
+            .ConfigureMauiHandlers(handlers =>
+            {
+                handlers.AddHandler<SKCanvasView, SKCanvasViewHandler>();
+                handlers.AddHandler<SKGLView, SKGLViewHandler>();
+            })
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("Inter-Regular.ttf", "InterRegular");

@@ -252,8 +252,17 @@ public partial class DebtEditViewModel(AppDatabase db) : ObservableObject
             : null;
         debt.AccountId = AccountIndex > 0 ? _accountIds[AccountIndex - 1] : null;
 
-        _db.Debts.Save(debt);
-        await Shell.Current.GoToAsync("..");
+        try
+        {
+            _db.Debts.Save(debt);
+        }
+        catch (Exception ex)
+        {
+            await AlertAsync?.Invoke("Ошибка", ex.Message)!;
+            return;
+        }
+
+        await Shell.Current.Navigation.PopAsync();
     }
 }
 
@@ -318,7 +327,7 @@ public partial class DebtDetailViewModel(AppDatabase db, DebtService debts) : Ob
         _debt = _db.Debts.Get(DebtId);
         if (_debt is null)
         {
-            await Shell.Current.GoToAsync("..");
+            await Shell.Current.Navigation.PopAsync();
             return;
         }
 
@@ -422,6 +431,6 @@ public partial class DebtDetailViewModel(AppDatabase db, DebtService debts) : Ob
         }
 
         _db.Debts.SoftDelete(_debt);
-        await Shell.Current.GoToAsync("..");
+        await Shell.Current.Navigation.PopAsync();
     }
 }

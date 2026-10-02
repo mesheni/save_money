@@ -47,12 +47,15 @@ public partial class QuickAddPage : ContentPage
         await _viewModel.InitializeAsync();
 
         // Count-up баланса только при первом показе экрана за сессию страницы.
+        // Кадры пишем в свойство VM: прямой set Label.Text стирает one-way binding,
+        // и баланс потом «замерзает» до перезапуска приложения.
         if (!_balanceAnimated && Math.Abs(_viewModel.BalanceValue) > 0.001)
         {
             _balanceAnimated = true;
             await BalanceLabel.CountUpAsync(
+                0,
                 _viewModel.BalanceValue,
-                value => MoneyFormat.Rubles((long)Math.Round(value * 100)));
+                value => _viewModel.BalanceText = MoneyFormat.Rubles((long)Math.Round(value * 100)));
         }
     }
 

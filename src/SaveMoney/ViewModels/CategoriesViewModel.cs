@@ -16,6 +16,13 @@ public partial class CategoryRowVM : ObservableObject
     public required bool IsRoot { get; init; }
     public required bool CanDelete { get; init; }
 
+    /// <summary>
+    /// Иконка и имя одной строкой. MultiBinding со StringFormat в XAML не работает
+    /// при MauiXamlInflator=SourceGen (StringFormat теряется, строки пустые) —
+    /// поэтому собираем текст здесь.
+    /// </summary>
+    public string Display => $"{Icon} {Name}";
+
     public double Indent => IsRoot ? 0 : 40;
 
     public Thickness RowMargin => new(Indent, 0, 0, 0);
@@ -68,12 +75,12 @@ public partial class CategoriesViewModel(AppDatabase db, CategoryService categor
                     Name = child.Name,
                     Icon = child.Icon ?? "❓",
                     IsRoot = false,
-                CanDelete = !child.IsDefault,
-            });
+                    CanDelete = !child.IsDefault,
+                });
+            }
         }
 
         HasNoRows = Rows.Count == 0;
-    }
     }
 
     partial void OnKindIndexChanged(int value) => Reload();
@@ -205,15 +212,23 @@ public partial class CategoryEditViewModel(AppDatabase db, CategoryService categ
 
         var icon = Icons.FirstOrDefault(i => i.IsSelected)?.Emoji;
 
-        if (_parentId is not null)
+        try
         {
-            _categories.AddChild(_parentId, Name, icon);
+            if (_parentId is not null)
+            {
+                _categories.AddChild(_parentId, Name, icon);
+            }
+            else
+            {
+                _categories.AddRoot(Name, Kind, icon);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            _categories.AddRoot(Name, Kind, icon);
+            await AlertAsync?.Invoke("Ошибка", ex.Message)!;
+            return;
         }
 
-        await Shell.Current.GoToAsync("..");
+        await Shell.Current.Navigation.PopAsync();
     }
 }

@@ -46,6 +46,7 @@ public partial class App : Application
         {
             MauiProgram.Services.GetRequiredService<RecurringService>()
                 .MaterializeDue(DateTimeOffset.Now.ToUnixTimeSeconds());
+            SaveMoney.Messaging.TransactionsChangedMessage.Broadcast();
         }
         catch (Exception ex)
         {

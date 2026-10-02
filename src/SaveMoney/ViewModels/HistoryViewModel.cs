@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using SaveMoney.Core.Database;
 using SaveMoney.Core.Models;
 using SaveMoney.Core.Services;
+using SaveMoney.Messaging;
 
 namespace SaveMoney.ViewModels;
 
@@ -111,6 +112,7 @@ public partial class HistoryViewModel(AppDatabase db, HistoryService history) : 
         if (tx is not null)
         {
             _db.Transactions.SoftDelete(tx);
+            TransactionsChangedMessage.Broadcast();
         }
 
         await RefreshFromServiceAsync();

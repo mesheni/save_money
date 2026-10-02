@@ -193,7 +193,16 @@ public partial class BudgetEditViewModel(AppDatabase db, CycleService cycle) : O
         budget.CategoryId = CategoryIndex > 0 ? _categoryIds[CategoryIndex - 1] : null;
         budget.AmountMinor = amount;
 
-        _db.Budgets.Save(budget);
-        await Shell.Current.GoToAsync("..");
+        try
+        {
+            _db.Budgets.Save(budget);
+        }
+        catch (Exception ex)
+        {
+            await AlertAsync?.Invoke("Ошибка", ex.Message)!;
+            return;
+        }
+
+        await Shell.Current.Navigation.PopAsync();
     }
 }

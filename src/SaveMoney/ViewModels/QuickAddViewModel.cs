@@ -1,9 +1,11 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using SaveMoney.Core.Database;
 using SaveMoney.Core.Models;
 using SaveMoney.Core.Services;
+using SaveMoney.Messaging;
 
 namespace SaveMoney.ViewModels;
 
@@ -15,14 +17,11 @@ namespace SaveMoney.ViewModels;
 [QueryProperty(nameof(EditId), "id")]
 [QueryProperty(nameof(PresetAmount), "amount")]
 [QueryProperty(nameof(WidgetSource), "source")]
-public partial class QuickAddViewModel(
-    AppDatabase db,
-    TransactionService transactions,
-    BalanceService balance) : ObservableObject
+public partial class QuickAddViewModel : ObservableObject, IRecipient<TransactionsChangedMessage>
 {
-    private readonly AppDatabase _db = db;
-    private readonly TransactionService _transactions = transactions;
-    private readonly BalanceService _balance = balance;
+    private readonly AppDatabase _db;
+    private readonly TransactionService _transactions;
+    private readonly BalanceService _balance;
 
     private string? _pendingEditId;
     private Transaction? _editing;
@@ -34,6 +33,20 @@ public partial class QuickAddViewModel(
     public ObservableCollection<AccountChip> TargetAccounts { get; } = [];
     public ObservableCollection<CategoryChip> RootCategories { get; } = [];
     public ObservableCollection<CategoryChip> SubCategories { get; } = [];
+
+    public QuickAddViewModel(AppDatabase db, TransactionService transactions, BalanceService balance)
+    {
+        _db = db;
+        _transactions = transactions;
+        _balance = balance;
+
+        // Баланс должен обновляться сразу после любой операции (ввод/правка/удаление,
+        // счёт, регулярные платежи), а не только при следующем Appearing вкладки.
+        WeakReferenceMessenger.Default.Register(this);
+    }
+
+    /// <summary>Что-то изменило операции/счета — перечитываем баланс (binding на метке живёт).</summary>
+    public void Receive(TransactionsChangedMessage message) => RefreshBalance();
 
     [ObservableProperty]
     public partial string AmountText { get; set; } = "";
@@ -68,6 +81,10 @@ public partial class QuickAddViewModel(
 
     [ObservableProperty]
     public partial bool IsEditing { get; set; }
+
+    /// <summary>Панель «Ещё» (магазин/заметка) раскрыта. По умолчанию свёрнута — главный экран только про ввод.</summary>
+    [ObservableProperty]
+    public partial bool IsExpanded { get; set; }
 
     [ObservableProperty]
     public partial string ModeText { get; set; } = "Расход";
@@ -288,6 +305,9 @@ public partial class QuickAddViewModel(
     }
 
     [RelayCommand]
+    private void ToggleMore() => IsExpanded = !IsExpanded;
+
+    [RelayCommand]
     private void SelectAccount(AccountChip? chip)
     {
         if (chip is null)
@@ -424,6 +444,7 @@ public partial class QuickAddViewModel(
         try
         {
             _transactions.Save(tx);
+            TransactionsChangedMessage.Broadcast();
         }
         catch (ArgumentException ex)
         {
@@ -451,7 +472,7 @@ public partial class QuickAddViewModel(
         if (WidgetSource == "widget")
         {
             // Экран с виджета открыт поверх вкладки «Ввод» — после сохранения возвращаемся на вкладку.
-            await Shell.Current.GoToAsync("..");
+            await Shell.Current.Navigation.PopAsync();
         }
         else
         {

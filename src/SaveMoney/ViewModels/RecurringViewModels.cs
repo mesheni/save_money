@@ -16,6 +16,9 @@ public partial class RecurringRowVM
     public required string NextDateText { get; init; }
     public required string AccountText { get; init; }
     public required bool IsActive { get; init; }
+
+    /// <summary>Счёт и дата одной строкой (MultiBinding+StringFormat не выживает при SourceGen-инфляторе).</summary>
+    public string SubText => $"{AccountText} · {NextDateText}";
 }
 
 public partial class RecurringViewModel(AppDatabase db) : ObservableObject
@@ -266,7 +269,16 @@ public partial class RecurringEditViewModel(AppDatabase db) : ObservableObject
             TimeZoneInfo.Local.GetUtcOffset(NextDate.Date)).ToUnixTimeSeconds();
         recurring.IsActive = IsActive;
 
-        _db.RecurringPayments.Save(recurring);
-        await Shell.Current.GoToAsync("..");
+        try
+        {
+            _db.RecurringPayments.Save(recurring);
+        }
+        catch (Exception ex)
+        {
+            await AlertAsync?.Invoke("Ошибка", ex.Message)!;
+            return;
+        }
+
+        await Shell.Current.Navigation.PopAsync();
     }
 }
