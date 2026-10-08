@@ -7,16 +7,20 @@ public class TransactionRepository(SQLiteConnection db) : Repository<Transaction
 {
     public List<Transaction> GetRecent(int limit = 50, int offset = 0) =>
         Db.Table<Transaction>()
-          .Where(t => !t.IsDeleted)
+          .Where(t => !t.IsDeleted && !t.IsPendingReview)
           .OrderByDescending(t => t.DateUnix)
           .ThenByDescending(t => t.CreatedAt)
           .Skip(offset)
           .Take(limit)
           .ToList();
 
+    // Черновики (is_pending_review) нигде не считаются реальными операциями, пока
+    // пользователь их не подтвердит: балансы, бюджеты, отчёты, история и CSV
+    // берут выборки отсюда и из BalanceService — фильтр живёт в обоих местах.
+
     public List<Transaction> GetBetween(long fromUnix, long toUnix) =>
         Db.Table<Transaction>()
-          .Where(t => !t.IsDeleted && t.DateUnix >= fromUnix && t.DateUnix < toUnix)
+          .Where(t => !t.IsDeleted && !t.IsPendingReview && t.DateUnix >= fromUnix && t.DateUnix < toUnix)
           .OrderByDescending(t => t.DateUnix)
           .ToList();
 

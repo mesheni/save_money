@@ -126,7 +126,12 @@ public partial class PaydayViewModel(
     [RelayCommand]
     private async Task SaveSettingsAsync()
     {
-        var days = int.TryParse(CycleDaysText, out var d) ? d : 30;
+        if (!int.TryParse(CycleDaysText, out var days))
+        {
+            await AlertAsync?.Invoke("Ошибка", "Введите целое число дней")!;
+            return;
+        }
+
         if (days < 1 || days > 365)
         {
             await AlertAsync?.Invoke("Ошибка", "Длина цикла — от 1 до 365 дней")!;

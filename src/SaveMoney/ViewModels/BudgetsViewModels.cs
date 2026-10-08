@@ -105,10 +105,9 @@ public partial class BudgetsViewModel(AppDatabase db, BudgetService budgets, Cyc
 }
 
 [QueryProperty(nameof(BudgetId), "id")]
-public partial class BudgetEditViewModel(AppDatabase db, CycleService cycle) : ObservableObject
+public partial class BudgetEditViewModel(AppDatabase db) : ObservableObject
 {
     private readonly AppDatabase _db = db;
-    private readonly CycleService _cycle = cycle;
     private string? _id;
     private Budget? _editing;
     private List<string> _categoryIds = [];
@@ -189,12 +188,7 @@ public partial class BudgetEditViewModel(AppDatabase db, CycleService cycle) : O
             return;
         }
 
-        var cycleInfo = _cycle.GetCurrentCycle();
-        var budget = _editing ?? new Budget
-        {
-            PeriodStartAnchorUnix = BudgetsViewModel.ToUnix(cycleInfo.Start),
-            PeriodDays = cycleInfo.TotalDays,
-        };
+        var budget = _editing ?? new Budget();
         budget.CategoryId = CategoryIndex > 0 ? _categoryIds[CategoryIndex - 1] : null;
         budget.AmountMinor = amount;
 

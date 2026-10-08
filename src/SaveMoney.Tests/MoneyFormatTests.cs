@@ -35,4 +35,15 @@ public class MoneyFormatTests
         Assert.Equal("1500", MoneyFormat.ForInput(150_000));
         Assert.Equal("", MoneyFormat.ForInput(0));
     }
+
+    [Theory]
+    [InlineData(25)]
+    [InlineData(28)]
+    public void ParseInput_HugeValue_ClampsInsteadOfOverflow(int digits)
+    {
+        // decimal.Parse принимает до ~7.9e28: раньше прямое приведение к long
+        // кидало OverflowException. Теперь клэмп до границ копеек.
+        Assert.Equal(long.MaxValue, MoneyFormat.ParseInput(new string('9', digits)));
+        Assert.Equal(-long.MaxValue, MoneyFormat.ParseInput("-" + new string('9', digits)));
+    }
 }

@@ -105,6 +105,49 @@ public class HistoryAndCategoryServiceTests : IDisposable
     }
 
     [Fact]
+    public void GetGroups_AllAccounts_TransferIsNeutral()
+    {
+        // В «Все счета» деньги не покидали кошелёк: без знака и без расходного цвета.
+        var from = new Account { Name = "А" };
+        var to = new Account { Name = "Б" };
+        _test.Db.Accounts.Save(from);
+        _test.Db.Accounts.Save(to);
+
+        SaveTx(from.Id, TransactionKind.Transfer, 12_000, null, Unix(2026, 9, 10), transferTo: to.Id);
+
+        var item = new HistoryService(_test.Db)
+            .GetGroups(Unix(2026, 9, 1), Unix(2026, 9, 30)).Single().Items.Single();
+
+        Assert.True(item.IsNeutralTransfer);
+        Assert.False(item.IsExpense);
+        Assert.Equal(12_000, item.AmountMinor);
+    }
+
+    [Fact]
+    public void GetGroups_DeletedCategory_KeepsName_PlaceholderForMissing()
+    {
+        var account = new Account { Name = "А" };
+        _test.Db.Accounts.Save(account);
+        var cat = new Category { Name = "Временная", Kind = CategoryKind.Expense }; // не IsDefault — только их можно удалить
+        _test.Db.Categories.Save(cat);
+
+        SaveTx(account.Id, TransactionKind.Expense, 5_000, cat.Id, Unix(2026, 9, 10));
+        SaveTx(account.Id, TransactionKind.Expense, 6_000, "missing-cat", Unix(2026, 9, 11));
+        _test.Db.Categories.SoftDelete(cat);
+
+        var items = new HistoryService(_test.Db)
+            .GetGroups(Unix(2026, 9, 1), Unix(2026, 9, 30))
+            .SelectMany(g => g.Items)
+            .OrderBy(i => i.DateUnix)
+            .ToList();
+
+        // Имя мягко-удалённой категории не теряется...
+        Assert.Equal("Временная", items[0].Title);
+        // ...заглушка — только для ссылки на несуществующую категорию.
+        Assert.Equal("(категория удалена)", items[1].Title);
+    }
+
+    [Fact]
     public void CategoryService_AddRoot_AppendsSort_AndDeleteCascades()
     {
         var service = new CategoryService(_test.Db);

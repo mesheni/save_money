@@ -22,6 +22,12 @@ public class HistoryItem
         _ => AmountMinor,
     };
 
+    /// <summary>
+    /// Перевод в общем списке «Все счета»: деньги не покидают кошелёк, поэтому строка
+    /// без знака и без расходного цвета (в дневных итогах переводы и так не участвуют).
+    /// </summary>
+    public bool IsNeutralTransfer => Kind == TransactionKind.Transfer && !IsTransferOut;
+
     public required string Title { get; init; }
     public string? Subtitle { get; init; }
     public string Icon { get; init; } = "❓";
@@ -58,7 +64,7 @@ public sealed class HistoryService(AppDatabase database)
         }
 
         var accounts = database.Accounts.GetAll().ToDictionary(a => a.Id, a => a.Name);
-        var categories = database.Categories.GetAllActive().ToDictionary(c => c.Id);
+        var categories = database.Categories.GetAll().ToDictionary(c => c.Id);
 
         string AccountName(string? id) =>
             id is not null && accounts.TryGetValue(id, out var name) ? name : "(счёт удалён)";
@@ -70,8 +76,9 @@ public sealed class HistoryService(AppDatabase database)
             var title = tx.Kind switch
             {
                 TransactionKind.Transfer => $"{AccountName(tx.AccountId)} → {AccountName(tx.TransferAccountId)}",
-                _ when tx.CategoryId is not null && categories.TryGetValue(tx.CategoryId, out var cat) => cat.Name,
-                _ => "Без категории",
+                _ when tx.CategoryId is null => "Без категории",
+                _ when categories.TryGetValue(tx.CategoryId, out var cat) => cat.Name,
+                _ => "(категория удалена)",
             };
 
             var icon = tx.Kind == TransactionKind.Transfer
@@ -96,8 +103,11 @@ public sealed class HistoryService(AppDatabase database)
 
             // Сторона перевода определяет знак и сумму: со счёта-источника уходит его
             // собственная сумма (может отличаться от зачисленной), на счёт-получатель
-            // приходит TransferAmountMinor.
-            var isTransferOut = tx.Kind != TransactionKind.Transfer || tx.TransferAccountId != accountId;
+            // приходит TransferAmountMinor. В общем списке «Все счета» перевод
+            // нейтрален — деньги не покидали кошелёк.
+            var isTransferOut = tx.Kind == TransactionKind.Transfer
+                && accountId is not null
+                && tx.TransferAccountId != accountId;
 
             var item = new HistoryItem
             {

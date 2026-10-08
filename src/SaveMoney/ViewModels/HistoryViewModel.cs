@@ -26,11 +26,24 @@ public partial class HistoryGroupVM : ObservableCollection<HistoryItemVM>
     {
     }
 
-    public required DateTime Date { get; init; }
+    private DateTime _date;
 
-    public string HeaderText => Date.Date == DateTime.Today ? "Сегодня"
-        : Date.Date == DateTime.Today.AddDays(-1) ? "Вчера"
-        : Date.ToString("d MMMM");
+    public required DateTime Date
+    {
+        init
+        {
+            _date = value;
+            // Текст фиксируется при построении группы (в Refresh), а не в геттере
+            // биндинга: список, переживший полночь на экране, не должен зависеть
+            // от момента, когда CollectionView переоценит геттер.
+            HeaderText = value.Date == DateTime.Today ? "Сегодня"
+                : value.Date == DateTime.Today.AddDays(-1) ? "Вчера"
+                : value.ToString("d MMMM");
+        }
+        get => _date;
+    }
+
+    public string HeaderText { get; private set; } = "";
 
     public string IncomeText => IncomeMinor > 0 ? $"+{MoneyFormat.Rubles(IncomeMinor)}" : "";
     public string ExpenseText => ExpenseMinor > 0 ? MoneyFormat.Rubles(-ExpenseMinor) : "";
@@ -171,7 +184,8 @@ public partial class HistoryViewModel(AppDatabase db, HistoryService history) : 
                 Icon = i.Icon,
                 Title = i.Title,
                 Subtitle = i.Subtitle,
-                AmountText = MoneyFormat.SignedRubles(i.SignedAmountMinor),
+                // Перевод в общем списке нейтрален: деньги не покидали кошелёк — без знака.
+                AmountText = i.IsNeutralTransfer ? MoneyFormat.Rubles(i.AmountMinor) : MoneyFormat.SignedRubles(i.SignedAmountMinor),
                 IsExpense = i.IsExpense,
             }))
             {

@@ -125,7 +125,10 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
 
             // Вкладка «Ввод» живёт всё время процесса: без этого новые записи
             // после дней в фоне молча датировались последним открытием.
+            // Время суток — то же: _editTimeOfDay из конструктора протухал так же,
+            // а ToUnix штампует им каждую новую запись.
             Date = DateTime.Now;
+            _editTimeOfDay = DateTime.Now.TimeOfDay;
         }
 
         LoadAccounts();

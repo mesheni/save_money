@@ -100,7 +100,8 @@ public partial class SettingsViewModel(AppDatabase db, CsvExportService csv) : O
             // а две копии в одну минуту — обычный случай.
             var path = Path.Combine(FileSystem.AppDataDirectory,
                 $"savemoney-backup-{DateTime.Now:yyyyMMdd_HHmmss}.db");
-            _db.Connection.Execute($"VACUUM INTO '{path.Replace("'", "''")}'");
+            // VACUUM большой базы занимает секунды — не замораживаем UI-поток.
+            await Task.Run(() => _db.Connection.Execute($"VACUUM INTO '{path.Replace("'", "''")}'"));
 
             await Share.RequestAsync(new ShareFileRequest
             {
@@ -118,7 +119,8 @@ public partial class SettingsViewModel(AppDatabase db, CsvExportService csv) : O
     {
         try
         {
-            var path = _csv.ExportTransactions(fromUnix, toUnix, Path.Combine(FileSystem.AppDataDirectory, "exports"));
+            var path = await Task.Run(() =>
+                _csv.ExportTransactions(fromUnix, toUnix, Path.Combine(FileSystem.AppDataDirectory, "exports")));
             await Share.RequestAsync(new ShareFileRequest
             {
                 Title = Path.GetFileName(path),

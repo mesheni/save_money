@@ -137,4 +137,73 @@ public class ReportAndCsvTests : IDisposable
             Directory.Delete(dir, recursive: true);
         }
     }
+
+    [Fact]
+    public void Csv_Export_NeutralizesFormulaPrefixes_ButNotAmounts()
+    {
+        var account = new Account { Name = "=Счёт-формула" };
+        _test.Db.Accounts.Save(account);
+
+        _test.Db.Transactions.Save(new Transaction
+        {
+            AccountId = account.Id,
+            AmountMinor = 12_345,
+            Kind = TransactionKind.Expense,
+            DateUnix = Unix(2026, 9, 10, 18),
+            Payee = "=HYPERLINK(\"https://evil.example\")",
+            Note = "@cmd /c",
+        });
+
+        var dir = Path.Combine(Path.GetTempPath(), $"savemoney-csv-{Guid.NewGuid():N}");
+        var path = new CsvExportService(_test.Db).ExportTransactions(Unix(2026, 9, 1), Unix(2026, 9, 30), dir);
+
+        try
+        {
+            var row = File.ReadAllText(path, Encoding.UTF8).TrimEnd().Split('\n')[1];
+
+            // Свободный текст с формульным префиксом нейтрализуется апострофом
+            Assert.Contains("'=HYPERLINK", row);
+            Assert.Contains("'@cmd /c", row);
+            Assert.Contains("'=Счёт-формула", row);
+            // Числовая колонка сумм остаётся числом: минус не трогаем
+            Assert.Contains(";-123,45;", row);
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void Csv_Export_DeletedCategory_KeepsName()
+    {
+        var account = new Account { Name = "Сбер" };
+        _test.Db.Accounts.Save(account);
+        var cat = new Category { Name = "Временная", Kind = CategoryKind.Expense }; // не IsDefault — только их можно удалить
+        _test.Db.Categories.Save(cat);
+
+        _test.Db.Transactions.Save(new Transaction
+        {
+            AccountId = account.Id,
+            CategoryId = cat.Id,
+            AmountMinor = 1_000,
+            Kind = TransactionKind.Expense,
+            DateUnix = Unix(2026, 9, 10, 18),
+        });
+        _test.Db.Categories.SoftDelete(cat);
+
+        var dir = Path.Combine(Path.GetTempPath(), $"savemoney-csv-{Guid.NewGuid():N}");
+        var path = new CsvExportService(_test.Db).ExportTransactions(Unix(2026, 9, 1), Unix(2026, 9, 30), dir);
+
+        try
+        {
+            var row = File.ReadAllText(path, Encoding.UTF8).TrimEnd().Split('\n')[1];
+            // Имя мягко-удалённой категории в экспорте не теряется
+            Assert.Contains(";-10,00;Временная;", row);
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
 }

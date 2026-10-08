@@ -16,6 +16,11 @@ public sealed class DebtService(AppDatabase database, TransactionService transac
 
     public void AddPayment(Debt debt, long amountMinor, long dateUnix, bool createTransaction)
     {
+        if (amountMinor <= 0)
+        {
+            return;
+        }
+
         _db.Debts.AddPayment(new DebtPayment
         {
             DebtId = debt.Id,
@@ -23,7 +28,7 @@ public sealed class DebtService(AppDatabase database, TransactionService transac
             DateUnix = dateUnix,
         });
 
-        if (!createTransaction || string.IsNullOrEmpty(debt.AccountId) || amountMinor <= 0)
+        if (!createTransaction || string.IsNullOrEmpty(debt.AccountId))
         {
             return;
         }

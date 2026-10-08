@@ -49,6 +49,8 @@ public static class MoneyFormat
         }
 
         // Свободные поля ввода принимают 3+ знака: 100,125 → 10013 коп., округление от нуля.
+        // Клэмп до границ long: приведение 19+значного числа к копейкам кидает OverflowException.
+        value = Math.Clamp(value, -long.MaxValue / 100m, long.MaxValue / 100m);
         return (long)Math.Round(value * 100m, MidpointRounding.AwayFromZero);
     }
 }

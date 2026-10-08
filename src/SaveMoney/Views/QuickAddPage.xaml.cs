@@ -21,7 +21,9 @@ public partial class QuickAddPage : ContentPage
         viewModel.SavedAsync = ShowSavedToastAsync;
 
         // Отклик на нажатие клавиш и сегментов — пульс по моушн-токенам Vibrant.
-        foreach (var key in Keypad.Children.OfType<Button>())
+        // SaveButton лежит внутри грида Keypad и подписан ниже: двойная подписка
+        // давала бы два конкурирующих ScaleTo на каждое сохранение.
+        foreach (var key in Keypad.Children.OfType<Button>().Where(b => !ReferenceEquals(b, SaveButton)))
         {
             key.Clicked += async (sender, _) => await PulseAsync(sender);
         }
@@ -56,6 +58,10 @@ public partial class QuickAddPage : ContentPage
                 0,
                 _viewModel.BalanceValue,
                 value => _viewModel.BalanceText = MoneyFormat.Rubles((long)Math.Round(value * 100)));
+
+            // Пока шла анимация, баланс мог обновиться (мессенджер/MaterializeDue):
+            // финальный кадр — всегда актуальное значение из VM.
+            _viewModel.BalanceText = MoneyFormat.Rubles((long)Math.Round(_viewModel.BalanceValue * 100));
         }
     }
 

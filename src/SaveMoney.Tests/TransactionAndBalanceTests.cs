@@ -99,4 +99,62 @@ public class TransactionAndBalanceTests : IDisposable
         Assert.Equal(-100_000, balanceService.GetAccountBalance(from));
         Assert.Equal(99_000, balanceService.GetAccountBalance(to));
     }
+
+    [Fact]
+    public void GetTotalBalance_MatchesPerAccountSum_WithTransfersAndExclusions()
+    {
+        // Эталон рефакторинга: один агрегат в GetTotalBalance обязан давать
+        // ровно ту же сумму, что и повызовная арифметика GetAccountBalance.
+        var balanceService = new BalanceService(_test.Db);
+        var cash = AddAccount("Наличные", initialMinor: 10_000);
+        var card = AddAccount("Карта");
+        var savings = AddAccount("Накопления"); // IncludeInTotal = false — вне общего итога
+        savings.IncludeInTotal = false;
+        _test.Db.Accounts.Save(savings);
+        var archived = AddAccount("Архив");
+        archived.Archived = true;
+        _test.Db.Accounts.Save(archived);
+
+        AddTransaction(cash, TransactionKind.Income, 100_000);
+        AddTransaction(cash, TransactionKind.Transfer, 50_000, transferTo: card.Id);
+        _test.Db.Transactions.Save(new Transaction
+        {
+            AccountId = card.Id,
+            TransferAccountId = savings.Id,
+            AmountMinor = 20_000,
+            TransferAmountMinor = 19_000, // комиссия 100 ₽
+            Kind = TransactionKind.Transfer,
+        });
+        AddTransaction(archived, TransactionKind.Expense, 7_000);
+
+        // В общий итог входят только неархивированные с IncludeInTotal:
+        // наличные 100 + 1000 − 500 = 600 ₽, карта 500 − 200 = 300 ₽ (19 000 ₽
+        // комиссии-зачисления приходят на исключённые «Накопления»).
+        var perAccount = balanceService.GetAccountBalance(cash) + balanceService.GetAccountBalance(card);
+
+        Assert.Equal(19_000, balanceService.GetAccountBalance(savings));
+        Assert.Equal(90_000, balanceService.GetTotalBalance());
+        Assert.Equal(perAccount, balanceService.GetTotalBalance());
+    }
+
+    [Fact]
+    public void PendingReview_Drafts_ExcludedFromBalanceAndSelections()
+    {
+        // Черновик парсера (v1.1) не считается операцией, пока не подтверждён.
+        var balanceService = new BalanceService(_test.Db);
+        var account = AddAccount("Карта");
+
+        _test.Db.Transactions.Save(new Transaction
+        {
+            AccountId = account.Id,
+            AmountMinor = 50_000,
+            Kind = TransactionKind.Expense,
+            IsPendingReview = true,
+        });
+
+        Assert.Equal(0, balanceService.GetAccountBalance(account));
+        Assert.Equal(0, balanceService.GetTotalBalance());
+        Assert.Empty(_test.Db.Transactions.GetBetween(0, 2_000));
+        Assert.Empty(_test.Db.Transactions.GetRecent());
+    }
 }

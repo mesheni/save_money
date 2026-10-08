@@ -51,6 +51,23 @@ public class TransactionServiceTests : IDisposable
             AccountId = "a",
             TransferAccountId = "a",
         })],
+        [new Func<Transaction>(() => new Transaction
+        {
+            // Ноль зачисления исказил бы баланс получателя (COALESCE в BalanceService).
+            AmountMinor = 100,
+            Kind = TransactionKind.Transfer,
+            AccountId = "a",
+            TransferAccountId = "b",
+            TransferAmountMinor = 0,
+        })],
+        [new Func<Transaction>(() => new Transaction
+        {
+            AmountMinor = 100,
+            Kind = TransactionKind.Transfer,
+            AccountId = "a",
+            TransferAccountId = "b",
+            TransferAmountMinor = -1,
+        })],
     ];
 
     [Theory]

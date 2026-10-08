@@ -12,6 +12,14 @@ public class CategoryRepository(SQLiteConnection db) : Repository<Category>(db)
           .ThenBy(c => c.Name)
           .ToList();
 
+    /// <summary>Все, включая мягко-удалённые — чтобы история/экспорт могли показать имя старой операции.</summary>
+    public List<Category> GetAll() =>
+        Db.Table<Category>()
+          .OrderBy(c => c.Sort)
+          .ToList()
+          .OrderBy(c => c.Name, StringComparer.CurrentCulture)
+          .ToList();
+
     public List<Category> GetRoots(string kind) =>
         Db.Table<Category>()
           .Where(c => !c.IsDeleted && c.ParentId == null && c.Kind == kind)

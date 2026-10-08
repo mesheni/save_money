@@ -142,4 +142,42 @@ public class BudgetAndDebtServiceTests : IDisposable
 
         Assert.Equal(0, _test.Db.Transactions.CountAll());
     }
+
+    [Fact]
+    public void DebtPayment_ZeroAmount_WritesNothing()
+    {
+        // Валидация суммы обязана стоять ДО вставки платежа: ноль/минус не пишется никуда.
+        var transactions = new TransactionService(_test.Db);
+        var service = new DebtService(_test.Db, transactions);
+
+        var debt = new Debt { Direction = DebtDirection.OwedToMe, PersonName = "Кто-то", AmountMinor = 100 };
+        _test.Db.Debts.Save(debt);
+
+        service.AddPayment(debt, 0, Unix(2026, 9, 12), createTransaction: true);
+        service.AddPayment(debt, -5, Unix(2026, 9, 12), createTransaction: true);
+
+        Assert.Empty(_test.Db.Debts.GetPayments(debt.Id));
+        Assert.Equal(0, _test.Db.Transactions.CountAll());
+        Assert.Equal(100, _test.Db.Debts.GetRemaining(_test.Db.Debts.Get(debt.Id)!));
+    }
+
+    [Theory]
+    [InlineData(9_949, "99%")]   // 99,49 → 99
+    [InlineData(9_995, "100%")]  // 99,95 → округление вверх (старый trunc давал «99%»)
+    [InlineData(25_000, "100%")] // кап: бар 100%, текст не «250%»
+    public void BudgetStatus_PercentText_RoundsAndCaps(long factMinor, string expected)
+    {
+        var row = new BudgetStatusRow
+        {
+            BudgetId = "b",
+            CategoryId = null,
+            Name = "Общий лимит",
+            Icon = "🎯",
+            PlanMinor = 10_000,
+            FactMinor = factMinor,
+        };
+
+        Assert.Equal(expected, row.PercentText);
+        Assert.True(row.Percent <= 100.0);
+    }
 }

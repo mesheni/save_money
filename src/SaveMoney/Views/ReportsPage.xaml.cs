@@ -93,6 +93,11 @@ public partial class ReportsPage : ContentPage
                     0,
                     _viewModel.PeriodExpenseValue,
                     value => _viewModel.PeriodExpenseText = MoneyFormat.Rubles((long)Math.Round(value * 100)));
+
+                // Пока шла анимация, период могли сменить: кадры затирают свежее
+                // значение суммой старого периода. Финальный кадр — всегда из VM.
+                _viewModel.PeriodExpenseText =
+                    MoneyFormat.Rubles((long)Math.Round(_viewModel.PeriodExpenseValue * 100));
             }
             finally
             {

@@ -101,6 +101,9 @@ public partial class RecurringEditViewModel(AppDatabase db) : ObservableObject
     private List<string> _categoryIds = [];
     private bool _loaded;
 
+    /// <summary>Счёт платежа удалён: в пикере заглушка, сохранение до явного выбора заблокировано.</summary>
+    private bool _accountMissing;
+
     public ObservableCollection<string> AccountOptions { get; } = [];
     public ObservableCollection<string> CategoryOptions { get; } = [];
     public ObservableCollection<string> DayOfMonthOptions { get; } =
@@ -191,7 +194,17 @@ public partial class RecurringEditViewModel(AppDatabase db) : ObservableObject
             IsActive = _editing.IsActive;
 
             var accountIdx = _accountIds.IndexOf(_editing.AccountId);
-            AccountIndex = Math.Max(0, accountIdx);
+            if (accountIdx < 0)
+            {
+                // Счёт платежа удалён: заглушка вместо молчаливой подмены первым счётом.
+                _accountMissing = true;
+                AccountOptions.Add("(счёт удалён)");
+                AccountIndex = AccountOptions.Count - 1;
+            }
+            else
+            {
+                AccountIndex = accountIdx;
+            }
         }
 
         ReloadCategories(_editing?.CategoryId);
@@ -236,6 +249,12 @@ public partial class RecurringEditViewModel(AppDatabase db) : ObservableObject
     [RelayCommand]
     private async Task SaveAsync()
     {
+        if (_accountMissing && AccountIndex == AccountOptions.Count - 1)
+        {
+            await AlertAsync?.Invoke("Ошибка", "Счёт этого платежа удалён — выберите другой счёт")!;
+            return;
+        }
+
         if (AccountIndex < 0 || AccountIndex >= _accountIds.Count)
         {
             await AlertAsync?.Invoke("Ошибка", "Выберите счёт (создайте его в разделе «Счета»)")!;

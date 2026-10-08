@@ -46,6 +46,13 @@ public sealed class TransactionService(AppDatabase database)
                 throw new ArgumentException("Счёт-получатель совпадает со счётом-источником", nameof(transaction));
             }
 
+            // BalanceService зачисляет получателю именно TransferAmountMinor:
+            // ноль/минус исказил бы баланс счёта-получателя.
+            if (transaction.TransferAmountMinor is <= 0)
+            {
+                throw new ArgumentException("Сумма зачисления перевода должна быть больше нуля", nameof(transaction));
+            }
+
             transaction.CategoryId = null;
             transaction.Payee = null;
         }

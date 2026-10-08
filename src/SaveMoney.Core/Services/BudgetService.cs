@@ -18,7 +18,9 @@ public class BudgetStatusRow
     public bool IsGeneral => CategoryId is null;
     public bool IsOver => FactMinor > PlanMinor;
     public double Percent => PlanMinor > 0 ? Math.Min(100.0, FactMinor * 100.0 / PlanMinor) : 0;
-    public string PercentText => PlanMinor > 0 ? $"{FactMinor * 100 / PlanMinor}%" : "";
+
+    /// <summary>Целый процент с тем же капом 100, что и бар: «250%» вводит в заблуждение.</summary>
+    public string PercentText => PlanMinor > 0 ? $"{Math.Min(100, (long)Math.Round(FactMinor * 100.0 / PlanMinor))}%" : "";
 }
 
 /// <summary>План/факт по бюджетам за период. Бюджет на корневую категорию включает расходы подкатегорий.</summary>

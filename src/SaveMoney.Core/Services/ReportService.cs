@@ -101,7 +101,7 @@ public sealed class ReportService(AppDatabase database)
         while (cursor < to)
         {
             var end = byWeek ? cursor.AddDays(7) : cursor.AddDays(1);
-            buckets.Add((cursor, end, cursor.ToString(byWeek ? "dd.MM" : "dd.MM")));
+            buckets.Add((cursor, end, cursor.ToString("dd.MM")));
             cursor = end;
         }
 

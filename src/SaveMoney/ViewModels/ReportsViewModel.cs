@@ -243,7 +243,8 @@ public partial class ReportsViewModel(
         try
         {
             var (from, to) = GetRange();
-            var path = _csv.ExportTransactions(from, to, Path.Combine(FileSystem.AppDataDirectory, "exports"));
+            var path = await Task.Run(() =>
+                _csv.ExportTransactions(from, to, Path.Combine(FileSystem.AppDataDirectory, "exports")));
             await Share.RequestAsync(new ShareFileRequest
             {
                 Title = Path.GetFileName(path),

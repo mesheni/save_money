@@ -19,7 +19,7 @@ public sealed class CsvExportService(AppDatabase database)
 
         var transactions = _db.Transactions.GetBetween(fromUnix, toUnix);
         var accounts = _db.Accounts.GetAll().ToDictionary(a => a.Id, a => a.Name);
-        var categories = _db.Categories.GetAllActive().ToDictionary(c => c.Id);
+        var categories = _db.Categories.GetAll().ToDictionary(c => c.Id);
 
         var sb = new StringBuilder();
         sb.AppendLine("Дата;Тип;Сумма;Категория;Счёт;Счёт-получатель;Магазин;Заметка");
@@ -38,21 +38,21 @@ public sealed class CsvExportService(AppDatabase database)
             var amountMinor = tx.Kind == TransactionKind.Expense ? -tx.AmountMinor : tx.AmountMinor;
 
             string CategoryName(string? id) =>
-                id is not null && categories.TryGetValue(id, out var c) ? c.Name : "";
+                id is null ? "" : categories.TryGetValue(id, out var c) ? c.Name : "(категория удалена)";
 
             var fields = new[]
             {
                 date.ToString("dd.MM.yyyy HH:mm"),
-                kindName,
-                ToExcelNumber(amountMinor),
-                CategoryName(tx.CategoryId),
-                accounts.GetValueOrDefault(tx.AccountId, "(счёт удалён)"),
-                tx.TransferAccountId is null ? "" : accounts.GetValueOrDefault(tx.TransferAccountId, "(счёт удалён)"),
-                tx.Payee ?? "",
-                tx.Note ?? "",
+                Text(kindName),
+                Escape(ToExcelNumber(amountMinor)),
+                Text(CategoryName(tx.CategoryId)),
+                Text(accounts.GetValueOrDefault(tx.AccountId, "(счёт удалён)")),
+                Text(tx.TransferAccountId is null ? "" : accounts.GetValueOrDefault(tx.TransferAccountId, "(счёт удалён)")),
+                Text(tx.Payee ?? ""),
+                Text(tx.Note ?? ""),
             };
 
-            sb.AppendLine(string.Join(';', fields.Select(Escape)));
+            sb.AppendLine(string.Join(';', fields));
         }
 
         var fileName = $"savemoney_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
@@ -63,6 +63,22 @@ public sealed class CsvExportService(AppDatabase database)
 
     internal static string ToExcelNumber(long minorUnits) =>
         (minorUnits / 100m).ToString("0.00", CultureInfo.InvariantCulture).Replace('.', ',');
+
+    /// <summary>
+    /// Свободный текст (магазин/заметка/имена) мог прийти извне — например, из банковского
+    /// парсера v1.1. Поле, начинающееся с = + - @ или таба, Excel исполняет как формулу
+    /// при открытии CSV, поэтому нейтрализуем апострофом. Числовую колонку сумм не трогаем.
+    /// </summary>
+    internal static string Sanitize(string field)
+    {
+        return field.StartsWith('=') || field.StartsWith('+') || field.StartsWith('-')
+            || field.StartsWith('@') || field.StartsWith('\t')
+            ? "'" + field
+            : field;
+    }
+
+    /// <summary>Текст: сначала нейтрализация формул, затем стандартное экранирование CSV.</summary>
+    internal static string Text(string field) => Escape(Sanitize(field));
 
     internal static string Escape(string field)
     {

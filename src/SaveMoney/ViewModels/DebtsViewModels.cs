@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using SaveMoney.Core.Database;
 using SaveMoney.Core.Models;
 using SaveMoney.Core.Services;
+using SaveMoney.Messaging;
 
 namespace SaveMoney.ViewModels;
 
@@ -137,6 +138,9 @@ public partial class DebtEditViewModel(AppDatabase db) : ObservableObject
     private Debt? _editing;
     private bool _loaded;
 
+    /// <summary>Счёт долга удалён: в пикере добавлена заглушка, сохранение до явного выбора заблокировано.</summary>
+    private bool _accountMissing;
+
     public ObservableCollection<string> AccountOptions { get; } = [];
 
     private readonly List<string> _accountIds = [];
@@ -221,7 +225,17 @@ public partial class DebtEditViewModel(AppDatabase db) : ObservableObject
         }
 
         var accountIdx = debt.AccountId is null ? 0 : _accountIds.IndexOf(debt.AccountId);
-        AccountIndex = accountIdx < 0 ? 0 : accountIdx + 1;
+        if (accountIdx < 0)
+        {
+            // Счёт долга удалён: заглушка вместо молчаливой отвязки при сохранении.
+            _accountMissing = true;
+            AccountOptions.Add("(счёт удалён)");
+            AccountIndex = AccountOptions.Count - 1;
+        }
+        else
+        {
+            AccountIndex = accountIdx + 1;
+        }
 
         return Task.CompletedTask;
     }
@@ -242,6 +256,12 @@ public partial class DebtEditViewModel(AppDatabase db) : ObservableObject
             return;
         }
 
+        if (_accountMissing && AccountIndex == AccountOptions.Count - 1)
+        {
+            await AlertAsync?.Invoke("Ошибка", "Счёт этого долга удалён — выберите другой счёт или «без счёта»")!;
+            return;
+        }
+
         var debt = _editing ?? new Debt();
         debt.Direction = DirectionIndex == 1 ? DebtDirection.IOwe : DebtDirection.OwedToMe;
         debt.PersonName = PersonName.Trim();
@@ -250,7 +270,9 @@ public partial class DebtEditViewModel(AppDatabase db) : ObservableObject
         debt.DueDateUnix = HasDueDate
             ? new DateTimeOffset(DueDate.Date.AddHours(12), TimeZoneInfo.Local.GetUtcOffset(DueDate.Date)).ToUnixTimeSeconds()
             : null;
-        debt.AccountId = AccountIndex > 0 ? _accountIds[AccountIndex - 1] : null;
+        debt.AccountId = AccountIndex > 0 && AccountIndex <= _accountIds.Count
+            ? _accountIds[AccountIndex - 1]
+            : null;
 
         try
         {
@@ -336,7 +358,10 @@ public partial class DebtDetailViewModel(AppDatabase db, DebtService debts) : Ob
             return;
         }
 
-        CanLinkTransaction = !string.IsNullOrEmpty(_debt.AccountId);
+        // Существование счёта, а не только непустой Id: счёт мог быть удалён —
+        // транзакция на удалённом счёте выпала бы из всех балансов.
+        CanLinkTransaction = !string.IsNullOrEmpty(_debt.AccountId)
+            && _db.Accounts.GetAll().Any(a => a.Id == _debt.AccountId);
         Reload();
     }
 
@@ -385,7 +410,14 @@ public partial class DebtDetailViewModel(AppDatabase db, DebtService debts) : Ob
         var dateUnix = new DateTimeOffset(PaymentDate.Date.AddHours(12),
             TimeZoneInfo.Local.GetUtcOffset(PaymentDate.Date)).ToUnixTimeSeconds();
 
-        _debts.AddPayment(_debt, amount, dateUnix, CreateTransaction && CanLinkTransaction);
+        var createTransaction = CreateTransaction && CanLinkTransaction;
+        _debts.AddPayment(_debt, amount, dateUnix, createTransaction);
+
+        if (createTransaction)
+        {
+            // Связанная транзакция меняет балансы — обновляем их сразу, а не по Appearing.
+            TransactionsChangedMessage.Broadcast();
+        }
 
         PaymentAmountText = "";
         Reload();
