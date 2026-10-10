@@ -55,4 +55,28 @@ public class MigrationAndSeedTests : IDisposable
 
         Assert.Throws<InvalidOperationException>(() => _test.Db.Categories.SoftDelete(root));
     }
+
+    [Fact]
+    public void Migration_V2_ConvertsEmojiIcons_ToKeys()
+    {
+        var path = _test.Db.Connection.DatabasePath;
+
+        // Эмулируем базу версии 1: эмодзи-иконки и user_version = 1.
+        _test.Db.Connection.Execute("UPDATE categories SET icon = '🛒' WHERE name = 'Продукты'");
+        _test.Db.Connection.Execute("UPDATE categories SET icon = '🎁' WHERE name IN ('Подарки', 'Кэшбэк и бонусы')");
+        _test.Db.Connection.Execute("PRAGMA user_version = 1");
+        _test.Db.Dispose();
+
+        using var migrated = new AppDatabase(path);
+        var icons = migrated.Categories.GetAllActive()
+            .Where(c => c.Name is "Продукты" or "Подарки" or "Кэшбэк и бонусы")
+            .ToDictionary(c => c.Name, c => c.Icon);
+
+        Assert.Equal(IconKeys.Groceries, icons["Продукты"]);
+        Assert.Equal(IconKeys.Gift, icons["Подарки"]);
+        // 🎁 у кэшбэка общим правилом ушёл в gift, спец-правило исправляет на bonus.
+        Assert.Equal(IconKeys.Bonus, icons["Кэшбэк и бонусы"]);
+        Assert.All(migrated.Categories.GetAllActive(), c =>
+            Assert.False(c.Icon?.Any(ch => ch > '\u2600') == true, $"Эмодзи остался: {c.Icon} у «{c.Name}»"));
+    }
 }

@@ -46,17 +46,15 @@
         android:textSize="15sp"
         android:textStyle="bold" />
 
-    <TextView
+    <ImageView
         android:id="@+id/widget_btn_custom"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:layout_margin="4dp"
         android:background="@drawable/widget_btn_bg"
-        android:gravity="center"
-        android:text="✎"
-        android:textColor="#FFFFFF"
-        android:textSize="17sp"
-        android:textStyle="bold" />
+        android:src="@drawable/widget_ic_edit"
+        android:scaleType="centerInside"
+        android:contentDescription="Своя сумма" />
 
 </LinearLayout>

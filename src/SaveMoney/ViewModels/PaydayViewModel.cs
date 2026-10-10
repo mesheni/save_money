@@ -105,7 +105,7 @@ public partial class PaydayViewModel(
 
         if (canSpend < 0)
         {
-            StatusText = "⚠ До зарплаты денег не хватит";
+            StatusText = "До зарплаты денег не хватит";
             StatusKind = "minus";
         }
         else if (perDay < 500)
@@ -115,7 +115,7 @@ public partial class PaydayViewModel(
         }
         else
         {
-            StatusText = "✓ Хватит до зарплаты";
+            StatusText = "Хватит до зарплаты";
             StatusKind = "ok";
         }
 

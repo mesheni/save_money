@@ -40,7 +40,9 @@
                         </SwipeView.RightItems>
                         <Border Style="{StaticResource ListRow}">
                             <Grid ColumnDefinitions="44,*,Auto">
-                                <Label Text="{Binding Icon}" FontSize="22" VerticalOptions="Start"/>
+                                <Label Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded"
+                                       FontSize="22" VerticalOptions="Start"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="1">
                                     <Label Text="{Binding Title}" FontFamily="InterSemiBold"/>
                                     <Label Text="{Binding Subtitle}" Style="{StaticResource MutedText}"/>

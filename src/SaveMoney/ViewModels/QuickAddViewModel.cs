@@ -186,7 +186,7 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
         RootCategories.Clear();
         foreach (var root in roots)
         {
-            RootCategories.Add(new CategoryChip { Id = root.Id, Name = root.Name, Icon = root.Icon ?? "❓" });
+            RootCategories.Add(new CategoryChip { Id = root.Id, Name = root.Name, Icon = root.Icon ?? IconKeys.Other });
         }
 
         var lastId = _transactions.GetLastCategoryId(kind);
@@ -211,7 +211,7 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
         SubCategories.Clear();
         foreach (var child in children)
         {
-            SubCategories.Add(new CategoryChip { Id = child.Id, Name = child.Name, Icon = child.Icon ?? "❓" });
+            SubCategories.Add(new CategoryChip { Id = child.Id, Name = child.Name, Icon = child.Icon ?? IconKeys.Other });
         }
 
         HasSubCategories = children.Count > 0;
@@ -245,7 +245,7 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
     [RelayCommand]
     private void Digit(string key)
     {
-        if (key == "⌫")
+        if (key == "backspace")
         {
             AmountText = AmountText.Length > 0 ? AmountText[..^1] : "";
             return;

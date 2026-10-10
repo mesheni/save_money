@@ -50,10 +50,10 @@ public partial class BudgetsViewModel(AppDatabase db, BudgetService budgets, Cyc
             Rows.Add(new BudgetRowVM
             {
                 BudgetId = row.BudgetId,
-                Name = $"{row.Icon} {row.Name}",
+                Name = row.Name,
                 Icon = row.Icon,
                 FactText = $"{MoneyFormat.Rubles(row.FactMinor)} / {MoneyFormat.Rubles(row.PlanMinor)}",
-                PlanText = row.IsOver ? "⚠ превышен" : "в рамках лимита",
+                PlanText = row.IsOver ? "превышен" : "в рамках лимита",
                 PercentText = row.PercentText,
                 Progress = row.Percent / 100.0,
                 IsOver = row.IsOver,

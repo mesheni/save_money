@@ -76,8 +76,15 @@
                                         <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
                                     </DataTrigger>
                                 </Border.Triggers>
-                                <Label Text="{Binding Display}" FontSize="14"
+                                <Label FontSize="14"
                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="15"/>
+                                            <Span Text="  "/>
+                                            <Span Text="{Binding Name}"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
                                             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}"/>
@@ -105,8 +112,15 @@
                                         <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
                                     </DataTrigger>
                                 </Border.Triggers>
-                                <Label Text="{Binding Display}" FontSize="14"
+                                <Label FontSize="14"
                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="15"/>
+                                            <Span Text="  "/>
+                                            <Span Text="{Binding Name}"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
                                             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}"/>
@@ -210,7 +224,8 @@
                 <Button Grid.Row="2" Grid.Column="2" Text="9" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="9"/>
                 <Button Grid.Row="3" Grid.Column="0" Text="," Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter=","/>
                 <Button Grid.Row="3" Grid.Column="1" Text="0" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="0"/>
-                <Button Grid.Row="3" Grid.Column="2" Text="⌫" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="⌫"/>
+                <Button Grid.Row="3" Grid.Column="2" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="backspace"
+                        FontFamily="MaterialSymbolsRounded" FontSize="22" Text="{x:Static ctl:Glyphs.Delete}"/>
 
                 <!-- Дата: по умолчанию «сегодня», меняется в два тапа. -->
                 <Border Grid.Row="0" Grid.Column="3" StrokeShape="RoundRectangle 14" StrokeThickness="1" Padding="4,0"
@@ -242,7 +257,7 @@
                 BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"
                 HorizontalOptions="Center" VerticalOptions="End" Margin="16,0,16,16"
                 InputTransparent="True">
-            <Label Text="Сохранено ✓" TextColor="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}"
+            <Label Text="Сохранено" TextColor="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}"
                    FontFamily="InterSemiBold" FontSize="14" />
         </Border>
 

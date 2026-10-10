@@ -26,7 +26,12 @@
                 <DataTemplate x:DataType="vm:CategoryRowVM">
                     <Border Style="{StaticResource ListRow}" Margin="{Binding RowMargin}">
                         <Grid ColumnDefinitions="*,Auto,Auto">
-                            <Label Grid.Column="0" FontSize="15" Text="{Binding Display}"/>
+                            <HorizontalStackLayout Grid.Column="0" Spacing="10">
+                                <Label Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="17"
+                                       VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                                <Label FontSize="15" Text="{Binding Name}" VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
                             <Button Grid.Column="1" Text="{x:Static ctl:Glyphs.Add}" FontFamily="MaterialSymbolsRounded" FontSize="17" Padding="10,6" Style="{StaticResource GhostButton}"
                                 IsVisible="{Binding ShowAddChild}"
                                 Command="{Binding AddChildCommand, Source={RelativeSource AncestorType={x:Type vm:CategoriesViewModel}}}"

@@ -21,10 +21,10 @@ public partial class AccountRow : ObservableObject
 
     public string Icon => Kind switch
     {
-        AccountKind.Cash => "💵",
-        AccountKind.Card => "💳",
-        AccountKind.Bank => "🏦",
-        _ => "💰",
+        AccountKind.Cash => IconKeys.Cash,
+        AccountKind.Card => IconKeys.Credit,
+        AccountKind.Bank => IconKeys.Bank,
+        _ => IconKeys.Wallet,
     };
 
     public string KindText => Kind switch

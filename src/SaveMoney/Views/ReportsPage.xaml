@@ -69,7 +69,15 @@
                             <DataTemplate x:DataType="vm:TopCategoryRow">
                                 <VerticalStackLayout Padding="0,6" Spacing="4">
                                     <Grid ColumnDefinitions="*,Auto,Auto">
-                                        <Label Text="{Binding Display}"/>
+                                        <Label>
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="14"/>
+                                                    <Span Text="  "/>
+                                                    <Span Text="{Binding Name}"/>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
                                         <Label Grid.Column="1" Text="{Binding PercentText}" FontSize="12"
                                                TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" Margin="8,0"/>
                                         <Label Grid.Column="2" Text="{Binding AmountText}" FontFamily="InterSemiBold"/>

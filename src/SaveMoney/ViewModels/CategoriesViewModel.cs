@@ -16,13 +16,6 @@ public partial class CategoryRowVM : ObservableObject
     public required bool IsRoot { get; init; }
     public required bool CanDelete { get; init; }
 
-    /// <summary>
-    /// Иконка и имя одной строкой. MultiBinding со StringFormat в XAML не работает
-    /// при MauiXamlInflator=SourceGen (StringFormat теряется, строки пустые) —
-    /// поэтому собираем текст здесь.
-    /// </summary>
-    public string Display => $"{Icon} {Name}";
-
     public double Indent => IsRoot ? 0 : 40;
 
     public Thickness RowMargin => new(Indent, 0, 0, 0);
@@ -62,7 +55,7 @@ public partial class CategoriesViewModel(AppDatabase db, CategoryService categor
             {
                 Id = root.Id,
                 Name = root.Name,
-                Icon = root.Icon ?? "❓",
+                Icon = root.Icon ?? IconKeys.Other,
                 IsRoot = true,
                 CanDelete = !root.IsDefault,
             });
@@ -73,7 +66,7 @@ public partial class CategoriesViewModel(AppDatabase db, CategoryService categor
                 {
                     Id = child.Id,
                     Name = child.Name,
-                    Icon = child.Icon ?? "❓",
+                    Icon = child.Icon ?? IconKeys.Other,
                     IsRoot = false,
                     CanDelete = !child.IsDefault,
                 });
@@ -137,9 +130,12 @@ public partial class CategoryEditViewModel(AppDatabase db, CategoryService categ
 
     public static readonly string[] IconOptions =
     [
-        "🏷", "🛒", "🍔", "🚗", "🏠", "💊", "👕", "🎬",
-        "🎮", "📚", "🎁", "✈️", "🐾", "💳", "☕", "🍕",
-        "🏃", "👶", "🎓", "🧾", "💰", "🏦", "📦", "❓",
+        IconKeys.Label, IconKeys.Groceries, IconKeys.Cafe, IconKeys.Transport,
+        IconKeys.Home, IconKeys.Health, IconKeys.Clothes, IconKeys.Entertainment,
+        IconKeys.Games, IconKeys.Books, IconKeys.Gift, IconKeys.Travel,
+        IconKeys.Pets, IconKeys.Credit, IconKeys.Coffee, IconKeys.Pizza,
+        IconKeys.Sport, IconKeys.Kids, IconKeys.Education, IconKeys.Taxes,
+        IconKeys.Salary, IconKeys.Bank, IconKeys.Inventory, IconKeys.Other,
     ];
 
     public ObservableCollection<IconChip> Icons { get; } = [];
@@ -170,9 +166,9 @@ public partial class CategoryEditViewModel(AppDatabase db, CategoryService categ
 
         _initialized = true;
 
-        foreach (var emoji in IconOptions)
+        foreach (var key in IconOptions)
         {
-            Icons.Add(new IconChip { Emoji = emoji });
+            Icons.Add(new IconChip { Key = key });
         }
 
         Icons[0].IsSelected = true;
@@ -210,7 +206,7 @@ public partial class CategoryEditViewModel(AppDatabase db, CategoryService categ
             return;
         }
 
-        var icon = Icons.FirstOrDefault(i => i.IsSelected)?.Emoji;
+        var icon = Icons.FirstOrDefault(i => i.IsSelected)?.Key;
 
         try
         {

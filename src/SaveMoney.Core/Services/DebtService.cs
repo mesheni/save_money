@@ -46,7 +46,7 @@ public sealed class DebtService(AppDatabase database, TransactionService transac
             category = new Category
             {
                 Name = RepaymentCategoryName,
-                Icon = kind == TransactionKind.Income ? "↩️" : "💳",
+                Icon = kind == TransactionKind.Income ? IconKeys.Return : IconKeys.Credit,
                 Kind = kind,
                 IsDefault = true,
             };

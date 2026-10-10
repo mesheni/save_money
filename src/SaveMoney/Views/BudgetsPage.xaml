@@ -32,7 +32,15 @@
                         <Border Style="{StaticResource ListRow}">
                             <VerticalStackLayout Spacing="6">
                                 <Grid ColumnDefinitions="*,Auto,Auto">
-                                    <Label Text="{Binding Name}" FontFamily="InterSemiBold"/>
+                                    <Label FontFamily="InterSemiBold">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="15"/>
+                                                <Span Text="  "/>
+                                                <Span Text="{Binding Name}"/>
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
                                     <Label Grid.Column="1" Text="{Binding PercentText}" FontSize="12" Opacity="0.6" Margin="8,0"/>
                                     <Label Grid.Column="2" Text="{Binding FactText}" FontFamily="InterSemiBold"/>
                                 </Grid>

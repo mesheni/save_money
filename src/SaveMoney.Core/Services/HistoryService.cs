@@ -30,7 +30,7 @@ public class HistoryItem
 
     public required string Title { get; init; }
     public string? Subtitle { get; init; }
-    public string Icon { get; init; } = "❓";
+    public string Icon { get; init; } = IconKeys.Other;
 
     /// <summary>Цвет суммы: красный для расхода и ухода денег при переводе.</summary>
     public bool IsExpense => Kind == TransactionKind.Expense
@@ -82,10 +82,10 @@ public sealed class HistoryService(AppDatabase database)
             };
 
             var icon = tx.Kind == TransactionKind.Transfer
-                ? "🔁"
+                ? IconKeys.Transfer
                 : tx.CategoryId is not null && categories.TryGetValue(tx.CategoryId, out var c)
-                    ? c.Icon ?? "❓"
-                    : "❓";
+                    ? c.Icon ?? IconKeys.Other
+                    : IconKeys.Other;
 
             var subtitleParts = new List<string>();
             if (tx.Kind != TransactionKind.Transfer)

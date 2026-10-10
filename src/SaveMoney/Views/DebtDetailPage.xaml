@@ -16,7 +16,7 @@
                     <Label Text="{Binding RemainingText}" FontSize="30" FontFamily="InterBold"/>
                     <Label Text="{Binding TotalText, StringFormat='из {0}'}" FontSize="13" Opacity="0.6"/>
                     <Label Text="{Binding DueText}" FontSize="13" Opacity="0.6"/>
-                    <Label Text="Долг закрыт ✓" TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}" FontFamily="InterSemiBold"
+                    <Label Text="Долг закрыт" TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}" FontFamily="InterSemiBold"
                            IsVisible="{Binding IsSettled}"/>
                 </VerticalStackLayout>
             </Border>

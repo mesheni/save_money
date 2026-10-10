@@ -153,8 +153,8 @@ public class HistoryAndCategoryServiceTests : IDisposable
         var service = new CategoryService(_test.Db);
         var rootsBefore = _test.Db.Categories.GetRoots(CategoryKind.Expense);
 
-        var created = service.AddRoot("Хобби", CategoryKind.Expense, "🎨");
-        Assert.Equal("🎨", created.Icon);
+        var created = service.AddRoot("Хобби", CategoryKind.Expense, IconKeys.Games);
+        Assert.Equal(IconKeys.Games, created.Icon);
         Assert.Equal(rootsBefore.Max(c => c.Sort) + 1, created.Sort);
 
         var child = service.AddChild(created.Id, "Настолки", null);

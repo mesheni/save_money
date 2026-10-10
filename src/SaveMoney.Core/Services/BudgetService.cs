@@ -53,7 +53,7 @@ public sealed class BudgetService(AppDatabase database)
             {
                 fact = expenses.Sum(t => t.AmountMinor);
                 name = "Общий лимит";
-                icon = "🎯";
+                icon = IconKeys.Budgets;
             }
             else
             {
@@ -69,7 +69,7 @@ public sealed class BudgetService(AppDatabase database)
 
                 var category = byId.TryGetValue(budget.CategoryId, out var c) ? c : null;
                 name = category?.Name ?? "(категория удалена)";
-                icon = category?.Icon ?? "❓";
+                icon = category?.Icon ?? IconKeys.Other;
             }
 
             rows.Add(new BudgetStatusRow

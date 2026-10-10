@@ -172,7 +172,7 @@ public class BudgetAndDebtServiceTests : IDisposable
             BudgetId = "b",
             CategoryId = null,
             Name = "Общий лимит",
-            Icon = "🎯",
+            Icon = IconKeys.Budgets,
             PlanMinor = 10_000,
             FactMinor = factMinor,
         };

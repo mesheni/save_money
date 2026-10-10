@@ -13,7 +13,8 @@ namespace SaveMoney.ViewModels;
 
 public partial class TopCategoryRow
 {
-    public required string Display { get; init; }
+    public required string Icon { get; init; }
+    public required string Name { get; init; }
     public required string AmountText { get; init; }
     public required string PercentText { get; init; }
     public required double Progress { get; init; }
@@ -155,7 +156,7 @@ public partial class ReportsViewModel(
         {
             series.Add(new PieSeries<double>
             {
-                Name = $"{slice.Icon} {slice.Name}",
+                Name = slice.Name,
                 Values = [slice.AmountMinor / 100.0],
                 Fill = new SolidColorPaint(Palette[sliceIndex % Palette.Length]),
                 InnerRadius = 60,
@@ -229,7 +230,8 @@ public partial class ReportsViewModel(
         {
             TopRows.Add(new TopCategoryRow
             {
-                Display = $"{slice.Icon} {slice.Name}",
+                Icon = slice.Icon,
+                Name = slice.Name,
                 AmountText = MoneyFormat.Rubles(slice.AmountMinor),
                 PercentText = $"{slice.SharePercent:F0}%",
                 Progress = Math.Min(1.0, slice.SharePercent / 100.0),

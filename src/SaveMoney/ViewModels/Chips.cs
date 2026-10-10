@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using SaveMoney.Core.Models;
 
 namespace SaveMoney.ViewModels;
 
@@ -19,9 +20,7 @@ public partial class CategoryChip : ObservableObject
 {
     public required string Id { get; init; }
     public required string Name { get; init; }
-    public string Icon { get; init; } = "❓";
-
-    public string Display => $"{Icon} {Name}";
+    public string Icon { get; init; } = IconKeys.Other;
 
     [ObservableProperty]
     public partial bool IsSelected { get; set; }
@@ -36,10 +35,10 @@ public partial class ColorChip : ObservableObject
     public partial bool IsSelected { get; set; }
 }
 
-/// <summary>Чип выбора иконки (эмодзи при создании категории).</summary>
+/// <summary>Чип выбора иконки (ключ IconKeys при создании категории).</summary>
 public partial class IconChip : ObservableObject
 {
-    public required string Emoji { get; init; }
+    public required string Key { get; init; }
 
     [ObservableProperty]
     public partial bool IsSelected { get; set; }

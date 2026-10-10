@@ -9,7 +9,24 @@ namespace SaveMoney.Core.Database;
 /// </summary>
 public static class DbMigrator
 {
-    public const int CurrentVersion = 1;
+    public const int CurrentVersion = 2;
+
+    /// <summary>Эмодзи v1 → ключи иконок v2 (categories.icon). Литералы — ровно как в сидах/палитре v1.</summary>
+    private static readonly (string Emoji, string Key)[] EmojiToIconKey =
+    [
+        // Сид дефолтных категорий
+        ("🛒", IconKeys.Groceries), ("🍔", IconKeys.Cafe), ("🚗", IconKeys.Transport),
+        ("🏠", IconKeys.Home), ("💊", IconKeys.Health), ("🧹", IconKeys.Household),
+        ("👕", IconKeys.Clothes), ("💇", IconKeys.Beauty), ("🎬", IconKeys.Entertainment),
+        ("🏃", IconKeys.Sport), ("👶", IconKeys.Kids), ("🎓", IconKeys.Education),
+        ("🎁", IconKeys.Gift), ("✈️", IconKeys.Travel), ("🐾", IconKeys.Pets),
+        ("💳", IconKeys.Credit), ("🧾", IconKeys.Taxes), ("❓", IconKeys.Other),
+        ("💰", IconKeys.Salary), ("🛠️", IconKeys.Freelance), ("🏦", IconKeys.Bank),
+        ("↩️", IconKeys.Return), ("🎀", IconKeys.Present),
+        // Палитра редактора категорий
+        ("🏷", IconKeys.Label), ("🎮", IconKeys.Games), ("☕", IconKeys.Coffee),
+        ("🍕", IconKeys.Pizza), ("📚", IconKeys.Books), ("📦", IconKeys.Inventory),
+    ];
 
     public static void Migrate(SQLiteConnection db)
     {
@@ -29,8 +46,18 @@ public static class DbMigrator
             db.CreateTable<Setting>();
         }
 
-        // Пример будущей миграции:
-        // if (version < 2) { db.Execute("ALTER TABLE transactions ADD COLUMN ..."); }
+        if (version < 2)
+        {
+            // Данные: эмодзи-иконки категорий → строковые ключи (рендер глифами Material Symbols).
+            foreach (var (emoji, key) in EmojiToIconKey)
+            {
+                db.Execute("UPDATE categories SET icon = ? WHERE icon = ?", key, emoji);
+            }
+
+            // 🎁 был и у «Кэшбэк и бонусы» — общее правило отдаёт gift, исправляем на bonus.
+            db.Execute("UPDATE categories SET icon = ? WHERE name = ? AND icon = ?",
+                IconKeys.Bonus, "Кэшбэк и бонусы", IconKeys.Gift);
+        }
 
         if (version > CurrentVersion)
         {

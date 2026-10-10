@@ -14,7 +14,7 @@ public sealed class CategoryService(AppDatabase database)
         {
             Name = name.Trim(),
             Kind = kind,
-            Icon = string.IsNullOrWhiteSpace(icon) ? "🏷" : icon,
+            Icon = string.IsNullOrWhiteSpace(icon) ? IconKeys.Label : icon,
             Sort = siblings.Count == 0 ? 0 : siblings.Max(c => c.Sort) + 1,
         };
         database.Categories.Save(category);

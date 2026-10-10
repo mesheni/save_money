@@ -48,7 +48,7 @@ public sealed class ReportService(AppDatabase database)
             if (tx.CategoryId is not null && categories.TryGetValue(tx.CategoryId, out var category))
             {
                 var sum = slices.TryGetValue(tx.CategoryId, out var existing) ? existing.Sum : 0;
-                slices[tx.CategoryId] = (sum + tx.AmountMinor, category.Name, category.Icon ?? "❓");
+                slices[tx.CategoryId] = (sum + tx.AmountMinor, category.Name, category.Icon ?? IconKeys.Other);
             }
             else
             {
@@ -73,7 +73,7 @@ public sealed class ReportService(AppDatabase database)
             {
                 CategoryId = null,
                 Name = "Без категории",
-                Icon = "❓",
+                Icon = IconKeys.Other,
                 AmountMinor = noneSum,
                 SharePercent = total > 0 ? noneSum * 100.0 / total : 0,
             });

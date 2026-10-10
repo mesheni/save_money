@@ -24,7 +24,9 @@
                                     <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}"/>
                                 </DataTrigger>
                             </Border.Triggers>
-                            <Label Text="{Binding Emoji}" FontSize="22" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            <Label Text="{Binding Key, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="22"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   HorizontalOptions="Center" VerticalOptions="Center"/>
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding SelectIconCommand, Source={RelativeSource AncestorType={x:Type vm:CategoryEditViewModel}}}" CommandParameter="{Binding .}"/>
                             </Border.GestureRecognizers>

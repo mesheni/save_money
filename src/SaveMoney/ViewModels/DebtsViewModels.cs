@@ -58,7 +58,7 @@ public partial class DebtsViewModel(AppDatabase db) : ObservableObject
             var overdue = debt.DueDateUnix is { } due && due < DateTimeOffset.Now.ToUnixTimeSeconds();
             var dueText = debt.DueDateUnix is { } d
                 ? overdue
-                    ? $"⚠ просрочено ({DateTimeOffset.FromUnixTimeSeconds(d).ToLocalTime():d MMM})"
+                    ? $"просрочено ({DateTimeOffset.FromUnixTimeSeconds(d).ToLocalTime():d MMM})"
                     : $"до {DateTimeOffset.FromUnixTimeSeconds(d).ToLocalTime():d MMM}"
                 : "";
 
@@ -66,7 +66,7 @@ public partial class DebtsViewModel(AppDatabase db) : ObservableObject
             {
                 Id = debt.Id,
                 PersonName = debt.PersonName,
-                Icon = DirectionIndex == 1 ? "📤" : "📥",
+                Icon = DirectionIndex == 1 ? IconKeys.DebtOut : IconKeys.DebtIn,
                 Subtitle = dueText,
                 RemainingText = MoneyFormat.Rubles(remaining),
                 TotalText = $"из {MoneyFormat.Rubles(debt.AmountMinor)}",
