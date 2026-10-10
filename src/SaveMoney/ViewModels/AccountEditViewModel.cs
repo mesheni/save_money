@@ -17,8 +17,8 @@ public partial class AccountEditViewModel(AppDatabase db) : ObservableObject
 
     public static readonly string[] Palette =
     [
-        "#3498DB", "#2ECC71", "#1ABC9C", "#9B59B6",
-        "#E74C3C", "#E67E22", "#F1C40F", "#34495E",
+        "#5B8DEF", "#2E9455", "#3AB0A2", "#9C7BC7",
+        "#DC3D43", "#FF6B00", "#E8B31A", "#6B7280",
     ];
 
     public ObservableCollection<ColorChip> Colors { get; } = [];

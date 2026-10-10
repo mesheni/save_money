@@ -3,52 +3,51 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- Дизайн-система «Vibrant» (design_vibrant/): пары значений светлая/тёмная.
-         Подстановка через {AppThemeBinding Light={StaticResource X_Light}, Dark={StaticResource X_Dark}}. -->
+    <!-- Дизайн-система «Clean» (минимализм): нейтральная база + оранжевый акцент.
+         Пары значений светлая/тёмная; подстановка через
+         {AppThemeBinding Light={StaticResource X_Light}, Dark={StaticResource X_Dark}}. -->
 
-    <Color x:Key="PageBgLight">#FFF8D7</Color>
-    <Color x:Key="PageBgDark">#221B3D</Color>
+    <Color x:Key="PageBgLight">#FFFFFF</Color>
+    <Color x:Key="PageBgDark">#101014</Color>
     <Color x:Key="SurfaceLight">#FFFFFF</Color>
-    <Color x:Key="SurfaceDark">#2C2452</Color>
-    <Color x:Key="SurfaceWarmLight">#FFEF9F</Color>
-    <Color x:Key="SurfaceWarmDark">#3A2F63</Color>
-    <Color x:Key="SoftBgLight">#0F1D1836</Color>
+    <Color x:Key="SurfaceDark">#1A1A1F</Color>
+    <Color x:Key="SoftBgLight">#0F000000</Color>
     <Color x:Key="SoftBgDark">#14FFFFFF</Color>
-    <Color x:Key="BorderLight">#EADFBA</Color>
-    <Color x:Key="BorderDark">#453A72</Color>
-    <Color x:Key="TextPrimaryLight">#1D1836</Color>
-    <Color x:Key="TextPrimaryDark">#FFF8D7</Color>
-    <Color x:Key="TextSecondaryLight">#4C426C</Color>
-    <Color x:Key="TextSecondaryDark">#D9D2F0</Color>
-    <Color x:Key="TextMutedLight">#796F91</Color>
-    <Color x:Key="TextMutedDark">#A79FC6</Color>
+    <Color x:Key="BorderLight">#ECECEF</Color>
+    <Color x:Key="BorderDark">#2A2A30</Color>
+    <Color x:Key="TextPrimaryLight">#17171C</Color>
+    <Color x:Key="TextPrimaryDark">#F2F2F4</Color>
+    <Color x:Key="TextSecondaryLight">#50505A</Color>
+    <Color x:Key="TextSecondaryDark">#B9B9C2</Color>
+    <Color x:Key="TextMutedLight">#8E8E98</Color>
+    <Color x:Key="TextMutedDark">#7C7C86</Color>
     <Color x:Key="AccentLight">#FF6B00</Color>
-    <Color x:Key="AccentDark">#FF6B00</Color>
+    <Color x:Key="AccentDark">#FF7A1A</Color>
     <Color x:Key="OnAccentLight">#FFFFFF</Color>
     <Color x:Key="OnAccentDark">#FFFFFF</Color>
-    <Color x:Key="AccentTextLight">#C25100</Color>
-    <Color x:Key="AccentTextDark">#FF8A3D</Color>
-    <Color x:Key="AccentSoftLight">#1AFF6B00</Color>
-    <Color x:Key="AccentSoftDark">#29FF6B00</Color>
-    <Color x:Key="ExpenseLight">#E5484D</Color>
-    <Color x:Key="ExpenseDark">#F0565B</Color>
-    <Color x:Key="ExpenseTextLight">#C93F44</Color>
-    <Color x:Key="ExpenseTextDark">#F58C8F</Color>
-    <Color x:Key="ExpenseSoftLight">#1FE5484D</Color>
-    <Color x:Key="ExpenseSoftDark">#29F0565B</Color>
-    <Color x:Key="IncomeLight">#2E9D57</Color>
-    <Color x:Key="IncomeDark">#34B36A</Color>
-    <Color x:Key="IncomeTextLight">#21713F</Color>
-    <Color x:Key="IncomeTextDark">#6FD597</Color>
-    <Color x:Key="IncomeSoftLight">#1F2E9D57</Color>
-    <Color x:Key="IncomeSoftDark">#2934B36A</Color>
-    <Color x:Key="TransferLight">#4C426C</Color>
-    <Color x:Key="TransferDark">#A79FC6</Color>
-    <Color x:Key="WarnLight">#FFB020</Color>
+    <Color x:Key="AccentTextLight">#CC5200</Color>
+    <Color x:Key="AccentTextDark">#FF9A4D</Color>
+    <Color x:Key="AccentSoftLight">#12FF6B00</Color>
+    <Color x:Key="AccentSoftDark">#1FFF6B00</Color>
+    <Color x:Key="ExpenseLight">#DC3D43</Color>
+    <Color x:Key="ExpenseDark">#F26A6F</Color>
+    <Color x:Key="ExpenseTextLight">#C43438</Color>
+    <Color x:Key="ExpenseTextDark">#F49A9D</Color>
+    <Color x:Key="ExpenseSoftLight">#14DC3D43</Color>
+    <Color x:Key="ExpenseSoftDark">#24F26A6F</Color>
+    <Color x:Key="IncomeLight">#2E9455</Color>
+    <Color x:Key="IncomeDark">#46B874</Color>
+    <Color x:Key="IncomeTextLight">#237442</Color>
+    <Color x:Key="IncomeTextDark">#7BD99B</Color>
+    <Color x:Key="IncomeSoftLight">#142E9455</Color>
+    <Color x:Key="IncomeSoftDark">#2446B874</Color>
+    <Color x:Key="TransferLight">#50505A</Color>
+    <Color x:Key="TransferDark">#B9B9C2</Color>
+    <Color x:Key="WarnLight">#E8A000</Color>
     <Color x:Key="WarnDark">#FFB020</Color>
-    <Color x:Key="WarnTextLight">#8A5B00</Color>
+    <Color x:Key="WarnTextLight">#946200</Color>
     <Color x:Key="WarnTextDark">#FFC95E</Color>
-    <Color x:Key="WarnSoftLight">#1FFFB020</Color>
-    <Color x:Key="WarnSoftDark">#29FFB020</Color>
+    <Color x:Key="WarnSoftLight">#14E8A000</Color>
+    <Color x:Key="WarnSoftDark">#24FFB020</Color>
 
 </ResourceDictionary>

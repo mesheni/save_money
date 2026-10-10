@@ -3,7 +3,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- ═══ Vibrant: неявные стили ═══ -->
+    <!-- ═══ Clean: неявные стили ═══ -->
 
     <Style TargetType="Page" ApplyToDerivedTypes="True">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource PageBgLight}, Dark={StaticResource PageBgDark}}" />
@@ -34,7 +34,7 @@
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
         <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
         <Setter Property="BorderWidth" Value="1" />
-        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="CornerRadius" Value="12" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="Padding" Value="14,10" />
         <Setter Property="MinimumHeightRequest" Value="44" />
@@ -60,7 +60,7 @@
 
     <Style TargetType="Border">
         <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
         <Setter Property="StrokeThickness" Value="1" />
     </Style>
 
@@ -103,7 +103,7 @@
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" />
     </Style>
 
-    <!-- ═══ Vibrant: подписи ═══ -->
+    <!-- ═══ Clean: подписи ═══ -->
 
     <Style x:Key="GroupLabel" TargetType="Label">
         <Setter Property="FontFamily" Value="InterSemiBold" />
@@ -124,50 +124,39 @@
     </Style>
 
     <Style x:Key="Headline" TargetType="Label">
-        <Setter Property="FontFamily" Value="InterBold" />
+        <Setter Property="FontFamily" Value="InterSemiBold" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
-        <Setter Property="FontSize" Value="30" />
+        <Setter Property="FontSize" Value="24" />
         <Setter Property="HorizontalOptions" Value="Center" />
         <Setter Property="HorizontalTextAlignment" Value="Center" />
     </Style>
 
-    <!-- ═══ Vibrant: карточка r24 ═══ -->
+    <!-- ═══ Clean: карточки (плоские, тонкая рамка, без теней) ═══ -->
 
-    <!-- Elevation из контракта (elev-raised: 0 18px 44px rgba(29,24,54,.14)), масштаб для мобилы -->
     <Style x:Key="Card" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
         <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 24" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
         <Setter Property="StrokeThickness" Value="1" />
         <Setter Property="Padding" Value="16" />
-        <Setter Property="Shadow">
-            <Setter.Value>
-                <Shadow Brush="#1D1836" Opacity="0.10" Radius="18" Offset="0,6" />
-            </Setter.Value>
-        </Setter>
     </Style>
 
     <!-- Карточная строка списка: Accounts/Categories/Recurring/Debts/Budgets/платежи -->
     <Style x:Key="ListRow" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
         <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
         <Setter Property="StrokeThickness" Value="1" />
         <Setter Property="Padding" Value="14,10" />
         <Setter Property="Margin" Value="0,4" />
-        <Setter Property="Shadow">
-            <Setter.Value>
-                <Shadow Brush="#1D1836" Opacity="0.06" Radius="10" Offset="0,3" />
-            </Setter.Value>
-        </Setter>
     </Style>
 
-    <!-- ═══ Vibrant: сегменты расход/доход/перевод ═══ -->
+    <!-- ═══ Clean: сегменты расход/доход/перевод ═══ -->
 
     <Style x:Key="SegContainer" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}" />
         <Setter Property="StrokeThickness" Value="0" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
         <Setter Property="Padding" Value="3" />
     </Style>
 
@@ -178,32 +167,32 @@
         <Setter Property="BorderWidth" Value="0" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="CornerRadius" Value="13" />
+        <Setter Property="CornerRadius" Value="10" />
         <Setter Property="HeightRequest" Value="42" />
     </Style>
 
-    <!-- ═══ Vibrant: клавиатура ═══ -->
+    <!-- ═══ Clean: клавиатура (плоские клавиши без рамок) ═══ -->
 
     <Style x:Key="Key" TargetType="Button">
         <Setter Property="FontFamily" Value="InterRegular" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
-        <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
-        <Setter Property="BorderWidth" Value="1" />
-        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="BorderColor" Value="Transparent" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="CornerRadius" Value="12" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
         <Setter Property="FontSize" Value="23" />
         <Setter Property="HeightRequest" Value="54" />
     </Style>
 
-    <!-- ═══ Vibrant: кнопки действий ═══ -->
+    <!-- ═══ Clean: кнопки действий ═══ -->
 
     <Style x:Key="PrimaryButton" TargetType="Button">
         <Setter Property="FontFamily" Value="InterSemiBold" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}" />
-        <Setter Property="TextColor" Value="#FFFFFF" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}" />
         <Setter Property="BorderColor" Value="Transparent" />
         <Setter Property="BorderWidth" Value="0" />
-        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="CornerRadius" Value="14" />
         <Setter Property="FontSize" Value="15" />
         <Setter Property="HeightRequest" Value="50" />
     </Style>
@@ -224,7 +213,7 @@
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}" />
         <Setter Property="BorderColor" Value="Transparent" />
         <Setter Property="BorderWidth" Value="0" />
-        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="CornerRadius" Value="14" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="MinimumHeightRequest" Value="44" />
     </Style>
@@ -234,17 +223,11 @@
          DataTrigger не поддерживаются SourceGen-инфлятором внутри ResourceDictionary. -->
 
     <Style x:Key="DayHeader" TargetType="Border">
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
-        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 14" />
-        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 10" />
         <Setter Property="Padding" Value="12,8" />
         <Setter Property="Margin" Value="0,10,0,2" />
-        <Setter Property="Shadow">
-            <Setter.Value>
-                <Shadow Brush="#1D1836" Opacity="0.06" Radius="10" Offset="0,3" />
-            </Setter.Value>
-        </Setter>
     </Style>
 
 </ResourceDictionary>

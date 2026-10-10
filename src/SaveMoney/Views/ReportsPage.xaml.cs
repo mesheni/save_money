@@ -26,18 +26,18 @@ public partial class ReportsPage : ContentPage
     }
 
     /// <summary>
-    /// Тултипы и моушн графиков: фоны/тексты из токенов Vibrant (по текущей теме,
+    /// Тултипы и моушн графиков: фоны/тексты из токенов Clean (по текущей теме,
     /// как и краска осей во ViewModel), скорость и кривая — из дизайн-контракта.
     /// </summary>
     private void StyleCharts()
     {
         var isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
         var tooltipBackground = new SolidColorPaint(isDark
-            ? new SKColor(0x2C, 0x24, 0x52)
+            ? new SKColor(0x1A, 0x1A, 0x1F)
             : new SKColor(0xFF, 0xFF, 0xFF));
         var tooltipText = new SolidColorPaint(isDark
-            ? new SKColor(0xF4, 0xF1, 0xE8)
-            : new SKColor(0x1D, 0x18, 0x36));
+            ? new SKColor(0xF2, 0xF2, 0xF4)
+            : new SKColor(0x17, 0x17, 0x1C));
 
         ApplyChartStyle(DonutChart, tooltipBackground, tooltipText);
         ApplyChartStyle(DynamicsChart, tooltipBackground, tooltipText);

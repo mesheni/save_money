@@ -31,17 +31,17 @@ public partial class ReportsViewModel(
     private readonly CycleService _cycle = cycle;
     private readonly CsvExportService _csv = csv;
 
-    // Палитра секторов круговой — из контракта Vibrant.
+    // Палитра секторов круговой — «Clean»: акцент + нейтральная серая шкала.
     private static readonly SKColor[] Palette =
     [
         new(0xFF, 0x6B, 0x00),
-        new(0x2E, 0x9D, 0x57),
-        new(0xFF, 0xB0, 0x20),
-        new(0x4C, 0x42, 0x6C),
-        new(0xE5, 0x48, 0x4D),
-        new(0x79, 0x6F, 0x91),
-        new(0xC2, 0x51, 0x00),
-        new(0xEF, 0xC9, 0x68),
+        new(0x5A, 0x5A, 0x64),
+        new(0x78, 0x78, 0x82),
+        new(0x93, 0x93, 0x9D),
+        new(0xAB, 0xAB, 0xB5),
+        new(0xC2, 0xC2, 0xCB),
+        new(0xD6, 0xD6, 0xDE),
+        new(0xE8, 0xE8, 0xEE),
     ];
 
     public IReadOnlyList<string> PeriodOptions { get; } =
@@ -171,7 +171,7 @@ public partial class ReportsViewModel(
             {
                 Name = "Прочие",
                 Values = [rest / 100.0],
-                Fill = new SolidColorPaint(new SKColor(0xEA, 0xDF, 0xBA)),
+                Fill = new SolidColorPaint(new SKColor(0xD9, 0xD9, 0xE0)),
                 InnerRadius = 60,
                 Pushout = 10,
             });
@@ -192,14 +192,14 @@ public partial class ReportsViewModel(
                 Values = points.Select(p => p.ExpenseMinor / 100.0).ToArray(),
                 // Сплошная заливка: LinearGradientPaint на Android рисует столбцы
                 // волосяной линией вместо полного столбца.
-                Fill = new SolidColorPaint(new SKColor(0xE5, 0x48, 0x4D)),
+                Fill = new SolidColorPaint(new SKColor(0xDC, 0x3D, 0x43)),
                 MaxBarWidth = 26,
             },
             new ColumnSeries<double>
             {
                 Name = "Доход",
                 Values = points.Select(p => p.IncomeMinor / 100.0).ToArray(),
-                Fill = new SolidColorPaint(new SKColor(0x2E, 0x9D, 0x57)),
+                Fill = new SolidColorPaint(new SKColor(0x2E, 0x94, 0x55)),
                 MaxBarWidth = 26,
             },
         ];
@@ -213,10 +213,10 @@ public partial class ReportsViewModel(
 
     private static SKColor TextPaintForTheme()
     {
-        // Токены TextMuted: светлая #796F91 / тёмная #A79FC6
+        // Токены TextMuted: светлая #8E8E98 / тёмная #7C7C86
         return Application.Current?.RequestedTheme == AppTheme.Dark
-            ? new SKColor(0xA7, 0x9F, 0xC6)
-            : new SKColor(0x79, 0x6F, 0x91);
+            ? new SKColor(0x7C, 0x7C, 0x86)
+            : new SKColor(0x8E, 0x8E, 0x98);
     }
 
     private void BuildTop(long from, long to)
