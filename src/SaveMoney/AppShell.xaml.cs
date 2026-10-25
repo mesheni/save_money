@@ -10,9 +10,9 @@ public partial class AppShell : Shell
 		InitializeComponent();
 
 #if ANDROID
-		// Полоска активной вкладки (макет). Эффект только на Android: на WinUI
-		// Effects в Shell падают («No service for EffectsFactory») — смоук это поймал.
-		Effects.Add(new Controls.TabIndicatorEffect());
+		// Полоска активной вкладки (макет). Без механизма Effects: EffectsFactory
+		// в DI MAUI 10 не зарегистрирован и валил приложение при attach Shell.
+		Platforms.Android.TabBarIndicator.Attach(this);
 #endif
 
 		Routing.RegisterRoute("transaction", typeof(QuickAddPage));
