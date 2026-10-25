@@ -12,6 +12,11 @@ public partial class HistoryPage : ContentPage
         InitializeComponent();
         _viewModel = viewModel;
         BindingContext = viewModel;
+        viewModel.PickAsync = async (title, options) =>
+        {
+            var picked = await DisplayActionSheetAsync(title, "Отмена", null, options);
+            return picked == "Отмена" ? null : picked;
+        };
     }
 
     private async void OnAppearing(object? sender, EventArgs e)

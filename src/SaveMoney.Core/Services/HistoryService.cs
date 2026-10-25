@@ -32,6 +32,9 @@ public class HistoryItem
     public string? Subtitle { get; init; }
     public string Icon { get; init; } = IconKeys.Other;
 
+    /// <summary>Категория операции (null у переводов) — для фильтра по категории на экране истории.</summary>
+    public string? CategoryId { get; init; }
+
     /// <summary>Цвет суммы: красный для расхода и ухода денег при переводе.</summary>
     public bool IsExpense => Kind == TransactionKind.Expense
         || (Kind == TransactionKind.Transfer && IsTransferOut);
@@ -121,6 +124,7 @@ public sealed class HistoryService(AppDatabase database)
                 Title = title,
                 Subtitle = string.Join(" · ", subtitleParts),
                 Icon = icon,
+                CategoryId = tx.CategoryId,
             };
 
             var localDate = DateTimeOffset
