@@ -10,6 +10,7 @@ public partial class AppShell : Shell
 		InitializeComponent();
 
 		Routing.RegisterRoute("transaction", typeof(QuickAddPage));
+		Routing.RegisterRoute("categorypicker", typeof(CategoryPickerPage));
 		Routing.RegisterRoute("accounts", typeof(AccountsPage));
 		Routing.RegisterRoute("account", typeof(AccountEditPage));
 		Routing.RegisterRoute("categories", typeof(CategoriesPage));

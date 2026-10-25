@@ -14,6 +14,7 @@ public static class Glyphs
     public const string ArrowBack = "\ue5c4";
     public const string Calendar = "\uebcc";      // calendar_month
     public const string Check = "\ue5ca";
+    public const string ChevronDown = "\ue313";   // keyboard_arrow_down
     public const string ChevronRight = "\ue409";
     public const string Close = "\ue14c";
     public const string Delete = "\ue872";

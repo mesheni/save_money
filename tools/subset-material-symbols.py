@@ -31,7 +31,7 @@ CSS_URL = ("https://fonts.googleapis.com/css2"
 ICONS = [
     # Навигация и общие
     "account_balance_wallet", "add", "apps", "arrow_back", "calendar_month",
-    "check", "chevron_right", "close", "delete", "donut_small", "download",
+    "check", "chevron_right", "close", "delete", "donut_small", "download", "keyboard_arrow_down",
     "edit_square", "error", "info", "more_horiz", "receipt_long", "repeat",
     "savings", "schedule", "search", "share", "sync", "trending_up", "tune",
     # Категории расходов

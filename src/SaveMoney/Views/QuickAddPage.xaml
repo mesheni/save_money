@@ -7,26 +7,47 @@
              Title="{Binding ModeText}"
              Appearing="OnAppearing">
 
-    <!-- Один экран без прокрутки: баланс-строка, сегмент, сумма, чипы выбора,
-         клавиатура с правой колонкой (дата / «ещё» / сохранить). -->
-    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" RowSpacing="8" Padding="14,8,14,12">
+    <!-- Экран ввода по макету: шапка (всего + пилюля «в день до зарплаты»), сегмент,
+         крупная сумма с кареткой, строка полей (магазин/счёт), сетка категорий 4×2,
+         подкатегории лентой, клавиатура 4×3 с датой и кнопкой «Сохранить» справа. -->
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,*" RowSpacing="10" Padding="16,10,16,12">
 
-        <StackLayout Grid.Row="0" Orientation="Horizontal" Spacing="6" HorizontalOptions="Center">
-            <Label Text="Баланс по счетам" FontSize="12" VerticalOptions="Center"
-                   TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
-            <Label x:Name="BalanceLabel" Text="{Binding BalanceText}" FontSize="13" FontFamily="InterSemiBold"
-                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                   VerticalOptions="Center"/>
-        </StackLayout>
+        <!-- Шапка: баланс слева, пилюля «в день до зарплаты» справа. -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+            <HorizontalStackLayout Grid.Column="0" Spacing="5" VerticalOptions="Center">
+                <Label Text="Всего" FontSize="14"
+                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                <Label x:Name="BalanceLabel" Text="{Binding BalanceText}" FontSize="14" FontFamily="InterSemiBold"
+                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+            </HorizontalStackLayout>
+            <Border Grid.Column="1" StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="12,0,10,0" HeightRequest="32"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}"
+                    VerticalOptions="Center"
+                    IsVisible="{Binding HasPaydayHint}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenPaydayCommand}"/>
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                    <Label Text="{Binding PaydayHintText}" FontSize="13" FontFamily="InterSemiBold"
+                           TextColor="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}"/>
+                    <Label Text="{x:Static ctl:Glyphs.ChevronDown}" FontFamily="MaterialSymbolsRounded" FontSize="14"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}"/>
+                </HorizontalStackLayout>
+            </Border>
+        </Grid>
 
+        <!-- Сегмент: активная кнопка — карточка с рамкой, неактивные — прозрачные. -->
         <Border Grid.Row="1" Style="{StaticResource SegContainer}">
             <Grid x:Name="SegGrid" ColumnDefinitions="*,*,*" ColumnSpacing="3">
                 <Button Grid.Column="0" Text="Расход" Style="{StaticResource SegButton}"
                         Command="{Binding SetExpenseCommand}">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding IsExpenseMode}" Value="True">
-                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
-                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}"/>
+                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"/>
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                            <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+                            <Setter Property="BorderWidth" Value="1"/>
                         </DataTrigger>
                     </Button.Triggers>
                 </Button>
@@ -34,8 +55,10 @@
                         Command="{Binding SetIncomeCommand}">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding IsIncome}" Value="True">
-                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
-                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}"/>
+                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"/>
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                            <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+                            <Setter Property="BorderWidth" Value="1"/>
                         </DataTrigger>
                     </Button.Triggers>
                 </Button>
@@ -43,216 +66,204 @@
                         Command="{Binding SetTransferCommand}">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding IsTransfer}" Value="True">
-                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
-                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}"/>
+                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"/>
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                            <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+                            <Setter Property="BorderWidth" Value="1"/>
                         </DataTrigger>
                     </Button.Triggers>
                 </Button>
             </Grid>
         </Border>
 
-        <HorizontalStackLayout Grid.Row="2" HorizontalOptions="Center" Spacing="6">
-            <Label Text="{Binding AmountDisplay}" FontSize="38" FontFamily="InterSemiBold"
+        <!-- Сумма: знак по режиму, число, оранжевая каретка, ₽. Выравнивание вправо. -->
+        <HorizontalStackLayout Grid.Row="2" HorizontalOptions="End" Spacing="6" HeightRequest="56">
+            <Label Text="{Binding SignText}" FontSize="34" VerticalOptions="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding IsIncome}" Value="True">
+                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}"/>
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <Label Text="{Binding AmountDisplay}" FontSize="48" FontFamily="InterSemiBold" VerticalOptions="Center"
                    TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
-            <Label Text="₽" FontSize="20" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
-                   VerticalOptions="End" Margin="0,0,0,5"/>
+            <BoxView WidthRequest="2" HeightRequest="40" VerticalOptions="Center"
+                     Color="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
+            <Label Text="₽" FontSize="28" VerticalOptions="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
         </HorizontalStackLayout>
 
-        <!-- Выбор: категория (или «куда» для перевода), затем счёт. Горизонтальные ленты. -->
-        <VerticalStackLayout Grid.Row="3" Spacing="6">
-
-            <VerticalStackLayout Spacing="2" IsVisible="{Binding IsOperation}">
-                <Label Text="Категория" FontSize="11" Margin="2,0"
-                       TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
-                <CollectionView ItemsSource="{Binding RootCategories}" ItemsLayout="HorizontalList" HeightRequest="44">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="vm:CategoryChip">
-                            <Border StrokeShape="RoundRectangle 20" Padding="13,9" Margin="0,0,8,0" StrokeThickness="1"
-                                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}"/>
-                                        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
-                                    </DataTrigger>
-                                </Border.Triggers>
-                                <Label FontSize="14"
-                                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}">
-                                    <Label.FormattedText>
-                                        <FormattedString>
-                                            <Span Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="15"/>
-                                            <Span Text="  "/>
-                                            <Span Text="{Binding Name}"/>
-                                        </FormattedString>
-                                    </Label.FormattedText>
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
-                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding SelectRootCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}" CommandParameter="{Binding .}"/>
-                                </Border.GestureRecognizers>
-                            </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-                <CollectionView ItemsSource="{Binding SubCategories}" ItemsLayout="HorizontalList" HeightRequest="44"
-                                Margin="0,6,0,0"
-                                IsVisible="{Binding HasSubCategories}">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="vm:CategoryChip">
-                            <Border StrokeShape="RoundRectangle 20" Padding="13,9" Margin="0,0,8,0" StrokeThickness="1"
-                                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}"/>
-                                        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
-                                    </DataTrigger>
-                                </Border.Triggers>
-                                <Label FontSize="14"
-                                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}">
-                                    <Label.FormattedText>
-                                        <FormattedString>
-                                            <Span Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="15"/>
-                                            <Span Text="  "/>
-                                            <Span Text="{Binding Name}"/>
-                                        </FormattedString>
-                                    </Label.FormattedText>
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
-                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding SelectSubCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}" CommandParameter="{Binding .}"/>
-                                </Border.GestureRecognizers>
-                            </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </VerticalStackLayout>
-
-            <VerticalStackLayout Spacing="2" IsVisible="{Binding IsTransfer}">
-                <Label Text="Куда" FontSize="11" Margin="2,0"
-                       TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
-                <CollectionView ItemsSource="{Binding TargetAccounts}" ItemsLayout="HorizontalList" HeightRequest="44">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="vm:AccountChip">
-                            <Border StrokeShape="RoundRectangle 20" Padding="13,9" Margin="0,0,8,0" StrokeThickness="1"
-                                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}"/>
-                                        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
-                                    </DataTrigger>
-                                </Border.Triggers>
-                                <Label Text="{Binding Name}" FontSize="14"
-                                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
-                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding SelectTargetCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}" CommandParameter="{Binding .}"/>
-                                </Border.GestureRecognizers>
-                            </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </VerticalStackLayout>
-
-            <VerticalStackLayout Spacing="2">
-                <Label Text="Счёт" FontSize="11" Margin="2,0"
-                       TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
-                <CollectionView ItemsSource="{Binding Accounts}" ItemsLayout="HorizontalList" HeightRequest="44">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="vm:AccountChip">
-                            <Border StrokeShape="RoundRectangle 20" Padding="13,9" Margin="0,0,8,0" StrokeThickness="1"
-                                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}"/>
-                                        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
-                                    </DataTrigger>
-                                </Border.Triggers>
-                                <Label Text="{Binding Name}" FontSize="14"
-                                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
-                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding SelectAccountCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}" CommandParameter="{Binding .}"/>
-                                </Border.GestureRecognizers>
-                            </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </VerticalStackLayout>
-
-        </VerticalStackLayout>
-
-        <!-- Низ: свёрнутая панель «ещё» + клавиатура с правой колонкой действий. -->
-        <Grid Grid.Row="4" RowDefinitions="Auto,*" RowSpacing="8">
-
-            <VerticalStackLayout IsVisible="{Binding IsExpanded}" Spacing="6">
-                <Entry Text="{Binding Payee}" Placeholder="Магазин — по нему угадается категория"
-                       IsVisible="{Binding IsExpenseMode}" ClearButtonVisibility="WhileEditing"/>
-                <Entry Text="{Binding Note}" Placeholder="Заметка" ClearButtonVisibility="WhileEditing"/>
-            </VerticalStackLayout>
-
-            <Grid x:Name="Keypad" Grid.Row="1" ColumnDefinitions="*,*,*,1.2*" RowDefinitions="*,*,*,*"
-                  ColumnSpacing="8" RowSpacing="8">
-                <Button Grid.Row="0" Grid.Column="0" Text="1" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="1"/>
-                <Button Grid.Row="0" Grid.Column="1" Text="2" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="2"/>
-                <Button Grid.Row="0" Grid.Column="2" Text="3" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="3"/>
-                <Button Grid.Row="1" Grid.Column="0" Text="4" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="4"/>
-                <Button Grid.Row="1" Grid.Column="1" Text="5" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="5"/>
-                <Button Grid.Row="1" Grid.Column="2" Text="6" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="6"/>
-                <Button Grid.Row="2" Grid.Column="0" Text="7" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="7"/>
-                <Button Grid.Row="2" Grid.Column="1" Text="8" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="8"/>
-                <Button Grid.Row="2" Grid.Column="2" Text="9" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="9"/>
-                <Button Grid.Row="3" Grid.Column="0" Text="," Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter=","/>
-                <Button Grid.Row="3" Grid.Column="1" Text="0" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="0"/>
-                <Button Grid.Row="3" Grid.Column="2" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="backspace"
-                        FontFamily="MaterialSymbolsRounded" FontSize="22" Text="{x:Static ctl:Glyphs.Delete}"/>
-
-                <!-- Дата: по умолчанию «сегодня», меняется в два тапа. -->
-                <Border Grid.Row="0" Grid.Column="3" StrokeShape="RoundRectangle 14" StrokeThickness="1" Padding="4,0"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                        Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
-                    <DatePicker Date="{Binding Date}" Format="d MMM" FontSize="13"
-                                BackgroundColor="Transparent"
-                                TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                                HorizontalOptions="Center" VerticalOptions="Center"/>
-                </Border>
-
-                <!-- «Ещё»: магазин/заметка раскрываются на месте. -->
-                <Button Grid.Row="1" Grid.Column="3" Style="{StaticResource Key}"
-                        Command="{Binding ToggleMoreCommand}"
-                        FontFamily="MaterialSymbolsRounded" FontSize="20" Text="{x:Static ctl:Glyphs.MoreHoriz}"/>
-
-                <Button x:Name="SaveButton" Grid.Row="2" Grid.RowSpan="2" Grid.Column="3"
-                        Text="Сохранить" FontSize="12" Padding="2,0" Style="{StaticResource PrimaryButton}"
-                        Command="{Binding SaveCommand}"/>
-            </Grid>
-
+        <!-- Строка полей: магазин/заметка, счёт (и «куда» при переводе). -->
+        <Grid Grid.Row="3" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+            <Border Grid.Column="0" StrokeShape="RoundRectangle 12" Padding="12,0" HeightRequest="44">
+                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                    <Label Text="{x:Static ctl:Glyphs.Search}" FontFamily="MaterialSymbolsRounded" FontSize="18"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                    <Entry Text="{Binding MemoText}" Placeholder="Магазин или заметка"
+                           BackgroundColor="Transparent" FontSize="15" MinimumHeightRequest="42"
+                           ClearButtonVisibility="WhileEditing"/>
+                </HorizontalStackLayout>
+            </Border>
+            <Border Grid.Column="1" StrokeShape="RoundRectangle 12" Padding="12,0" HeightRequest="44">
+                <HorizontalStackLayout Spacing="7" VerticalOptions="Center">
+                    <Label Text="{x:Static ctl:Glyphs.CreditCard}" FontFamily="MaterialSymbolsRounded" FontSize="18"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                    <Label Text="{Binding AccountPickerText}" FontSize="14" VerticalOptions="Center"/>
+                    <Label Text="{x:Static ctl:Glyphs.ChevronDown}" FontFamily="MaterialSymbolsRounded" FontSize="16"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                </HorizontalStackLayout>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding PickAccountCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
+            <Border Grid.Column="2" StrokeShape="RoundRectangle 12" Padding="12,0" HeightRequest="44"
+                    IsVisible="{Binding IsTransfer}">
+                <HorizontalStackLayout Spacing="7" VerticalOptions="Center">
+                    <Label Text="{x:Static ctl:Glyphs.SwapHoriz}" FontFamily="MaterialSymbolsRounded" FontSize="18"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                    <Label Text="{Binding TargetPickerText}" FontSize="14" VerticalOptions="Center"/>
+                    <Label Text="{x:Static ctl:Glyphs.ChevronDown}" FontFamily="MaterialSymbolsRounded" FontSize="16"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                </HorizontalStackLayout>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding PickTargetCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
         </Grid>
 
-        <!-- Тост «Сохранено»: вписан в дизайн-систему вместо системного снекбара.
-             Занимает ВСЕ строки грида (RowSpan): без этого живёт в строке баланса
-             и перекрывает шапку. -->
-        <Border x:Name="SavedToast" Grid.Row="0" Grid.RowSpan="5" IsVisible="False" Opacity="0"
+        <!-- Категории: сетка 4×2, лента подкатегорий под ней. -->
+        <VerticalStackLayout Grid.Row="4" Spacing="8">
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Grid.Column="0" Text="{Binding CategoryLabelText}" FontSize="13" VerticalOptions="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                <Button Grid.Column="1" Text="Все" Style="{StaticResource GhostButton}" FontSize="13"
+                        Command="{Binding OpenAllCategoriesCommand}"/>
+            </Grid>
+
+            <CollectionView ItemsSource="{Binding TopCategories}" HeightRequest="160">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="4"
+                                     HorizontalItemSpacing="8" VerticalItemSpacing="8"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:CategoryChip">
+                        <Border HeightRequest="76" StrokeShape="RoundRectangle 12" StrokeThickness="1" Padding="4"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                                Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}"/>
+                                    <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <VerticalStackLayout VerticalOptions="Center" Spacing="6">
+                                <Label Text="{Binding Icon, Converter={StaticResource IconGlyph}}"
+                                       FontFamily="MaterialSymbolsRounded" FontSize="22"
+                                       HorizontalOptions="Center" HorizontalTextAlignment="Center"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Label Text="{Binding Name}" FontSize="12" LineBreakMode="TailTruncation"
+                                       HorizontalOptions="Center" HorizontalTextAlignment="Center"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="FontFamily" Value="InterSemiBold"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </VerticalStackLayout>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectRootCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}"
+                                                      CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Подкатегории выбранного корня: горизонтальная лента чипов. -->
+            <CollectionView ItemsSource="{Binding SubCategories}" ItemsLayout="HorizontalList" HeightRequest="40"
+                            IsVisible="{Binding HasSubCategories}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:CategoryChip">
+                        <Border StrokeShape="RoundRectangle 18" Padding="12,8" Margin="0,0,8,0" StrokeThickness="1"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                                Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}"/>
+                                    <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Label Text="{Binding Name}" FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectSubCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}"
+                                                      CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+
+        <!-- Клавиатура 4×3: цифры, стирание, дата, «Сохранить» высотой в два ряда. -->
+        <Grid x:Name="Keypad" Grid.Row="5" ColumnDefinitions="*,*,*,*" RowDefinitions="*,*,*,*"
+              ColumnSpacing="6" RowSpacing="6">
+            <Button Grid.Row="0" Grid.Column="0" Text="1" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="1"/>
+            <Button Grid.Row="0" Grid.Column="1" Text="2" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="2"/>
+            <Button Grid.Row="0" Grid.Column="2" Text="3" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="3"/>
+            <Button Grid.Row="0" Grid.Column="3" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="backspace"
+                    FontFamily="MaterialSymbolsRounded" FontSize="22" Text="{x:Static ctl:Glyphs.Delete}"/>
+
+            <Button Grid.Row="1" Grid.Column="0" Text="4" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="4"/>
+            <Button Grid.Row="1" Grid.Column="1" Text="5" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="5"/>
+            <Button Grid.Row="1" Grid.Column="2" Text="6" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="6"/>
+            <!-- Дата: «Сегодня» по умолчанию, формат меняется после выбора даты. -->
+            <Border Grid.Row="1" Grid.Column="3" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="2"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource KeyBgLight}, Dark={StaticResource KeyBgDark}}">
+                <VerticalStackLayout VerticalOptions="Center" Spacing="2">
+                    <Label Text="{x:Static ctl:Glyphs.Calendar}" FontFamily="MaterialSymbolsRounded" FontSize="16"
+                           HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                    <DatePicker Date="{Binding Date}" Format="{Binding DateFormatText}" FontSize="12"
+                                BackgroundColor="Transparent" MinimumHeightRequest="0" HeightRequest="26"
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <Button Grid.Row="2" Grid.Column="0" Text="7" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="7"/>
+            <Button Grid.Row="2" Grid.Column="1" Text="8" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="8"/>
+            <Button Grid.Row="2" Grid.Column="2" Text="9" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="9"/>
+
+            <Button x:Name="SaveButton" Grid.Row="2" Grid.RowSpan="2" Grid.Column="3"
+                    Text="Сохранить" FontSize="12" Padding="2,0"
+                    Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}"/>
+
+            <Button Grid.Row="3" Grid.Column="0" Text="," Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter=","/>
+            <Button Grid.Row="3" Grid.Column="1" Text="0" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="0"/>
+            <Button Grid.Row="3" Grid.Column="2" Text="00" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="00"/>
+        </Grid>
+
+        <!-- Тост «Сохранено»: занимает ВСЕ строки грида (без RowSpan живёт в строке баланса). -->
+        <Border x:Name="SavedToast" Grid.Row="0" Grid.RowSpan="6" IsVisible="False" Opacity="0"
                 StrokeThickness="0" StrokeShape="RoundRectangle 999" Padding="18,10"
                 BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"
                 HorizontalOptions="Center" VerticalOptions="End" Margin="16,0,16,16"

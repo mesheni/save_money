@@ -17,6 +17,11 @@ public partial class QuickAddPage : ContentPage
         _viewModel = viewModel;
         BindingContext = viewModel;
         viewModel.AlertAsync = async (title, message) => await DisplayAlertAsync(title, message, "ОК");
+        viewModel.PickAsync = async (title, options) =>
+        {
+            var picked = await DisplayActionSheetAsync(title, "Отмена", null, options);
+            return picked == "Отмена" ? null : picked;
+        };
         viewModel.CloseAsync = async () => await Navigation.PopAsync();
         viewModel.SavedAsync = ShowSavedToastAsync;
 

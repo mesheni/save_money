@@ -11,17 +11,22 @@ namespace SaveMoney.ViewModels;
 
 /// <summary>
 /// Экран быстрого ввода (и редактирования по route "transaction?id=...").
-/// Расход/доход/перевод, кастомная клавиатура, угадывание категории по магазину.
-/// Виджет открывает его с предзаполненной суммой: "transaction?amount=100".
+/// Расход/доход/перевод, сетка категорий + кастомная клавиатура, угадывание
+/// категории по магазину. Виджет открывает его с предзаполненной суммой:
+/// "transaction?amount=100".
 /// </summary>
 [QueryProperty(nameof(EditId), "id")]
 [QueryProperty(nameof(PresetAmount), "amount")]
 [QueryProperty(nameof(WidgetSource), "source")]
-public partial class QuickAddViewModel : ObservableObject, IRecipient<TransactionsChangedMessage>
+public partial class QuickAddViewModel : ObservableObject,
+    IRecipient<TransactionsChangedMessage>,
+    IRecipient<CategoryPickedMessage>
 {
     private readonly AppDatabase _db;
     private readonly TransactionService _transactions;
     private readonly BalanceService _balance;
+    private readonly CycleService _cycle;
+    private readonly RecurringService _recurring;
 
     private string? _pendingEditId;
     private Transaction? _editing;
@@ -29,29 +34,43 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
     /// <summary>Время суток исходной транзакции — правка не должна переписывать его на «сейчас».</summary>
     private TimeSpan _editTimeOfDay = DateTime.Now.TimeOfDay;
 
-    public ObservableCollection<AccountChip> Accounts { get; } = [];
-    public ObservableCollection<AccountChip> TargetAccounts { get; } = [];
-    public ObservableCollection<CategoryChip> RootCategories { get; } = [];
-    public ObservableCollection<CategoryChip> SubCategories { get; } = [];
-
-    public QuickAddViewModel(AppDatabase db, TransactionService transactions, BalanceService balance)
+    public QuickAddViewModel(AppDatabase db, TransactionService transactions, BalanceService balance,
+        CycleService cycle, RecurringService recurring)
     {
         _db = db;
         _transactions = transactions;
         _balance = balance;
+        _cycle = cycle;
+        _recurring = recurring;
 
         // Баланс должен обновляться сразу после любой операции (ввод/правка/удаление,
         // счёт, регулярные платежи), а не только при следующем Appearing вкладки.
-        WeakReferenceMessenger.Default.Register(this);
+        // Register(this) неоднозначен при двух интерфейсах — вызываем явно.
+        WeakReferenceMessenger.Default.Register(this, (QuickAddViewModel r, TransactionsChangedMessage m) => r.Receive(m));
+        WeakReferenceMessenger.Default.Register(this, (QuickAddViewModel r, CategoryPickedMessage m) => r.Receive(m));
     }
 
-    /// <summary>Что-то изменило операции/счета — перечитываем баланс (binding на метке живёт).</summary>
-    public void Receive(TransactionsChangedMessage message) => RefreshBalance();
+    /// <summary>Что-то изменило операции/счета — перечитываем баланс и пилюлю «в день».</summary>
+    public void Receive(TransactionsChangedMessage message)
+    {
+        RefreshBalance();
+        RefreshPaydayHint();
+    }
+
+    /// <summary>Выбор из экрана «Все категории»: выделяем и, при quick save, сразу сохраняем.</summary>
+    public void Receive(CategoryPickedMessage message)
+    {
+        SelectCategoryById(message.CategoryId);
+        TryQuickSave();
+    }
 
     [ObservableProperty]
     public partial string AmountText { get; set; } = "";
 
     public string AmountDisplay => string.IsNullOrEmpty(AmountText) ? "0" : AmountText;
+
+    /// <summary>Знак слева от суммы: «−» расход, «+» доход, пусто у перевода.</summary>
+    public string SignText => IsTransfer ? "" : IsIncome ? "+" : "−";
 
     partial void OnAmountTextChanged(string value) => OnPropertyChanged(nameof(AmountDisplay));
 
@@ -70,21 +89,20 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
     [ObservableProperty]
     public partial bool HasSubCategories { get; set; }
 
+    /// <summary>Магазин/заметка одним полем: у расхода пишется в Payee (по нему угадывается
+    /// категория), у дохода и перевода — в Note.</summary>
     [ObservableProperty]
-    public partial string Payee { get; set; } = "";
-
-    [ObservableProperty]
-    public partial string Note { get; set; } = "";
+    public partial string MemoText { get; set; } = "";
 
     [ObservableProperty]
     public partial DateTime Date { get; set; } = DateTime.Now;
 
+    /// <summary>Подпись под календарём на клавише даты: «Сегодня» или «25 окт».</summary>
+    public string DateFormatText =>
+        Date.Date == DateTime.Now.Date ? "Сегодня" : "d MMM";
+
     [ObservableProperty]
     public partial bool IsEditing { get; set; }
-
-    /// <summary>Панель «Ещё» (магазин/заметка) раскрыта. По умолчанию свёрнута — главный экран только про ввод.</summary>
-    [ObservableProperty]
-    public partial bool IsExpanded { get; set; }
 
     [ObservableProperty]
     public partial string ModeText { get; set; } = "Расход";
@@ -92,8 +110,35 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
     public bool IsOperation => !IsTransfer;
     public bool IsExpenseMode => !IsIncome && !IsTransfer;
 
+    /// <summary>Текст подписи над сеткой категорий.</summary>
+    [ObservableProperty]
+    public partial string CategoryLabelText { get; set; } = "Категория";
+
+    /// <summary>Плитки сетки категорий: до 8 корневых, выбранная всегда первой (когда вне топа).</summary>
+    public ObservableCollection<CategoryChip> TopCategories { get; } = [];
+
+    public ObservableCollection<CategoryChip> RootCategories { get; } = [];
+    public ObservableCollection<CategoryChip> SubCategories { get; } = [];
+    public ObservableCollection<AccountChip> Accounts { get; } = [];
+    public ObservableCollection<AccountChip> TargetAccounts { get; } = [];
+
+    [ObservableProperty]
+    public partial string AccountPickerText { get; set; } = "";
+
+    [ObservableProperty]
+    public partial string TargetPickerText { get; set; } = "";
+
+    /// <summary>«N ₽ в день до зарплаты» — пилюля в шапке; пусто, если цикл не настраивался.</summary>
+    [ObservableProperty]
+    public partial string PaydayHintText { get; set; } = "";
+
+    public bool HasPaydayHint => PaydayHintText.Length > 0;
+
     /// <summary>Страница подставляет показ ошибок (DisplayAlert).</summary>
     public Func<string, string, Task>? AlertAsync { get; set; }
+
+    /// <summary>Страница подставляет выбор варианта (ActionSheet): (заголовок, варианты) → выбор или null.</summary>
+    public Func<string, string[], Task<string?>>? PickAsync { get; set; }
 
     /// <summary>Страница подставляет закрытие экрана после правки.</summary>
     public Func<Task>? CloseAsync { get; set; }
@@ -134,6 +179,8 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
         LoadAccounts();
         ReloadCategories();
         RefreshBalance();
+        RefreshPaydayHint();
+        RefreshCategoryLabel();
 
         if (_pendingEditId is not null && _editing is null)
         {
@@ -176,6 +223,14 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
         {
             chip.IsSelected = chip.Id == targetId;
         }
+
+        RefreshPickerTexts();
+    }
+
+    private void RefreshPickerTexts()
+    {
+        AccountPickerText = Accounts.FirstOrDefault(a => a.IsSelected)?.Name ?? "";
+        TargetPickerText = TargetAccounts.FirstOrDefault(a => a.IsSelected)?.Name ?? "";
     }
 
     private void ReloadCategories()
@@ -196,6 +251,7 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
         if (toSelect is null)
         {
             SubCategories.Clear();
+            TopCategories.Clear();
             HasSubCategories = false;
             return;
         }
@@ -217,6 +273,20 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
         HasSubCategories = children.Count > 0;
         var selectedChild = trySelectChildId is null ? null : SubCategories.FirstOrDefault(c => c.Id == trySelectChildId);
         SelectChip(SubCategories, selectedChild);
+        BuildTopCategories(root.Id);
+    }
+
+    /// <summary>Сетка — первые 8 корневых; выбранная вне топа выталкивается в начало, чтобы оставаться видимой.</summary>
+    private void BuildTopCategories(string selectedRootId)
+    {
+        TopCategories.Clear();
+        var ordered = RootCategories
+            .OrderByDescending(c => c.Id == selectedRootId)
+            .Take(8);
+        foreach (var chip in ordered)
+        {
+            TopCategories.Add(chip);
+        }
     }
 
     private static void SelectChip(ObservableCollection<AccountChip> chips, AccountChip? chip)
@@ -236,6 +306,41 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
     }
 
     private void RefreshBalance() => BalanceText = MoneyFormat.Rubles(_balance.GetTotalBalance());
+
+    /// <summary>Пилюля «N ₽ в день до зарплаты»: прогноз PaydayViewModel, скрыт пока цикл не настраивался.</summary>
+    private void RefreshPaydayHint()
+    {
+        // CycleAnchorUnix == 0 — пользователь ни разу не сохранял настройки цикла.
+        var configured = _db.Settings.GetLong(SettingKeys.CycleAnchorUnix, 0) > 0;
+        if (!configured)
+        {
+            PaydayHintText = "";
+        }
+        else
+        {
+            var now = DateTime.Now;
+            var nowUnix = new DateTimeOffset(now, TimeZoneInfo.Local.GetUtcOffset(now)).ToUnixTimeSeconds();
+            var payday = _cycle.GetNextPayday(now);
+            var daysLeft = Math.Max(1, _cycle.GetDaysUntilPayday(now));
+            var paydayEndUnix = new DateTimeOffset(payday.Date.AddDays(1),
+                TimeZoneInfo.Local.GetUtcOffset(payday.Date)).ToUnixTimeSeconds();
+            var upcoming = _recurring.GetUpcomingBetween(nowUnix, paydayEndUnix);
+            var canSpend = _balance.GetTotalBalance()
+                - upcoming.Where(r => r.Kind == TransactionKind.Expense).Sum(r => r.AmountMinor)
+                + upcoming.Where(r => r.Kind == TransactionKind.Income).Sum(r => r.AmountMinor);
+            var perDay = canSpend / daysLeft;
+            PaydayHintText = $"{MoneyFormat.Rubles(perDay)} в день до зарплаты";
+        }
+
+        OnPropertyChanged(nameof(HasPaydayHint));
+    }
+
+    /// <summary>Хвост подписи « · тап сохраняет» — только когда включён быстрый ввод.</summary>
+    private void RefreshCategoryLabel()
+    {
+        var quick = _db.Settings.GetBool(SettingKeys.QuickSaveOnCategory, false);
+        CategoryLabelText = quick ? "Категория · тап сохраняет расход" : "Категория";
+    }
 
     private void UpdateModeText()
     {
@@ -259,6 +364,29 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
             }
 
             AmountText += ",";
+            return;
+        }
+
+        if (key == "00")
+        {
+            // «00» в пустом поле бессмысленна; после запятой не должно оставить больше 2 знаков.
+            if (AmountText.Length == 0)
+            {
+                return;
+            }
+
+            var digits = AmountText.SkipWhile(c => c != ',').Skip(1).Count();
+            if (AmountText.Contains(',') && digits >= 1)
+            {
+                return;
+            }
+
+            if (AmountText.Length + 2 > 12)
+            {
+                return;
+            }
+
+            AmountText += "00";
             return;
         }
 
@@ -302,16 +430,15 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
         IsTransfer = true;
         UpdateModeText();
         NotifyModeChanged();
+        RefreshPickerTexts();
     }
 
     private void NotifyModeChanged()
     {
         OnPropertyChanged(nameof(IsOperation));
         OnPropertyChanged(nameof(IsExpenseMode));
+        OnPropertyChanged(nameof(SignText));
     }
-
-    [RelayCommand]
-    private void ToggleMore() => IsExpanded = !IsExpanded;
 
     [RelayCommand]
     private void SelectAccount(AccountChip? chip)
@@ -337,6 +464,52 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
         {
             item.IsSelected = item == chip;
         }
+
+        RefreshPickerTexts();
+    }
+
+    /// <summary>Тап по кнопке счёта в строке полей — ActionSheet со списком счетов.</summary>
+    [RelayCommand]
+    private async Task PickAccountAsync()
+    {
+        var options = Accounts.Select(a => a.Name).ToArray();
+        if (options.Length == 0)
+        {
+            return;
+        }
+
+        var picked = await PickAsync?.Invoke("Счёт", options)!;
+        if (picked is null)
+        {
+            return;
+        }
+
+        SelectChip(Accounts, Accounts.FirstOrDefault(a => a.Name == picked));
+        RebuildTargetAccounts();
+    }
+
+    /// <summary>Тап по кнопке «Куда» (перевод) — ActionSheet со счетами-получателями.</summary>
+    [RelayCommand]
+    private async Task PickTargetAsync()
+    {
+        var options = TargetAccounts.Select(a => a.Name).ToArray();
+        if (options.Length == 0)
+        {
+            return;
+        }
+
+        var picked = await PickAsync?.Invoke("Куда", options)!;
+        if (picked is null)
+        {
+            return;
+        }
+
+        foreach (var chip in TargetAccounts)
+        {
+            chip.IsSelected = chip.Name == picked;
+        }
+
+        RefreshPickerTexts();
     }
 
     [RelayCommand]
@@ -366,6 +539,19 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
 
         SelectChip(SubCategories, chip);
         TryQuickSave();
+    }
+
+    [RelayCommand]
+    private async Task OpenPaydayAsync()
+    {
+        await Shell.Current.GoToAsync("payday");
+    }
+
+    [RelayCommand]
+    private async Task OpenAllCategoriesAsync()
+    {
+        var kind = IsIncome ? "income" : "expense";
+        await Shell.Current.GoToAsync($"categorypicker?kind={kind}");
     }
 
     /// <summary>
@@ -412,7 +598,6 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
         tx.AccountId = accountChip.Id;
         tx.AmountMinor = amountMinor;
         tx.Kind = kind;
-        tx.Note = string.IsNullOrWhiteSpace(Note) ? null : Note.Trim();
         tx.DateUnix = dateUnix;
 
         if (IsTransfer)
@@ -428,23 +613,28 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
             tx.TransferAmountMinor = null;
             tx.CategoryId = null;
             tx.Payee = null;
+            tx.Note = string.IsNullOrWhiteSpace(MemoText) ? null : MemoText.Trim();
         }
         else
         {
-            var payee = string.IsNullOrWhiteSpace(Payee) ? null : Payee.Trim();
+            // Одно поле «Магазин или заметка»: у расхода это Payee (по нему угадывается
+            // категория), у дохода — Note. Правка расхода с заметкой: MemoText писался
+            // в Payee, значит и перезапись идёт туда — Note расхода затирается осознанно.
+            var memo = string.IsNullOrWhiteSpace(MemoText) ? null : MemoText.Trim();
             var categoryId = SubCategories.FirstOrDefault(c => c.IsSelected)?.Id
                 ?? RootCategories.FirstOrDefault(c => c.IsSelected)?.Id;
 
             // Категория не выбрана, но введён магазин — угадываем по прошлым покупкам.
-            if (categoryId is null && payee is not null)
+            if (categoryId is null && memo is not null)
             {
-                categoryId = _transactions.GuessCategoryId(payee);
+                categoryId = _transactions.GuessCategoryId(memo);
             }
 
             tx.TransferAccountId = null;
             tx.TransferAmountMinor = null;
             tx.CategoryId = categoryId;
-            tx.Payee = kind == TransactionKind.Expense ? payee : null;
+            tx.Payee = kind == TransactionKind.Expense ? memo : null;
+            tx.Note = kind == TransactionKind.Expense ? null : memo;
         }
 
         try
@@ -469,10 +659,8 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
         }
 
         AmountText = "";
-        Note = "";
-        Payee = "";
+        MemoText = "";
         Date = DateTime.Now;
-        IsExpanded = false; // свежая операция — панель «Ещё» снова свёрнута
         RefreshBalance();
         ReloadCategories();
 
@@ -519,8 +707,7 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
         var txDate = DateTimeOffset.FromUnixTimeSeconds(tx.DateUnix).ToLocalTime().DateTime;
         Date = txDate;
         _editTimeOfDay = txDate.TimeOfDay;
-        Note = tx.Note ?? "";
-        Payee = tx.Payee ?? "";
+        MemoText = tx.Payee ?? tx.Note ?? "";
 
         LoadAccounts(selectId: tx.AccountId);
         if (tx.Kind == TransactionKind.Transfer && tx.TransferAccountId is not null)
@@ -564,4 +751,6 @@ public partial class QuickAddViewModel : ObservableObject, IRecipient<Transactio
 
     partial void OnIsIncomeChanged(bool value) => NotifyModeChanged();
     partial void OnIsTransferChanged(bool value) => NotifyModeChanged();
+
+    partial void OnDateChanged(DateTime value) => OnPropertyChanged(nameof(DateFormatText));
 }

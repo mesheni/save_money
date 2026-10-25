@@ -131,12 +131,25 @@
         <Setter Property="HorizontalTextAlignment" Value="Center" />
     </Style>
 
+    <!-- Заголовки вкладок и push-страниц (вместо NavigationPage-заголовка) -->
+    <Style x:Key="ScreenTitle" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterBold" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+        <Setter Property="FontSize" Value="26" />
+    </Style>
+
+    <Style x:Key="PageTitle" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterBold" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+        <Setter Property="FontSize" Value="20" />
+    </Style>
+
     <!-- ═══ Clean: карточки (плоские, тонкая рамка, без теней) ═══ -->
 
     <Style x:Key="Card" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
         <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
         <Setter Property="StrokeThickness" Value="1" />
         <Setter Property="Padding" Value="16" />
     </Style>
@@ -157,7 +170,7 @@
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}" />
         <Setter Property="StrokeThickness" Value="0" />
         <Setter Property="StrokeShape" Value="RoundRectangle 12" />
-        <Setter Property="Padding" Value="3" />
+        <Setter Property="Padding" Value="4" />
     </Style>
 
     <Style x:Key="SegButton" TargetType="Button">
@@ -167,7 +180,7 @@
         <Setter Property="BorderWidth" Value="0" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="CornerRadius" Value="9" />
         <Setter Property="HeightRequest" Value="42" />
     </Style>
 
@@ -175,13 +188,21 @@
 
     <Style x:Key="Key" TargetType="Button">
         <Setter Property="FontFamily" Value="InterRegular" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource KeyBgLight}, Dark={StaticResource KeyBgDark}}" />
         <Setter Property="BorderColor" Value="Transparent" />
         <Setter Property="BorderWidth" Value="0" />
         <Setter Property="CornerRadius" Value="12" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
         <Setter Property="FontSize" Value="23" />
         <Setter Property="HeightRequest" Value="54" />
+    </Style>
+
+    <!-- Плоская строка списка с разделителями (редизайн): без рамки и фона,
+         разделитель — отдельный BoxView после строки. -->
+    <Style x:Key="FlatRow" TargetType="Grid">
+        <Setter Property="ColumnSpacing" Value="14" />
+        <Setter Property="HeightRequest" Value="60" />
+        <Setter Property="Padding" Value="0" />
     </Style>
 
     <!-- ═══ Clean: кнопки действий ═══ -->
@@ -221,13 +242,5 @@
     <!-- Цветные суммы (расход/доход) и выборные состояния чипов делаются inline-триггерами
          DataTrigger на элементах (со значениями через AppThemeBinding): Style.Triggers с
          DataTrigger не поддерживаются SourceGen-инфлятором внутри ResourceDictionary. -->
-
-    <Style x:Key="DayHeader" TargetType="Border">
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}" />
-        <Setter Property="StrokeThickness" Value="0" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 10" />
-        <Setter Property="Padding" Value="12,8" />
-        <Setter Property="Margin" Value="0,10,0,2" />
-    </Style>
 
 </ResourceDictionary>

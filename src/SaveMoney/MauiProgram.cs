@@ -53,6 +53,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<CsvExportService>();
 
         builder.Services.AddTransient<QuickAddViewModel>();
+        builder.Services.AddTransient<CategoryPickerViewModel>();
         builder.Services.AddTransient<HistoryViewModel>();
         builder.Services.AddTransient<ReportsViewModel>();
         builder.Services.AddTransient<MoreViewModel>();
@@ -71,6 +72,7 @@ public static class MauiProgram
         builder.Services.AddTransient<SettingsViewModel>();
 
         builder.Services.AddTransient<QuickAddPage>();
+        builder.Services.AddTransient<CategoryPickerPage>();
         builder.Services.AddTransient<HistoryPage>();
         builder.Services.AddTransient<ReportsPage>();
         builder.Services.AddTransient<MorePage>();
