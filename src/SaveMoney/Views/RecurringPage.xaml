@@ -19,26 +19,33 @@
     <Grid Padding="12,6">
         <CollectionView ItemsSource="{Binding Rows}">
         <CollectionView.ItemTemplate>
-            <DataTemplate x:DataType="vm:RecurringRowVM">
-                <SwipeView>
-                    <SwipeView.RightItems>
-                        <SwipeItems>
-                            <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
-                        </SwipeItems>
-                    </SwipeView.RightItems>
-                    <Border Style="{StaticResource ListRow}">
-                        <Grid ColumnDefinitions="*,Auto">
-                            <VerticalStackLayout Spacing="1">
-                                <Label Text="{Binding TitleText}" FontFamily="InterSemiBold">
+                <DataTemplate x:DataType="vm:RecurringRowVM">
+                <Grid RowDefinitions="Auto,1">
+                    <SwipeView Grid.Row="0">
+                        <SwipeView.RightItems>
+                            <SwipeItems>
+                                <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+                        <Grid HeightRequest="60" ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                                <Label Text="{Binding TitleText}" FontSize="16">
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label" Binding="{Binding IsActive}" Value="False">
                                             <Setter Property="Opacity" Value="0.5"/>
                                         </DataTrigger>
                                     </Label.Triggers>
                                 </Label>
-                                <Label FontSize="12" Opacity="0.6" Text="{Binding SubText}"/>
+                                <Label FontSize="13" Text="{Binding SubText}"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsActive}" Value="False">
+                                            <Setter Property="Opacity" Value="0.6"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
                             </VerticalStackLayout>
-                            <Label Grid.Column="1" Text="{Binding AmountText}" FontFamily="InterSemiBold"
+                            <Label Grid.Column="1" Text="{Binding AmountText}" FontSize="15" FontFamily="InterSemiBold"
                                    TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}"
                                    VerticalOptions="Center">
                                 <Label.Triggers>
@@ -51,8 +58,10 @@
                                 <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:RecurringViewModel}}}" CommandParameter="{Binding .}"/>
                             </Grid.GestureRecognizers>
                         </Grid>
-                    </Border>
-                </SwipeView>
+                    </SwipeView>
+                    <BoxView Grid.Row="1" HeightRequest="1"
+                             Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+                </Grid>
             </DataTemplate>
         </CollectionView.ItemTemplate>
     </CollectionView>

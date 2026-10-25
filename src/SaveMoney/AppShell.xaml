@@ -6,6 +6,10 @@
        xmlns:ctl="clr-namespace:SaveMoney.Controls"
        Title="SaveMoney">
 
+    <Shell.Effects>
+        <ctl:TabIndicatorEffect/>
+    </Shell.Effects>
+
     <TabBar>
         <ShellContent Title="Ввод"
                       Route="quickadd"

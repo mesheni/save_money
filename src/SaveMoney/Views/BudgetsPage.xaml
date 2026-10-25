@@ -23,28 +23,29 @@
         <CollectionView Grid.Row="1" ItemsSource="{Binding Rows}">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="vm:BudgetRowVM">
-                    <SwipeView>
-                        <SwipeView.RightItems>
-                            <SwipeItems>
-                                <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
-                            </SwipeItems>
-                        </SwipeView.RightItems>
-                        <Border Style="{StaticResource ListRow}">
-                            <VerticalStackLayout Spacing="6">
+                    <Grid RowDefinitions="Auto,1">
+                        <SwipeView Grid.Row="0">
+                            <SwipeView.RightItems>
+                                <SwipeItems>
+                                    <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+                            <VerticalStackLayout Padding="0,10" Spacing="7">
                                 <Grid ColumnDefinitions="*,Auto,Auto">
-                                    <Label FontFamily="InterSemiBold">
+                                    <Label FontSize="16">
                                         <Label.FormattedText>
                                             <FormattedString>
-                                                <Span Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="15"/>
+                                                <Span Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="18"/>
                                                 <Span Text="  "/>
                                                 <Span Text="{Binding Name}"/>
                                             </FormattedString>
                                         </Label.FormattedText>
                                     </Label>
-                                    <Label Grid.Column="1" Text="{Binding PercentText}" FontSize="12" Opacity="0.6" Margin="8,0"/>
-                                    <Label Grid.Column="2" Text="{Binding FactText}" FontFamily="InterSemiBold"/>
+                                    <Label Grid.Column="1" Text="{Binding PercentText}" FontSize="12"
+                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" Margin="8,0" VerticalOptions="Center"/>
+                                    <Label Grid.Column="2" Text="{Binding FactText}" FontSize="15" FontFamily="InterSemiBold"/>
                                 </Grid>
-                                <ctl:AnimatedProgressBar Progress="{Binding Progress}" HeightRequest="7"
+                                <ctl:AnimatedProgressBar Progress="{Binding Progress}" HeightRequest="6"
                                              ProgressColor="{AppThemeBinding Light={StaticResource IncomeLight}, Dark={StaticResource IncomeDark}}">
                                     <ProgressBar.Triggers>
                                         <DataTrigger TargetType="ProgressBar" Binding="{Binding IsOver}" Value="True">
@@ -64,8 +65,10 @@
                                     <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:BudgetsViewModel}}}" CommandParameter="{Binding .}"/>
                                 </Grid.GestureRecognizers>
                             </VerticalStackLayout>
-                        </Border>
-                    </SwipeView>
+                        </SwipeView>
+                        <BoxView Grid.Row="1" HeightRequest="1"
+                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+                    </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>

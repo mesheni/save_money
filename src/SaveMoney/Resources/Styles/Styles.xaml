@@ -154,15 +154,9 @@
         <Setter Property="Padding" Value="16" />
     </Style>
 
-    <!-- Карточная строка списка: Accounts/Categories/Recurring/Debts/Budgets/платежи -->
-    <Style x:Key="ListRow" TargetType="Border">
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
-        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
-        <Setter Property="StrokeThickness" Value="1" />
-        <Setter Property="Padding" Value="14,10" />
-        <Setter Property="Margin" Value="0,4" />
-    </Style>
+    <!-- Карточные строки заменены плоскими списками (FlatRow-паттерн в шаблонах страниц:
+         Grid H60 с разделителем BoxView 1px). -->
+
 
     <!-- ═══ Clean: сегменты расход/доход/перевод ═══ -->
 

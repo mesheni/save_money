@@ -26,24 +26,21 @@
         <CollectionView Grid.Row="2" ItemsSource="{Binding Rows}">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="vm:DebtRowVM">
-                    <SwipeView>
-                        <SwipeView.RightItems>
-                            <SwipeItems>
-                                <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
-                            </SwipeItems>
-                        </SwipeView.RightItems>
-                        <Border Style="{StaticResource ListRow}">
-                            <Grid ColumnDefinitions="38,*,Auto" ColumnSpacing="12">
-                                <Border WidthRequest="38" HeightRequest="38" StrokeThickness="0" StrokeShape="RoundRectangle 11"
-                                        BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}">
-                                    <Label Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="20"
-                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
-                                           HorizontalOptions="Center" VerticalOptions="Center"/>
-                                </Border>
-                                <VerticalStackLayout Grid.Column="1" Spacing="1">
-                                    <Label Text="{Binding PersonName}" FontFamily="InterSemiBold"/>
-                                    <Label Text="{Binding Subtitle}" FontSize="12"
-                                           TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}">
+                    <Grid RowDefinitions="Auto,1">
+                        <SwipeView Grid.Row="0">
+                            <SwipeView.RightItems>
+                                <SwipeItems>
+                                    <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+                            <Grid HeightRequest="64" ColumnDefinitions="24,*,Auto" ColumnSpacing="14">
+                                <Label Grid.Column="0" Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="24"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                       VerticalOptions="Center"/>
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{Binding PersonName}" FontSize="16"/>
+                                    <Label Text="{Binding Subtitle}" FontSize="13"
+                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}">
                                         <Label.Triggers>
                                             <DataTrigger TargetType="Label" Binding="{Binding IsOverdue}" Value="True">
                                                 <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}"/>
@@ -54,15 +51,18 @@
                                                  HorizontalOptions="Start" VerticalOptions="Center"/>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout Grid.Column="2" HorizontalOptions="End" VerticalOptions="Center">
-                                    <Label Text="{Binding RemainingText}" FontFamily="InterSemiBold"/>
-                                    <Label Text="{Binding TotalText}" FontSize="12" Opacity="0.5"/>
+                                    <Label Text="{Binding RemainingText}" FontSize="15" FontFamily="InterSemiBold"/>
+                                    <Label Text="{Binding TotalText}" FontSize="12"
+                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                                 </VerticalStackLayout>
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding OpenCommand, Source={RelativeSource AncestorType={x:Type vm:DebtsViewModel}}}" CommandParameter="{Binding .}"/>
                                 </Grid.GestureRecognizers>
                             </Grid>
-                        </Border>
-                    </SwipeView>
+                        </SwipeView>
+                        <BoxView Grid.Row="1" HeightRequest="1"
+                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+                    </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>

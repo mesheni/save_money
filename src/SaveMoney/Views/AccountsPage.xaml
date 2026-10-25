@@ -29,28 +29,28 @@
                                 <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                             </SwipeItems>
                         </SwipeView.RightItems>
-                        <Border Style="{StaticResource ListRow}">
-                            <Grid ColumnDefinitions="38,*,Auto" ColumnSpacing="12">
-                                <Border WidthRequest="38" HeightRequest="38" StrokeThickness="0" StrokeShape="RoundRectangle 11"
-                                        BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}">
-                                    <Label Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="20"
-                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
-                                           HorizontalOptions="Center" VerticalOptions="Center"/>
-                                </Border>
-                                <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                        <Grid RowDefinitions="Auto,1">
+                            <Grid Grid.Row="0" HeightRequest="60" ColumnDefinitions="24,*,Auto" ColumnSpacing="14">
+                                <Label Grid.Column="0" Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="24"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                       VerticalOptions="Center"/>
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                     <HorizontalStackLayout Spacing="6">
                                         <Border WidthRequest="8" HeightRequest="8" StrokeShape="RoundRectangle 4"
                                                 BackgroundColor="{Binding ColorHex}" StrokeThickness="0" VerticalOptions="Center"/>
-                                        <Label Text="{Binding Name}" FontFamily="InterSemiBold" VerticalOptions="Center"/>
+                                        <Label Text="{Binding Name}" FontSize="16" VerticalOptions="Center"/>
                                     </HorizontalStackLayout>
-                                    <Label Text="{Binding Subtitle}" FontSize="12" Opacity="0.5"/>
+                                    <Label Text="{Binding Subtitle}" FontSize="13"
+                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                                 </VerticalStackLayout>
-                                <Label Grid.Column="2" Text="{Binding BalanceText}" FontFamily="InterSemiBold" VerticalOptions="Center"/>
+                                <Label Grid.Column="2" Text="{Binding BalanceText}" FontSize="15" FontFamily="InterSemiBold" VerticalOptions="Center"/>
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:AccountsViewModel}}}" CommandParameter="{Binding .}"/>
                                 </Grid.GestureRecognizers>
                             </Grid>
-                        </Border>
+                            <BoxView Grid.Row="1" HeightRequest="1"
+                                     Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+                        </Grid>
                     </SwipeView>
                 </DataTemplate>
             </CollectionView.ItemTemplate>

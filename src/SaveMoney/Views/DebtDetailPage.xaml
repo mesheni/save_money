@@ -25,12 +25,15 @@
             <CollectionView ItemsSource="{Binding Payments}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:PaymentRowVM">
-                        <Border Style="{StaticResource ListRow}">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <Label Text="{Binding DateText}" Opacity="0.7" VerticalOptions="Center"/>
-                                <Label Grid.Column="1" Text="{Binding AmountText}" FontFamily="InterSemiBold" VerticalOptions="Center"/>
+                        <Grid RowDefinitions="Auto,1">
+                            <Grid Grid.Row="0" HeightRequest="48" ColumnDefinitions="*,Auto">
+                                <Label Text="{Binding DateText}" FontSize="15" VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                                <Label Grid.Column="1" Text="{Binding AmountText}" FontSize="15" FontFamily="InterSemiBold" VerticalOptions="Center"/>
                             </Grid>
-                        </Border>
+                            <BoxView Grid.Row="1" HeightRequest="1"
+                                     Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+                        </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
