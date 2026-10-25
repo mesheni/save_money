@@ -52,3 +52,4 @@ sysout.txt
 
 # ZCode session files
 .zcodeignore
+.mimosa/
