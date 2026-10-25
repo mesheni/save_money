@@ -1,0 +1,99 @@
+using CommunityToolkit.Maui;
+using LiveChartsCore.SkiaSharpView.Maui;
+using Microsoft.Extensions.Logging;
+using SaveMoney.Core.Database;
+using SaveMoney.Core.Services;
+using SaveMoney.ViewModels;
+using SaveMoney.Views;
+using SkiaSharp.Views.Maui.Controls;
+using SkiaSharp.Views.Maui.Handlers;
+using SKCanvasView = SkiaSharp.Views.Maui.Controls.SKCanvasView;
+using SKGLView = SkiaSharp.Views.Maui.Controls.SKGLView;
+
+namespace SaveMoney;
+
+public static class MauiProgram
+{
+    public static IServiceProvider Services { get; private set; } = default!;
+
+    public static MauiApp CreateMauiApp()
+    {
+        var builder = MauiApp.CreateBuilder();
+        builder
+            .UseMauiApp<App>()
+            .UseMauiCommunityToolkit()
+            .UseLiveCharts()
+            // UseLiveCharts регистрирует только хендлеры ChartView/EmptyContentView.
+            // Внутренние виды рендера LiveCharts — наследники SKCanvasView/SKGLView;
+            // без их хендлеров график падает с HandlerNotFoundException (CPURenderMode).
+            .ConfigureMauiHandlers(handlers =>
+            {
+                handlers.AddHandler<SKCanvasView, SKCanvasViewHandler>();
+                handlers.AddHandler<SKGLView, SKGLViewHandler>();
+            })
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("Inter-Regular.ttf", "InterRegular");
+                fonts.AddFont("Inter-SemiBold.ttf", "InterSemiBold");
+                fonts.AddFont("Inter-Bold.ttf", "InterBold");
+                fonts.AddFont("MaterialSymbolsRounded-sub.ttf", "MaterialSymbolsRounded");
+            });
+
+        var dbPath = Path.Combine(FileSystem.AppDataDirectory, "savemoney.db");
+        builder.Services.AddSingleton(new AppDatabase(dbPath));
+        builder.Services.AddSingleton<BalanceService>();
+        builder.Services.AddSingleton<TransactionService>();
+        builder.Services.AddSingleton<HistoryService>();
+        builder.Services.AddSingleton<CategoryService>();
+        builder.Services.AddSingleton<CycleService>();
+        builder.Services.AddSingleton<RecurringService>();
+        builder.Services.AddSingleton<BudgetService>();
+        builder.Services.AddSingleton<DebtService>();
+        builder.Services.AddSingleton<ReportService>();
+        builder.Services.AddSingleton<CsvExportService>();
+
+        builder.Services.AddTransient<QuickAddViewModel>();
+        builder.Services.AddTransient<HistoryViewModel>();
+        builder.Services.AddTransient<ReportsViewModel>();
+        builder.Services.AddTransient<MoreViewModel>();
+        builder.Services.AddTransient<AccountsViewModel>();
+        builder.Services.AddTransient<AccountEditViewModel>();
+        builder.Services.AddTransient<CategoriesViewModel>();
+        builder.Services.AddTransient<CategoryEditViewModel>();
+        builder.Services.AddTransient<DebtsViewModel>();
+        builder.Services.AddTransient<DebtEditViewModel>();
+        builder.Services.AddTransient<DebtDetailViewModel>();
+        builder.Services.AddTransient<BudgetsViewModel>();
+        builder.Services.AddTransient<BudgetEditViewModel>();
+        builder.Services.AddTransient<PaydayViewModel>();
+        builder.Services.AddTransient<RecurringViewModel>();
+        builder.Services.AddTransient<RecurringEditViewModel>();
+        builder.Services.AddTransient<SettingsViewModel>();
+
+        builder.Services.AddTransient<QuickAddPage>();
+        builder.Services.AddTransient<HistoryPage>();
+        builder.Services.AddTransient<ReportsPage>();
+        builder.Services.AddTransient<MorePage>();
+        builder.Services.AddTransient<AccountsPage>();
+        builder.Services.AddTransient<AccountEditPage>();
+        builder.Services.AddTransient<CategoriesPage>();
+        builder.Services.AddTransient<CategoryEditPage>();
+        builder.Services.AddTransient<DebtsPage>();
+        builder.Services.AddTransient<DebtEditPage>();
+        builder.Services.AddTransient<DebtDetailPage>();
+        builder.Services.AddTransient<BudgetsPage>();
+        builder.Services.AddTransient<BudgetEditPage>();
+        builder.Services.AddTransient<PaydayPage>();
+        builder.Services.AddTransient<RecurringPage>();
+        builder.Services.AddTransient<RecurringEditPage>();
+        builder.Services.AddTransient<SettingsPage>();
+
+#if DEBUG
+        builder.Logging.AddDebug();
+#endif
+
+        var app = builder.Build();
+        Services = app.Services;
+        return app;
+    }
+}

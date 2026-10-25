@@ -6,6 +6,8 @@ namespace SaveMoney.Views;
 
 public partial class PaydayPage : ContentPage
 {
+    private bool _entranceAnimated;
+
     public PaydayPage(PaydayViewModel viewModel)
     {
         InitializeComponent();
@@ -13,12 +15,23 @@ public partial class PaydayPage : ContentPage
         viewModel.AlertAsync = async (title, message) => await DisplayAlertAsync(title, message, "ОК");
     }
 
-    private async void OnAppearing(object? sender, EventArgs e)
+    protected override async void OnAppearing()
     {
+        base.OnAppearing();
+
         if (BindingContext is PaydayViewModel vm)
         {
             await vm.InitializeAsync();
-            await RootStack.Children.OfType<View>().FadeInUpStaggeredAsync();
+            if (!_entranceAnimated)
+            {
+                _entranceAnimated = true;
+                await RootStack.Children.OfType<View>().FadeInUpStaggeredAsync();
+            }
         }
+    }
+
+    private async void OnBackTapped(object? sender, TappedEventArgs e)
+    {
+        await Navigation.PopAsync();
     }
 }

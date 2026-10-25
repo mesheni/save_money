@@ -4,23 +4,29 @@ using CommunityToolkit.Mvvm.Input;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
-using LiveChartsCore.SkiaSharpView.VisualElements;
+using Microsoft.Maui.Graphics;
 using SkiaSharp;
 using SaveMoney.Core.Database;
+using SaveMoney.Core.Models;
 using SaveMoney.Core.Services;
 
 namespace SaveMoney.ViewModels;
 
 public partial class TopCategoryRow
 {
-    public required string Icon { get; init; }
     public required string Name { get; init; }
     public required string AmountText { get; init; }
     public required string PercentText { get; init; }
     public required double Progress { get; init; }
+
+    /// <summary>Цвет квадрата и полоски — из палитры кольца.</summary>
+    public required Color BarColor { get; init; }
 }
 
-/// <summary>Экран отчётов: период (включая цикл и произвольный), круговая, динамика, топ категорий, CSV.</summary>
+/// <summary>
+/// Экран отчётов по макету: пилюля периода, сегмент «расходы/доходы», кольцо с суммой
+/// и дельтой к прошлому периоду, топ категорий, столбики по дням, CSV.
+/// </summary>
 public partial class ReportsViewModel(
     AppDatabase db,
     ReportService reports,
@@ -32,21 +38,25 @@ public partial class ReportsViewModel(
     private readonly CycleService _cycle = cycle;
     private readonly CsvExportService _csv = csv;
 
-    // Палитра секторов круговой — «Clean»: акцент + нейтральная серая шкала.
+    // Палитра секторов кольца — акцент + нейтральная шкала (как в макете).
     private static readonly SKColor[] Palette =
     [
         new(0xFF, 0x6B, 0x00),
-        new(0x5A, 0x5A, 0x64),
-        new(0x78, 0x78, 0x82),
-        new(0x93, 0x93, 0x9D),
-        new(0xAB, 0xAB, 0xB5),
-        new(0xC2, 0xC2, 0xCB),
-        new(0xD6, 0xD6, 0xDE),
-        new(0xE8, 0xE8, 0xEE),
+        new(0x17, 0x17, 0x1C),
+        new(0x6B, 0x6B, 0x7A),
+        new(0xA9, 0xA9, 0xB6),
+        new(0xDA, 0xDA, 0xE1),
+        new(0xC7, 0xC7, 0xCF),
+        new(0x8C, 0x8C, 0x99),
+        new(0xB5, 0xB5, 0xBE),
     ];
 
-    public IReadOnlyList<string> PeriodOptions { get; } =
-        ["Неделя", "Месяц", "3 месяца", "Текущий цикл", "Всё", "Свой период"];
+    private static readonly SKColor BarsGray = new(0xDA, 0xDA, 0xE1);
+    private static readonly SKColor BarsAccent = new(0xFF, 0x6B, 0x00);
+
+    private static readonly string[] PeriodList = ["Неделя", "Месяц", "3 месяца", "Текущий цикл", "Всё", "Свой период"];
+
+    public IReadOnlyList<string> PeriodOptions => PeriodList;
 
     [ObservableProperty]
     public partial int PeriodIndex { get; set; } = 1;
@@ -57,35 +67,62 @@ public partial class ReportsViewModel(
     [ObservableProperty]
     public partial DateTime ToDate { get; set; } = DateTime.Now;
 
+    /// <summary>true — на экране расходы, false — доходы.</summary>
     [ObservableProperty]
-    public partial string SummaryText { get; set; } = "";
+    public partial bool IsExpenses { get; set; } = true;
+
+    public bool IsIncomes => !IsExpenses;
 
     [ObservableProperty]
-    public partial string PeriodExpenseText { get; set; } = "—";
+    public partial string PeriodTotalCaption { get; set; } = "Расходы за период";
 
-    /// <summary>Расход за период числом (в рублях) — для count-up анимации на странице.</summary>
-    public double PeriodExpenseValue { get; private set; }
+    [ObservableProperty]
+    public partial string PeriodTotalText { get; set; } = "—";
+
+    /// <summary>«на 8% меньше, чем в прошлом» — пусто, если в прошлом периоде нечего сравнивать.</summary>
+    [ObservableProperty]
+    public partial string DeltaText { get; set; } = "";
+
+    /// <summary>Зелёная дельта = «меньше» у расходов и «больше» у доходов.</summary>
+    [ObservableProperty]
+    public partial bool DeltaGood { get; set; }
+
+    public bool HasDelta => DeltaText.Length > 0;
+
+    [ObservableProperty]
+    public partial string AvgPerDayText { get; set; } = "";
 
     [ObservableProperty]
     public partial bool HasData { get; set; } = true;
+
+    /// <summary>Нет операций выбранного типа за период.</summary>
+    public bool HasNoData => !HasData;
 
     [ObservableProperty]
     public partial ISeries[] PieSeries { get; set; } = [];
 
     [ObservableProperty]
-    public partial ISeries[] ColumnSeries { get; set; } = [];
+    public partial ISeries[] DaySeries { get; set; } = [];
 
     [ObservableProperty]
-    public partial Axis[] XAxes { get; set; } = [new Axis()];
+    public partial Axis[] DayXAxes { get; set; } = [new Axis { IsVisible = false }];
 
     [ObservableProperty]
-    public partial Axis[] YAxes { get; set; } = [new Axis { MinLimit = 0 }];
+    public partial Axis[] DayYAxes { get; set; } = [new Axis { IsVisible = false, MinLimit = 0 }];
+
+    public string DaysCaption => IsExpenses ? "Расходы по дням" : "Доходы по дням";
 
     public ObservableCollection<TopCategoryRow> TopRows { get; } = [];
 
     public Func<string, string, Task>? AlertAsync { get; set; }
 
+    /// <summary>Страница подставляет выбор варианта (ActionSheet): (заголовок, варианты) → выбор или null.</summary>
+    public Func<string, string[], Task<string?>>? PickAsync { get; set; }
+
     public bool IsCustom => PeriodIndex == 5;
+
+    public string PeriodPillText => PeriodOptions[PeriodIndex];
+    public bool PeriodPillActive => PeriodIndex != 1;
 
     public Task InitializeAsync()
     {
@@ -96,11 +133,42 @@ public partial class ReportsViewModel(
     partial void OnPeriodIndexChanged(int value)
     {
         OnPropertyChanged(nameof(IsCustom));
+        OnPropertyChanged(nameof(PeriodPillText));
+        OnPropertyChanged(nameof(PeriodPillActive));
         Recompute();
     }
 
     partial void OnFromDateChanged(DateTime value) => Recompute();
     partial void OnToDateChanged(DateTime value) => Recompute();
+
+    partial void OnIsExpensesChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsIncomes));
+        OnPropertyChanged(nameof(DaysCaption));
+        Recompute();
+    }
+
+    [RelayCommand]
+    private async Task PickPeriodAsync()
+    {
+        var picked = await PickAsync?.Invoke("Период", [.. PeriodOptions])!;
+        if (picked is null)
+        {
+            return;
+        }
+
+        var index = Array.IndexOf(PeriodList, picked);
+        if (index >= 0)
+        {
+            PeriodIndex = index;
+        }
+    }
+
+    [RelayCommand]
+    private void ShowExpenses() => IsExpenses = true;
+
+    [RelayCommand]
+    private void ShowIncomes() => IsExpenses = false;
 
     private (long From, long To) GetRange()
     {
@@ -122,25 +190,61 @@ public partial class ReportsViewModel(
     private void Recompute()
     {
         var (from, to) = GetRange();
+        var kind = IsExpenses ? TransactionKind.Expense : TransactionKind.Income;
+
         var (income, expense) = _reports.GetTotals(from, to);
+        var total = IsExpenses ? expense : income;
 
         HasData = income != 0 || expense != 0;
-        PeriodExpenseValue = expense / 100.0;
-        PeriodExpenseText = HasData ? MoneyFormat.Rubles(expense) : "—";
-        SummaryText = HasData
-            ? $"Доход {MoneyFormat.Rubles(income)}"
-            : "Нет операций за период";
+        PeriodTotalCaption = IsExpenses ? "Расходы за период" : "Доходы за период";
+        PeriodTotalText = HasData ? MoneyFormat.Rubles(total) : "—";
 
-        BuildPie(from, to);
-        BuildColumns(from, to);
-        BuildTop(from, to);
+        // Дельта к предыдущему периоду той же длины.
+        var length = Math.Max(1, to - from);
+        var (prevTotal, days) = ComputePrev(from, length, kind);
+        if (prevTotal > 0 && total > 0)
+        {
+            var change = (total - prevTotal) * 100.0 / prevTotal;
+            var percent = Math.Abs((int)Math.Round(change));
+            var decreased = total < prevTotal;
+            DeltaText = percent == 0 ? "как в прошлом периоде" : $"на {percent}% {(decreased ? "меньше" : "больше")}, чем в прошлом";
+            // У расходов меньше = хорошо; у доходов наоборот.
+            DeltaGood = IsExpenses ? decreased : !decreased;
+        }
+        else
+        {
+            DeltaText = "";
+        }
+
+        OnPropertyChanged(nameof(HasDelta));
+
+        AvgPerDayText = days > 0 ? $"В среднем {MoneyFormat.Rubles(total / days)} в день" : "";
+
+        BuildPie(from, to, kind);
+        BuildDayColumns(from, to);
+        BuildTop(from, to, kind);
     }
 
-    private void BuildPie(long from, long to)
+    private (long Total, int Days) ComputePrev(long from, long length, string kind)
+    {
+        if (PeriodIndex == 4)
+        {
+            // «Всё» не имеет предыдущего периода.
+            return (0, 0);
+        }
+
+        var prevFrom = from - length;
+        var prevTo = from;
+        var (income, expense) = _reports.GetTotals(prevFrom, prevTo);
+        var days = (int)Math.Round(length / 86400.0);
+        return (kind == TransactionKind.Expense ? expense : income, days);
+    }
+
+    private void BuildPie(long from, long to, string kind)
     {
         // Нулевые суммы выкидываем: срез с 0 при нормализации LiveCharts
         // рисуется полным кругом («0,00 ₽» выглядел как заполненный донат).
-        var slices = _reports.GetExpenseByCategory(from, to)
+        var slices = _reports.GetByCategory(from, to, kind)
             .Where(s => s.AmountMinor > 0)
             .ToList();
         if (slices.Count == 0)
@@ -149,7 +253,7 @@ public partial class ReportsViewModel(
             return;
         }
 
-        const int maxSlices = 7;
+        const int maxSlices = 5;
         var series = new List<ISeries>();
         var sliceIndex = 0;
         foreach (var slice in slices.Take(maxSlices))
@@ -159,8 +263,7 @@ public partial class ReportsViewModel(
                 Name = slice.Name,
                 Values = [slice.AmountMinor / 100.0],
                 Fill = new SolidColorPaint(Palette[sliceIndex % Palette.Length]),
-                InnerRadius = 60,
-                Pushout = 10,
+                InnerRadius = 45,
             });
             sliceIndex++;
         }
@@ -172,70 +275,76 @@ public partial class ReportsViewModel(
             {
                 Name = "Прочие",
                 Values = [rest / 100.0],
-                Fill = new SolidColorPaint(new SKColor(0xD9, 0xD9, 0xE0)),
-                InnerRadius = 60,
-                Pushout = 10,
+                Fill = new SolidColorPaint(Palette[^1]),
+                InnerRadius = 45,
             });
         }
 
         PieSeries = series.ToArray();
     }
 
-    private void BuildColumns(long from, long to)
+    private void BuildDayColumns(long from, long to)
     {
         var points = _reports.GetDynamics(from, to);
 
-        ColumnSeries =
+        if (points.Count == 0)
+        {
+            DaySeries = [];
+            return;
+        }
+
+        // Одна серия серых столбиков; последний день периода — акцентный
+        // (вторая серия со значениями только в последней точке).
+        var grayValues = new double?[points.Count];
+        var accentValues = new double?[points.Count];
+        for (var i = 0; i < points.Count; i++)
+        {
+            var value = (IsExpenses ? points[i].ExpenseMinor : points[i].IncomeMinor) / 100.0;
+            var isLast = i == points.Count - 1;
+            grayValues[i] = isLast ? null : value;
+            accentValues[i] = isLast ? value : null;
+        }
+
+        DaySeries =
         [
-            new ColumnSeries<double>
+            new ColumnSeries<double?>
             {
-                Name = "Расход",
-                Values = points.Select(p => p.ExpenseMinor / 100.0).ToArray(),
-                // Сплошная заливка: LinearGradientPaint на Android рисует столбцы
-                // волосяной линией вместо полного столбца.
-                Fill = new SolidColorPaint(new SKColor(0xDC, 0x3D, 0x43)),
-                MaxBarWidth = 26,
+                Values = grayValues,
+                Fill = new SolidColorPaint(BarsGray),
+                MaxBarWidth = 12,
             },
-            new ColumnSeries<double>
+            new ColumnSeries<double?>
             {
-                Name = "Доход",
-                Values = points.Select(p => p.IncomeMinor / 100.0).ToArray(),
-                Fill = new SolidColorPaint(new SKColor(0x2E, 0x94, 0x55)),
-                MaxBarWidth = 26,
+                Values = accentValues,
+                Fill = new SolidColorPaint(BarsAccent),
+                MaxBarWidth = 12,
             },
         ];
 
-        // Подписи осей перекрашиваем под текущую тему: дефолтная серая краска
-        // LiveCharts не читается на тёмной карточке.
-        var labelsPaint = new SolidColorPaint(TextPaintForTheme());
-        XAxes = [new Axis { Labels = points.Select(p => p.Label).ToArray(), LabelsRotation = 45, LabelsPaint = labelsPaint }];
-        YAxes = [new Axis { MinLimit = 0, LabelsPaint = labelsPaint }];
+        // Мини-диаграмма без осей (как в макете): линия-основа задаётся фоном графика.
+        DayXAxes = [new Axis { IsVisible = false, Labels = points.Select(p => p.Label).ToArray() }];
+        DayYAxes = [new Axis { IsVisible = false, MinLimit = 0 }];
     }
 
-    private static SKColor TextPaintForTheme()
+    private void BuildTop(long from, long to, string kind)
     {
-        // Токены TextMuted: светлая #8E8E98 / тёмная #7C7C86
-        return Application.Current?.RequestedTheme == AppTheme.Dark
-            ? new SKColor(0x7C, 0x7C, 0x86)
-            : new SKColor(0x8E, 0x8E, 0x98);
-    }
-
-    private void BuildTop(long from, long to)
-    {
-        var slices = _reports.GetExpenseByCategory(from, to)
+        var slices = _reports.GetByCategory(from, to, kind)
             .Where(s => s.AmountMinor > 0);
 
         TopRows.Clear();
-        foreach (var slice in slices.Take(10))
+        var index = 0;
+        foreach (var slice in slices.Take(5))
         {
+            var paint = Palette[index % Palette.Length];
             TopRows.Add(new TopCategoryRow
             {
-                Icon = slice.Icon,
                 Name = slice.Name,
                 AmountText = MoneyFormat.Rubles(slice.AmountMinor),
                 PercentText = $"{slice.SharePercent:F0}%",
                 Progress = Math.Min(1.0, slice.SharePercent / 100.0),
+                BarColor = Color.FromRgb(paint.Red, paint.Green, paint.Blue),
             });
+            index++;
         }
     }
 

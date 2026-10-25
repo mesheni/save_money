@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "mimosa-hook-status/v1",
+  "recordedAt": "2026-10-25T14:48:34.834Z",
+  "sessionId": "session_38e27a24478553dbf19cdac8ecdfc357",
+  "event": "PostToolUse",
+  "toolName": "Edit",
+  "file": "Views/QuickAddPage.xaml.cs",
+  "outcome": "clear",
+  "coverage": "complete",
+  "findingCount": 0,
+  "durationMs": 7,
+  "hostState": "hook_complete",
+  "reportHint": ".mimosa/reports/"
+}

@@ -26,11 +26,15 @@ public sealed class ReportService(AppDatabase database)
 {
     private readonly AppDatabase _db = database;
 
-    /// <summary>Расходы по категориям за период, по убыванию; без категории — отдельной строкой.</summary>
-    public List<CategorySlice> GetExpenseByCategory(long fromUnix, long toUnix)
+    /// <summary>Расходы по категориям за период — обёртка GetByCategory (совместимость с тестами).</summary>
+    public List<CategorySlice> GetExpenseByCategory(long fromUnix, long toUnix) =>
+        GetByCategory(fromUnix, toUnix, CategoryKind.Expense);
+
+    /// <summary>Расходы (или доходы) по категориям за период, по убыванию; без категории — отдельной строкой.</summary>
+    public List<CategorySlice> GetByCategory(long fromUnix, long toUnix, string kind = TransactionKind.Expense)
     {
         var expenses = _db.Transactions.GetBetween(fromUnix, toUnix)
-            .Where(t => t.Kind == TransactionKind.Expense)
+            .Where(t => t.Kind == kind)
             .ToList();
         if (expenses.Count == 0)
         {

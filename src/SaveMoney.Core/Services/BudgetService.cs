@@ -17,10 +17,26 @@ public class BudgetStatusRow
 
     public bool IsGeneral => CategoryId is null;
     public bool IsOver => FactMinor > PlanMinor;
+
+    /// <summary>Лимит не превышен — зелёный статус «осталось N ₽».</summary>
+    public bool IsWithinLimit => !IsOver;
+
     public double Percent => PlanMinor > 0 ? Math.Min(100.0, FactMinor * 100.0 / PlanMinor) : 0;
 
     /// <summary>Целый процент с тем же капом 100, что и бар: «250%» вводит в заблуждение.</summary>
     public string PercentText => PlanMinor > 0 ? $"{Math.Min(100, (long)Math.Round(FactMinor * 100.0 / PlanMinor))}%" : "";
+
+    /// <summary>«Превышено на 11 750 ₽ (119%)» — процент без капа, как в статусной строке.</summary>
+    public string OverText => PlanMinor > 0
+        ? $"Превышено на {MoneyFormat.Rubles(FactMinor - PlanMinor)} ({(long)Math.Round(FactMinor * 100.0 / PlanMinor)}%)"
+        : "Превышено";
+
+    /// <summary>«В рамках лимита, осталось 500 ₽».</summary>
+    public string OkText => $"В рамках лимита, осталось {MoneyFormat.Rubles(PlanMinor - FactMinor)}";
+
+    /// <summary>«24 300 из 20 000 ₽»: факт красным при превышении, план серым.</summary>
+    public string FactText => MoneyFormat.Rubles(FactMinor);
+    public string PlanText => $"из {MoneyFormat.Rubles(PlanMinor)}";
 }
 
 /// <summary>План/факт по бюджетам за период. Бюджет на корневую категорию включает расходы подкатегорий.</summary>

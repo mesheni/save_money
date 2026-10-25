@@ -1,8 +1,6 @@
-using System.ComponentModel;
 using LiveChartsCore.SkiaSharpView.Maui;
 using LiveChartsCore.SkiaSharpView.Painting;
 using Microsoft.Maui.Controls;
-using SaveMoney.Core.Services;
 using SaveMoney.Helpers;
 using SaveMoney.ViewModels;
 using SkiaSharp;
@@ -13,7 +11,6 @@ public partial class ReportsPage : ContentPage
 {
     private readonly ReportsViewModel _viewModel;
     private bool _entranceAnimated;
-    private bool _expenseCountUpRunning;
 
     public ReportsPage(ReportsViewModel viewModel)
     {
@@ -21,13 +18,17 @@ public partial class ReportsPage : ContentPage
         _viewModel = viewModel;
         BindingContext = viewModel;
         viewModel.AlertAsync = async (title, message) => await DisplayAlertAsync(title, message, "ОК");
-        viewModel.PropertyChanged += OnViewModelPropertyChanged;
+        viewModel.PickAsync = async (title, options) =>
+        {
+            var picked = await DisplayActionSheetAsync(title, "Отмена", null, options);
+            return picked == "Отмена" ? null : picked;
+        };
         StyleCharts();
     }
 
     /// <summary>
     /// Тултипы и моушн графиков: фоны/тексты из токенов Clean (по текущей теме,
-    /// как и краска осей во ViewModel), скорость и кривая — из дизайн-контракта.
+    /// как и краска палитры во ViewModel), скорость и кривая — из дизайн-контракта.
     /// </summary>
     private void StyleCharts()
     {
@@ -40,7 +41,7 @@ public partial class ReportsPage : ContentPage
             : new SKColor(0x17, 0x17, 0x1C));
 
         ApplyChartStyle(DonutChart, tooltipBackground, tooltipText);
-        ApplyChartStyle(DynamicsChart, tooltipBackground, tooltipText);
+        ApplyChartStyle(DaysChart, tooltipBackground, tooltipText);
     }
 
     private static void ApplyChartStyle(PieChart chart, SolidColorPaint background, SolidColorPaint text)
@@ -72,37 +73,6 @@ public partial class ReportsPage : ContentPage
         {
             _entranceAnimated = true;
             await RootStack.Children.OfType<View>().FadeInUpStaggeredAsync();
-        }
-    }
-
-    private async void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        // Count-up суммы расхода при каждой пересборке отчёта (смена периода/дат).
-        // Кадры пишем в свойство VM (прямой set Label.Text стёр бы binding) — поэтому
-        // каждый кадр снова поднимает PropertyChanged. Без флага анимация
-        // перезапускалась бы с нуля на каждом кадре и сумма навсегда оставалась «0,00».
-        if (e.PropertyName == nameof(ReportsViewModel.PeriodExpenseText)
-            && _viewModel.HasData
-            && PeriodExpenseLabel is not null
-            && !_expenseCountUpRunning)
-        {
-            _expenseCountUpRunning = true;
-            try
-            {
-                await PeriodExpenseLabel.CountUpAsync(
-                    0,
-                    _viewModel.PeriodExpenseValue,
-                    value => _viewModel.PeriodExpenseText = MoneyFormat.Rubles((long)Math.Round(value * 100)));
-
-                // Пока шла анимация, период могли сменить: кадры затирают свежее
-                // значение суммой старого периода. Финальный кадр — всегда из VM.
-                _viewModel.PeriodExpenseText =
-                    MoneyFormat.Rubles((long)Math.Round(_viewModel.PeriodExpenseValue * 100));
-            }
-            finally
-            {
-                _expenseCountUpRunning = false;
-            }
         }
     }
 }

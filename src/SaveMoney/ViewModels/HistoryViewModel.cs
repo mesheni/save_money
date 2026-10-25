@@ -73,7 +73,9 @@ public partial class HistoryViewModel(AppDatabase db, HistoryService history) : 
 
     public ObservableCollection<string> AccountOptions { get; } = ["Все счета"];
 
-    public IReadOnlyList<string> PeriodOptions { get; } = ["Неделя", "Месяц", "3 месяца", "Всё"];
+    private static readonly string[] PeriodList = ["Неделя", "Месяц", "3 месяца", "Всё"];
+
+    public IReadOnlyList<string> PeriodOptions => PeriodList;
 
     [ObservableProperty]
     public partial int PeriodIndex { get; set; } = 1;
@@ -186,7 +188,7 @@ public partial class HistoryViewModel(AppDatabase db, HistoryService history) : 
             return;
         }
 
-        var index = PeriodOptions.IndexOf(picked);
+        var index = Array.IndexOf(PeriodList, picked);
         if (index >= 0)
         {
             PeriodIndex = index;

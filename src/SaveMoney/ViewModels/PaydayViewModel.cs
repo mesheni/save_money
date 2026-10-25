@@ -7,20 +7,30 @@ using SaveMoney.Core.Services;
 
 namespace SaveMoney.ViewModels;
 
+/// <summary>Предстоящий регулярный платеж до зарплаты.</summary>
+public partial class UpcomingPaymentRow(string title, string dateText, string amountText) : ObservableObject
+{
+    public string Title { get; } = title;
+    public string DateText { get; } = dateText;
+    public string AmountText { get; } = amountText;
+}
+
 /// <summary>
-/// Дашборд «До зарплаты»: остаток минус предстоящие регулярные платежи, в пересчёте на день.
-/// Здесь же настройки: день зарплаты и цикл (якорь + длина).
+/// Экран «До зарплаты» по макету: прогноз «можно тратить», прогресс цикла,
+/// разбивка (остаток − платежи), предстоящие платежи, блок бюджетов и настройки.
 /// </summary>
 public partial class PaydayViewModel(
     AppDatabase db,
     BalanceService balance,
     CycleService cycle,
-    RecurringService recurring) : ObservableObject
+    RecurringService recurring,
+    BudgetService budgets) : ObservableObject
 {
     private readonly AppDatabase _db = db;
     private readonly BalanceService _balance = balance;
     private readonly CycleService _cycle = cycle;
     private readonly RecurringService _recurring = recurring;
+    private readonly BudgetService _budgets = budgets;
 
     public ObservableCollection<string> PaydayDayOptions { get; } =
         new(Enumerable.Range(1, 28).Select(d => $"числа {d}"));
@@ -34,30 +44,59 @@ public partial class PaydayViewModel(
     [ObservableProperty]
     public partial string CycleDaysText { get; set; } = "30";
 
+    // --- Прогноз ---
     [ObservableProperty]
-    public partial string PaydayText { get; set; } = "";
-
-    [ObservableProperty]
-    public partial string BalanceText { get; set; } = "";
-
-    [ObservableProperty]
-    public partial string UpcomingText { get; set; } = "";
+    public partial string PaydayEndText { get; set; } = "";
 
     [ObservableProperty]
     public partial string CanSpendText { get; set; } = "";
+
+    /// <summary>Отрицательный прогноз — сумма красным.</summary>
+    public bool CanSpendNegative { get; private set; }
 
     [ObservableProperty]
     public partial string PerDayText { get; set; } = "";
 
     [ObservableProperty]
-    public partial string StatusText { get; set; } = "";
+    public partial string DaysLeftText { get; set; } = "";
 
-    /// <summary>ok / warn / minus — выбор цвета пилюли статуса в XAML.</summary>
-    [ObservableProperty]
-    public partial string StatusKind { get; set; } = "ok";
+    // --- Прогресс цикла ---
+    public double CycleProgress { get; private set; }
 
     [ObservableProperty]
-    public partial string CycleText { get; set; } = "";
+    public partial string CycleStartText { get; set; } = "";
+
+    [ObservableProperty]
+    public partial string CycleEndText { get; set; } = "";
+
+    [ObservableProperty]
+    public partial string CycleProgressText { get; set; } = "";
+
+    // --- Разбивка ---
+    [ObservableProperty]
+    public partial string BalanceText { get; set; } = "";
+
+    [ObservableProperty]
+    public partial string UpcomingTotalText { get; set; } = "";
+
+    public bool HasUpcomingTotal { get; private set; }
+
+    // --- Предстоящие платежи ---
+    public ObservableCollection<UpcomingPaymentRow> UpcomingItems { get; } = [];
+
+    public bool HasUpcomingItems => UpcomingItems.Count > 0;
+
+    public bool HasNoUpcomingItems => UpcomingItems.Count == 0;
+
+    // --- Бюджеты ---
+    public ObservableCollection<BudgetStatusRow> BudgetItems { get; } = [];
+
+    public bool HasBudgets => BudgetItems.Count > 0;
+
+    public bool HasNoBudgets => BudgetItems.Count == 0;
+
+    [ObservableProperty]
+    public partial string BudgetCycleText { get; set; } = "";
 
     public Func<string, string, Task>? AlertAsync { get; set; }
 
@@ -79,12 +118,9 @@ public partial class PaydayViewModel(
 
         var payday = _cycle.GetNextPayday(now);
         var daysLeft = _cycle.GetDaysUntilPayday(now);
-        PaydayText = daysLeft == 0
-            ? "Зарплата сегодня!"
-            : $"До зарплаты ({payday:d MMMM}): {daysLeft} дн.";
-
-        var total = _balance.GetTotalBalance();
-        BalanceText = $"Баланс: {MoneyFormat.Rubles(total)}";
+        PaydayEndText = daysLeft == 0
+            ? "Зарплата сегодня"
+            : $"Можно тратить до {payday:d MMMM}";
 
         var paydayEndUnix = new DateTimeOffset(payday.Date.AddDays(1),
             TimeZoneInfo.Local.GetUtcOffset(payday.Date)).ToUnixTimeSeconds();
@@ -92,35 +128,71 @@ public partial class PaydayViewModel(
         var upcomingExpense = upcoming.Where(r => r.Kind == TransactionKind.Expense).Sum(r => r.AmountMinor);
         var upcomingIncome = upcoming.Where(r => r.Kind == TransactionKind.Income).Sum(r => r.AmountMinor);
 
-        var upcomingNet = upcomingExpense - upcomingIncome;
-        UpcomingText = upcoming.Count == 0
-            ? "Предстоящих регулярных платежей до зарплаты нет"
-            : $"Предстоящие платежи: {MoneyFormat.SignedRubles(-upcomingNet)} ({upcoming.Count})";
-
+        var total = _balance.GetTotalBalance();
         var canSpend = total - upcomingExpense + upcomingIncome;
-        CanSpendText = $"Можно тратить: {MoneyFormat.Rubles(canSpend)}";
+        CanSpendNegative = canSpend < 0;
+        CanSpendText = MoneyFormat.Rubles(canSpend);
 
         var perDay = canSpend / Math.Max(1, daysLeft);
         PerDayText = $"≈ {MoneyFormat.Rubles(perDay)} в день";
+        DaysLeftText = daysLeft == 0 ? "" : $"· осталось {daysLeft} дн.";
 
-        if (canSpend < 0)
-        {
-            StatusText = "До зарплаты денег не хватит";
-            StatusKind = "minus";
-        }
-        else if (perDay < 500)
-        {
-            StatusText = "Денег впритык — трать аккуратнее";
-            StatusKind = "warn";
-        }
-        else
-        {
-            StatusText = "Хватит до зарплаты";
-            StatusKind = "ok";
-        }
-
+        // Прогресс цикла: сколько дней прошло из длины.
         var info = _cycle.GetCurrentCycle();
-        CycleText = $"Текущий цикл: {info.Display} ({info.TotalDays} дн.)";
+        var elapsed = (now.Date - info.Start.Date).Days;
+        CycleProgress = Math.Clamp((double)elapsed / Math.Max(1, info.TotalDays), 0, 1);
+        CycleStartText = info.Start.ToString("d MMMM");
+        CycleEndText = info.End.AddDays(-1).ToString("d MMMM");
+        CycleProgressText = elapsed <= 0
+            ? $"Цикл {info.TotalDays} дн."
+            : $"Прошло {elapsed} из {info.TotalDays} дн.";
+
+        // Разбивка.
+        BalanceText = MoneyFormat.Rubles(total);
+        var upcomingNet = upcomingExpense - upcomingIncome;
+        HasUpcomingTotal = upcomingNet != 0;
+        UpcomingTotalText = HasUpcomingTotal ? MoneyFormat.SignedRubles(-upcomingNet) : MoneyFormat.Rubles(0);
+
+        // Предстоящие платежи списком.
+        UpcomingItems.Clear();
+        foreach (var r in upcoming.OrderBy(r => r.NextDateUnix).Take(6))
+        {
+            var title = string.IsNullOrWhiteSpace(r.Payee) ? "Платёж" : r.Payee!;
+            var date = DateTimeOffset.FromUnixTimeSeconds(r.NextDateUnix).ToLocalTime();
+            UpcomingItems.Add(new UpcomingPaymentRow(
+                title,
+                date.ToString("d MMM"),
+                MoneyFormat.Rubles(r.AmountMinor)));
+        }
+        OnPropertyChanged(nameof(HasUpcomingItems));
+        OnPropertyChanged(nameof(HasNoUpcomingItems));
+
+        // Бюджеты текущего цикла.
+        var fromUnix = new DateTimeOffset(info.Start, TimeZoneInfo.Local.GetUtcOffset(info.Start)).ToUnixTimeSeconds();
+        var endUnix = new DateTimeOffset(info.End, TimeZoneInfo.Local.GetUtcOffset(info.End)).ToUnixTimeSeconds();
+        BudgetItems.Clear();
+        foreach (var row in _budgets.GetStatuses(fromUnix, endUnix).Take(3))
+        {
+            BudgetItems.Add(row);
+        }
+        BudgetCycleText = $"Бюджеты · цикл {info.Display}";
+        OnPropertyChanged(nameof(HasBudgets));
+        OnPropertyChanged(nameof(HasNoBudgets));
+    }
+
+    [RelayCommand]
+    private void OpenBudget(BudgetStatusRow? row)
+    {
+        if (row is not null)
+        {
+            Shell.Current.GoToAsync($"budget?id={row.BudgetId}");
+        }
+    }
+
+    [RelayCommand]
+    private async Task AddBudgetAsync()
+    {
+        await Shell.Current.GoToAsync("budget");
     }
 
     [RelayCommand]
@@ -142,4 +214,6 @@ public partial class PaydayViewModel(
         _cycle.SetSettings(CycleAnchorDate, days);
         Recompute();
     }
+
+    partial void OnCanSpendTextChanged(string value) => OnPropertyChanged(nameof(CanSpendNegative));
 }
