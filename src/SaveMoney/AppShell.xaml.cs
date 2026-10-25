@@ -9,6 +9,12 @@ public partial class AppShell : Shell
 	{
 		InitializeComponent();
 
+#if ANDROID
+		// Полоска активной вкладки (макет). Эффект только на Android: на WinUI
+		// Effects в Shell падают («No service for EffectsFactory») — смоук это поймал.
+		Effects.Add(new Controls.TabIndicatorEffect());
+#endif
+
 		Routing.RegisterRoute("transaction", typeof(QuickAddPage));
 		Routing.RegisterRoute("categorypicker", typeof(CategoryPickerPage));
 		Routing.RegisterRoute("accounts", typeof(AccountsPage));
