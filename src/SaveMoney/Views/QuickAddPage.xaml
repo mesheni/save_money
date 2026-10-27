@@ -278,7 +278,7 @@
                  из-за чего кнопка болталась в центре двух рядов с пустотами.
                  Fill растягивает ровно на высоту ячейки (2 ряда). -->
             <Button x:Name="SaveButton" Grid.Row="2" Grid.RowSpan="2" Grid.Column="3"
-                    Text="Сохранить" FontSize="14" Padding="2,0"
+                    Text="Сохранить" FontSize="12" Padding="2,0"
                     FontFamily="InterSemiBold" VerticalOptions="Fill"
                     BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"
                     TextColor="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}"
