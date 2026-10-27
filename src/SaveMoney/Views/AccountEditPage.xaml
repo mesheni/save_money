@@ -6,24 +6,37 @@
              Title="{Binding Title}"
              Appearing="OnAppearing">
 
-    <ScrollView>
+    <ScrollView VerticalScrollBarVisibility="Never">
         <VerticalStackLayout Padding="16,10" Spacing="12">
 
             <Label Text="Название" FontSize="12" Opacity="0.6"/>
-            <Entry Text="{Binding Name}" Placeholder="Например, Сбер карта"/>
+            <Border StrokeShape="RoundRectangle 12" Padding="12,0" HeightRequest="44">
+                <Entry Text="{Binding Name}" Placeholder="Например, Сбер карта"
+                       BackgroundColor="Transparent" MinimumHeightRequest="42"/>
+            </Border>
 
             <Label Text="Тип" FontSize="12" Opacity="0.6"/>
-            <Picker ItemsSource="{Binding KindOptions}" SelectedIndex="{Binding KindIndex}"/>
+            <Border StrokeShape="RoundRectangle 12" Padding="12,0" HeightRequest="44">
+                <Picker ItemsSource="{Binding KindOptions}" SelectedIndex="{Binding KindIndex}"
+                        BackgroundColor="Transparent" VerticalOptions="Center"/>
+            </Border>
 
             <Label Text="Начальный остаток, ₽ (можно с минусом для кредитки)" FontSize="12" Opacity="0.6"/>
-            <Entry Text="{Binding InitialBalanceText}" Placeholder="0" Keyboard="Text"/>
+            <Border StrokeShape="RoundRectangle 12" Padding="12,0" HeightRequest="44">
+                <Entry Text="{Binding InitialBalanceText}" Placeholder="0" Keyboard="Text"
+                       BackgroundColor="Transparent" MinimumHeightRequest="42"/>
+            </Border>
 
             <Label Text="Цвет" FontSize="12" Opacity="0.6"/>
-            <CollectionView ItemsSource="{Binding Colors}" ItemsLayout="HorizontalList" HeightRequest="52">
+            <CollectionView ItemsSource="{Binding Colors}" HeightRequest="136">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="6"
+                                     HorizontalItemSpacing="8" VerticalItemSpacing="8"/>
+                </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:ColorChip">
-                        <Border WidthRequest="46" HeightRequest="46" Margin="0,0,8,0"
-                                StrokeShape="RoundRectangle 23"
+                        <Border WidthRequest="46" HeightRequest="40"
+                                StrokeShape="RoundRectangle 20"
                                 BackgroundColor="{Binding Hex}"
                                 StrokeThickness="3"
                                 Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">

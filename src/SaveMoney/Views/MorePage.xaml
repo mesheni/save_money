@@ -13,7 +13,7 @@
 
         <Label Grid.Row="0" Text="Ещё" Style="{StaticResource ScreenTitle}" Margin="0,0,0,8"/>
 
-        <ScrollView Grid.Row="1">
+        <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
             <VerticalStackLayout Spacing="0">
 
                 <Label Text="Деньги" FontSize="13"

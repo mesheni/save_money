@@ -9,8 +9,10 @@
 
     <!-- Экран ввода по макету: шапка (всего + пилюля «в день до зарплаты»), сегмент,
          крупная сумма с кареткой, строка полей (магазин/счёт), сетка категорий 4×2,
-         подкатегории лентой, клавиатура 4×3 с датой и кнопкой «Сохранить» справа. -->
-    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,*" RowSpacing="10" Padding="16,10,16,12">
+         подкатегории лентой, клавиатура 4×3 с датой и кнопкой «Сохранить» справа.
+         Категории — растягиваемая строка, клавиатура — Auto: на низких экранах
+         сжимается блок категорий, а клавиши никогда не обрезаются. -->
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto" RowSpacing="8" Padding="16,10,16,12">
 
         <!-- Шапка: баланс слева, пилюля «в день до зарплаты» справа. -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
@@ -77,8 +79,8 @@
         </Border>
 
         <!-- Сумма: знак по режиму, число, оранжевая каретка, ₽. Выравнивание вправо. -->
-        <HorizontalStackLayout Grid.Row="2" HorizontalOptions="End" Spacing="6" HeightRequest="56">
-            <Label Text="{Binding SignText}" FontSize="34" VerticalOptions="Center"
+        <HorizontalStackLayout Grid.Row="2" HorizontalOptions="End" Spacing="6" HeightRequest="48">
+            <Label Text="{Binding SignText}" FontSize="30" VerticalOptions="Center"
                    TextColor="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding IsIncome}" Value="True">
@@ -86,11 +88,11 @@
                     </DataTrigger>
                 </Label.Triggers>
             </Label>
-            <Label Text="{Binding AmountDisplay}" FontSize="48" FontFamily="InterSemiBold" VerticalOptions="Center"
+            <Label Text="{Binding AmountDisplay}" FontSize="42" FontFamily="InterSemiBold" VerticalOptions="Center"
                    TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
-            <BoxView WidthRequest="2" HeightRequest="40" VerticalOptions="Center"
+            <BoxView WidthRequest="2" HeightRequest="34" VerticalOptions="Center"
                      Color="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
-            <Label Text="₽" FontSize="28" VerticalOptions="Center"
+            <Label Text="₽" FontSize="24" VerticalOptions="Center"
                    TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
         </HorizontalStackLayout>
 
@@ -137,8 +139,9 @@
             </Border>
         </Grid>
 
-        <!-- Категории: сетка 4×2, лента подкатегорий под ней. -->
-        <VerticalStackLayout Grid.Row="4" Spacing="8">
+        <!-- Категории: сетка 4×2, лента подкатегорий под ней. Блок прижат кверху
+             растягиваемой строки: при нехватке места пустеет низ, не клавиатура. -->
+        <VerticalStackLayout Grid.Row="4" Spacing="8" VerticalOptions="Start">
             <Grid ColumnDefinitions="*,Auto">
                 <Label Grid.Column="0" Text="{Binding CategoryLabelText}" FontSize="13" VerticalOptions="Center"
                        TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
@@ -146,15 +149,15 @@
                         Command="{Binding OpenAllCategoriesCommand}"/>
             </Grid>
 
-            <CollectionView ItemsSource="{Binding TopCategories}" HeightRequest="160">
+            <CollectionView ItemsSource="{Binding TopCategories}" HeightRequest="136">
                 <CollectionView.ItemsLayout>
                     <GridItemsLayout Orientation="Vertical" Span="4"
                                      HorizontalItemSpacing="8" VerticalItemSpacing="8"/>
                 </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:CategoryChip">
-                        <Border HeightRequest="76" StrokeShape="RoundRectangle 12" StrokeThickness="1" Padding="4"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                        <Border HeightRequest="64" StrokeShape="RoundRectangle 12" StrokeThickness="1" Padding="4"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource KeyBgLight}, Dark={StaticResource KeyBgDark}}"
                                 Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
                             <Border.Triggers>
                                 <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
@@ -173,7 +176,7 @@
                                         </DataTrigger>
                                     </Label.Triggers>
                                 </Label>
-                                <Label Text="{Binding Name}" FontSize="12" LineBreakMode="TailTruncation"
+                                <Label Text="{Binding Name}" FontSize="11" LineBreakMode="TailTruncation"
                                        HorizontalOptions="Center" HorizontalTextAlignment="Center"
                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}">
                                     <Label.Triggers>
@@ -193,11 +196,11 @@
             </CollectionView>
 
             <!-- Подкатегории выбранного корня: горизонтальная лента чипов. -->
-            <CollectionView ItemsSource="{Binding SubCategories}" ItemsLayout="HorizontalList" HeightRequest="40"
+            <CollectionView ItemsSource="{Binding SubCategories}" ItemsLayout="HorizontalList" HeightRequest="36"
                             IsVisible="{Binding HasSubCategories}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:CategoryChip">
-                        <Border StrokeShape="RoundRectangle 18" Padding="12,8" Margin="0,0,8,0" StrokeThickness="1"
+                        <Border StrokeShape="RoundRectangle 18" Padding="10,7" Margin="0,0,8,0" StrokeThickness="1"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
                                 Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
                             <Border.Triggers>
@@ -224,8 +227,9 @@
             </CollectionView>
         </VerticalStackLayout>
 
-        <!-- Клавиатура 4×3: цифры, стирание, дата, «Сохранить» высотой в два ряда. -->
-        <Grid x:Name="Keypad" Grid.Row="5" ColumnDefinitions="*,*,*,*" RowDefinitions="*,*,*,*"
+        <!-- Клавиатура 4×3: цифры, стирание, дата, «Сохранить» высотой в два ряда.
+             Ряды Auto с фикс. высотой клавиш: экран любой высоты не обрезает цифры. -->
+        <Grid x:Name="Keypad" Grid.Row="5" ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto,Auto,Auto"
               ColumnSpacing="6" RowSpacing="6">
             <Button Grid.Row="0" Grid.Column="0" Text="1" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="1"/>
             <Button Grid.Row="0" Grid.Column="1" Text="2" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="2"/>

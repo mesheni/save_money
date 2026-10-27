@@ -30,7 +30,7 @@
     <Color x:Key="AccentTextLight">#A33F00</Color>
     <Color x:Key="AccentTextDark">#FF9A4D</Color>
     <Color x:Key="AccentSoftLight">#FFF1E6</Color>
-    <Color x:Key="AccentSoftDark">#3B2312</Color>
+    <Color x:Key="AccentSoftDark">#40FF6B00</Color>
     <Color x:Key="ExpenseLight">#DC3D43</Color>
     <Color x:Key="ExpenseDark">#F26A6F</Color>
     <Color x:Key="ExpenseTextLight">#C43438</Color>

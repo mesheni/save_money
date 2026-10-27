@@ -11,7 +11,7 @@
 
     <!-- Экран по макету: заголовок + пилюля периода, сегмент расходы/доходы,
          кольцо + сумма с дельтой к прошлому периоду, топ категорий, столбики по дням. -->
-    <ScrollView>
+    <ScrollView VerticalScrollBarVisibility="Never">
         <VerticalStackLayout x:Name="RootStack" Padding="16,12,16,16" Spacing="18">
 
             <Grid ColumnDefinitions="*,Auto">

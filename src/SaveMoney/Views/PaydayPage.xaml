@@ -10,7 +10,7 @@
 
     <!-- Экран по макету: прогноз «можно тратить», прогресс цикла, разбивка,
          предстоящие платежи, блок бюджетов, настройки внизу. -->
-    <ScrollView>
+    <ScrollView VerticalScrollBarVisibility="Never">
         <VerticalStackLayout x:Name="RootStack" Padding="16,12,16,16" Spacing="16">
 
             <!-- Шапка: назад + заголовок. -->

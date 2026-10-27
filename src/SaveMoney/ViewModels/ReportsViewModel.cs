@@ -39,7 +39,8 @@ public partial class ReportsViewModel(
     private readonly CsvExportService _csv = csv;
 
     // Палитра секторов кольца — акцент + нейтральная шкала (как в макете).
-    private static readonly SKColor[] Palette =
+    // Тёмная тема — свои ступени: тёмно-графитовые срезы на тёмном фоне не видны.
+    private static readonly SKColor[] PaletteLight =
     [
         new(0xFF, 0x6B, 0x00),
         new(0x17, 0x17, 0x1C),
@@ -51,7 +52,26 @@ public partial class ReportsViewModel(
         new(0xB5, 0xB5, 0xBE),
     ];
 
-    private static readonly SKColor BarsGray = new(0xDA, 0xDA, 0xE1);
+    private static readonly SKColor[] PaletteDark =
+    [
+        new(0xFF, 0x7A, 0x1A),
+        new(0xF2, 0xF2, 0xF4),
+        new(0xB9, 0xB9, 0xC2),
+        new(0x8E, 0x8E, 0x98),
+        new(0x6B, 0x6B, 0x7A),
+        new(0x54, 0x54, 0x60),
+        new(0x45, 0x45, 0x50),
+        new(0x7C, 0x7C, 0x86),
+    ];
+
+    private static SKColor[] Palette =>
+        Application.Current?.RequestedTheme == AppTheme.Dark ? PaletteDark : PaletteLight;
+
+    private static SKColor BarsGray =>
+        Application.Current?.RequestedTheme == AppTheme.Dark
+            ? new SKColor(0x45, 0x45, 0x50)
+            : new SKColor(0xDA, 0xDA, 0xE1);
+
     private static readonly SKColor BarsAccent = new(0xFF, 0x6B, 0x00);
 
     private static readonly string[] PeriodList = ["Неделя", "Месяц", "3 месяца", "Текущий цикл", "Всё", "Свой период"];
@@ -95,8 +115,11 @@ public partial class ReportsViewModel(
     [ObservableProperty]
     public partial bool HasData { get; set; } = true;
 
-    /// <summary>Нет операций выбранного типа за период.</summary>
+    /// <summary>Нет операций выбранного типа за период. Computed-свойство обязано
+    /// дублировать уведомление: при SourceGen «!»-биндинги не переоцениваются сами.</summary>
     public bool HasNoData => !HasData;
+
+    partial void OnHasDataChanged(bool value) => OnPropertyChanged(nameof(HasNoData));
 
     [ObservableProperty]
     public partial ISeries[] PieSeries { get; set; } = [];
