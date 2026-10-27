@@ -145,15 +145,17 @@
             </Border>
         </Grid>
 
-        <!-- Категории: сетка 4×2, лента подкатегорий под ней. Блок прижат кверху
-             растягиваемой строки: при нехватке места пустеет низ, не клавиатура. -->
-        <VerticalStackLayout Grid.Row="4" Spacing="8" VerticalOptions="Start">
-            <Grid ColumnDefinitions="*,Auto">
-                <Label Grid.Column="0" Text="{Binding CategoryLabelText}" FontSize="13" VerticalOptions="Center"
-                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                <Button Grid.Column="1" Text="Все" Style="{StaticResource GhostButton}" FontSize="13"
-                        Command="{Binding OpenAllCategoriesCommand}"/>
-            </Grid>
+        <!-- Категории: сетка 4×2, лента подкатегорий под ней. Блок лежит в компактном
+             ScrollView без полосы: на низких экранах скроллится он, клавиатура
+             и её цифры не сжимаются никогда. -->
+        <ScrollView Grid.Row="4" VerticalScrollBarVisibility="Never">
+            <VerticalStackLayout Spacing="8">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0" Text="{Binding CategoryLabelText}" FontSize="13" VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                    <Button Grid.Column="1" Text="Все" Style="{StaticResource GhostButton}" FontSize="13"
+                            Command="{Binding OpenAllCategoriesCommand}"/>
+                </Grid>
 
             <CollectionView ItemsSource="{Binding TopCategories}" HeightRequest="136"
                             VerticalScrollBarVisibility="Never">
@@ -233,7 +235,8 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-        </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
 
         <!-- Клавиатура 4×3: цифры, стирание, дата, «Сохранить» высотой в два ряда.
              Ряды Auto с фикс. высотой клавиш: экран любой высоты не обрезает цифры. -->

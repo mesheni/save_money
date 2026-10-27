@@ -189,6 +189,9 @@
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
         <Setter Property="FontSize" Value="22" />
         <Setter Property="HeightRequest" Value="44" />
+        <!-- Запрет сжатия: на низких экранах Layout иначе ужимает клавиши
+             и обрезает цифры; сжиматься должен только блок категорий. -->
+        <Setter Property="MinimumHeightRequest" Value="44" />
     </Style>
 
     <!-- Плоская строка списка с разделителями (редизайн): без рамки и фона,
