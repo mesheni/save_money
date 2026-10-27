@@ -274,9 +274,16 @@
             <Button Grid.Row="2" Grid.Column="1" Text="8" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="8"/>
             <Button Grid.Row="2" Grid.Column="2" Text="9" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="9"/>
 
+            <!-- «Сохранить»: без PrimaryButton-стиля — он фиксирует высоту 50,
+                 из-за чего кнопка болталась в центре двух рядов с пустотами.
+                 Fill растягивает ровно на высоту ячейки (2 ряда). -->
             <Button x:Name="SaveButton" Grid.Row="2" Grid.RowSpan="2" Grid.Column="3"
                     Text="Сохранить" FontSize="14" Padding="2,0"
-                    Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}"/>
+                    FontFamily="InterSemiBold" VerticalOptions="Fill"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"
+                    TextColor="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}"
+                    BorderColor="Transparent" BorderWidth="0" CornerRadius="14"
+                    Command="{Binding SaveCommand}"/>
 
             <Button Grid.Row="3" Grid.Column="0" Text="," Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter=","/>
             <Button Grid.Row="3" Grid.Column="1" Text="0" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="0"/>
