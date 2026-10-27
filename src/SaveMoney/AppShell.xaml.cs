@@ -31,4 +31,25 @@ public partial class AppShell : Shell
 		Routing.RegisterRoute("recurringnew", typeof(RecurringEditPage));
 		Routing.RegisterRoute("settings", typeof(SettingsPage));
 	}
+
+	// Вкладка при переключении всегда открывается в корне: Shell хранит навстек
+	// каждой вкладки, из-за чего «Ещё» показывало последний открытый раздел
+	// (Счета и т.п.). Сброс — только при смене вкладки/секции (не при push/pop).
+	protected override void OnNavigated(ShellNavigatedEventArgs args)
+	{
+		base.OnNavigated(args);
+
+		// Открытие раздела из «Ещё» — это НЕ push-стек, а Shell URI-состояние
+		// («//more/accounts»): Shell восстанавливает его при каждом возврате на
+		// вкладку, поэтому «Ещё» показывало последний открытый раздел. Лечение:
+		// при смене секции на URI вкладки «Ещё» глубже корня — перейти на «//more».
+		var isSectionOrItemChange = args.Source is ShellNavigationSource.ShellSectionChanged
+			or ShellNavigationSource.ShellItemChanged;
+
+		if (isSectionOrItemChange
+			&& args.Current?.Location?.OriginalString?.StartsWith("//more/") == true)
+		{
+			_ = Shell.Current.GoToAsync("//more");
+		}
+	}
 }

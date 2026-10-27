@@ -8,14 +8,14 @@
              Shell.NavBarIsVisible="False"
              Appearing="OnAppearing">
 
-    <!-- Экран ввода по макету: шапка (всего + пилюля «в день до зарплаты»), сегмент,
-         крупная сумма с кареткой, строка полей (магазин/счёт), сетка категорий 4×2,
-         подкатегории лентой, клавиатура 4×3 с датой и кнопкой «Сохранить» справа.
+    <!-- Экран ввода по макету: шапка (всего/долги + пилюля «в день до зарплаты»), сегмент,
+         крупная сумма с кареткой, строка полей (магазин/счёт), при переводе — пилюля
+         погашения долга, сетка категорий 4×2, подкатегории лентой, клавиатура 4×3.
          Навбар Shell скрыт (режим виден в сегменте) — иначе контент не влезает
          на устройство; клавиатура Auto с фикс. клавишами, наезды исключены. -->
-    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto" RowSpacing="6" Padding="14,10,14,10">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto" RowSpacing="6" Padding="14,10,14,10">
 
-        <!-- Шапка: режим (при правке), баланс слева, пилюля «в день до зарплаты» справа. -->
+        <!-- Шапка: режим (при правке), баланс и сальдо долгов слева, пилюля «в день до зарплаты» справа. -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
             <VerticalStackLayout Grid.Column="0" Spacing="1">
                 <Label Text="{Binding ModeText}" FontSize="12" FontFamily="InterSemiBold"
@@ -26,6 +26,9 @@
                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                     <Label x:Name="BalanceLabel" Text="{Binding BalanceText}" FontSize="14" FontFamily="InterSemiBold"
                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                    <Label Text="{Binding DebtsSummaryText}" FontSize="14" FontFamily="InterSemiBold" Margin="8,0,0,0"
+                           IsVisible="{Binding HasDebtsSummary}"
+                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                 </HorizontalStackLayout>
             </VerticalStackLayout>
             <Border Grid.Column="1" StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="12,0,10,0" HeightRequest="32"
@@ -145,10 +148,27 @@
             </Border>
         </Grid>
 
+        <!-- Погашение долга переводом: пилюля видна только в режиме «Перевод». -->
+        <Border Grid.Row="4" StrokeShape="RoundRectangle 12" Padding="12,0" HeightRequest="40"
+                IsVisible="{Binding IsTransfer}">
+            <HorizontalStackLayout Spacing="7" VerticalOptions="Center">
+                <Label Text="{x:Static ctl:Glyphs.Handshake}" FontFamily="MaterialSymbolsRounded" FontSize="18"
+                       VerticalOptions="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                <Label Text="{Binding DebtButtonText}" FontSize="14" VerticalOptions="Center"/>
+                <Label Text="{x:Static ctl:Glyphs.ChevronDown}" FontFamily="MaterialSymbolsRounded" FontSize="16"
+                       VerticalOptions="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+            </HorizontalStackLayout>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding PickDebtCommand}"/>
+            </Border.GestureRecognizers>
+        </Border>
+
         <!-- Категории: сетка 4×2, лента подкатегорий под ней. Блок лежит в компактном
              ScrollView без полосы: на низких экранах скроллится он, клавиатура
              и её цифры не сжимаются никогда. -->
-        <ScrollView Grid.Row="4" VerticalScrollBarVisibility="Never">
+        <ScrollView Grid.Row="5" VerticalScrollBarVisibility="Never">
             <VerticalStackLayout Spacing="8">
                 <Grid ColumnDefinitions="*,Auto">
                     <Label Grid.Column="0" Text="{Binding CategoryLabelText}" FontSize="13" VerticalOptions="Center"
@@ -240,7 +260,7 @@
 
         <!-- Клавиатура 4×3: цифры, стирание, дата, «Сохранить» высотой в два ряда.
              Ряды Auto с фикс. высотой клавиш: экран любой высоты не обрезает цифры. -->
-        <Grid x:Name="Keypad" Grid.Row="5" ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto,Auto,Auto"
+        <Grid x:Name="Keypad" Grid.Row="6" ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto,Auto,Auto"
               ColumnSpacing="6" RowSpacing="6">
             <Button Grid.Row="0" Grid.Column="0" Text="1" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="1"/>
             <Button Grid.Row="0" Grid.Column="1" Text="2" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="2"/>
@@ -291,7 +311,7 @@
         </Grid>
 
         <!-- Тост «Сохранено»: занимает ВСЕ строки грида (без RowSpan живёт в строке баланса). -->
-        <Border x:Name="SavedToast" Grid.Row="0" Grid.RowSpan="6" IsVisible="False" Opacity="0"
+        <Border x:Name="SavedToast" Grid.Row="0" Grid.RowSpan="7" IsVisible="False" Opacity="0"
                 StrokeThickness="0" StrokeShape="RoundRectangle 999" Padding="18,10"
                 BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"
                 HorizontalOptions="Center" VerticalOptions="End" Margin="16,0,16,16"

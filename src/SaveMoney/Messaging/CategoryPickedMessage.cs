@@ -1,14 +1,15 @@
-using CommunityToolkit.Mvvm.Messaging;
-
 namespace SaveMoney.Messaging;
 
 /// <summary>
 /// Пользователь выбрал категорию на экране «Все категории» (CategoryPickerPage).
-/// Экран ввода выделяет её у себя и закрывает тап по сохранению (quick save).
+/// Экран ввода выделяет её и при quick save сразу сохраняет.
+/// Статическое событие вместо WeakReferenceMessenger: state-регистрации
+/// мессенджера доставляли это сообщение ненадёжно (выбор не применялся).
+/// Подписчики — экземпляры QuickAddViewModel, живут столько же, сколько процесс.
 /// </summary>
-/// <param name="CategoryId">Id выбранной категории (корневой или подкатегории).</param>
-public record CategoryPickedMessage(string CategoryId)
+public static class CategoryPickedMessage
 {
-    public static void Broadcast(string categoryId) =>
-        WeakReferenceMessenger.Default.Send(new CategoryPickedMessage(categoryId));
+    public static event Action<string>? Picked;
+
+    public static void Broadcast(string categoryId) => Picked?.Invoke(categoryId);
 }

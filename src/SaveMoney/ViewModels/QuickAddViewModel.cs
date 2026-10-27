@@ -19,49 +19,55 @@ namespace SaveMoney.ViewModels;
 [QueryProperty(nameof(PresetAmount), "amount")]
 [QueryProperty(nameof(WidgetSource), "source")]
 public partial class QuickAddViewModel : ObservableObject,
-    IRecipient<TransactionsChangedMessage>,
-    IRecipient<CategoryPickedMessage>
+    IRecipient<TransactionsChangedMessage>
 {
     private readonly AppDatabase _db;
     private readonly TransactionService _transactions;
     private readonly BalanceService _balance;
     private readonly CycleService _cycle;
     private readonly RecurringService _recurring;
+    private readonly DebtService _debts;
 
     private string? _pendingEditId;
     private Transaction? _editing;
+    private bool _initialized;
 
     /// <summary>Время суток исходной транзакции — правка не должна переписывать его на «сейчас».</summary>
     private TimeSpan _editTimeOfDay = DateTime.Now.TimeOfDay;
 
     public QuickAddViewModel(AppDatabase db, TransactionService transactions, BalanceService balance,
-        CycleService cycle, RecurringService recurring)
+        CycleService cycle, RecurringService recurring, DebtService debts)
     {
         _db = db;
         _transactions = transactions;
         _balance = balance;
         _cycle = cycle;
         _recurring = recurring;
+        _debts = debts;
 
-        // Баланс должен обновляться сразу после любой операции (ввод/правка/удаление,
-        // счёт, регулярные платежи), а не только при следующем Appearing вкладки.
-        // Register(this) неоднозначен при двух интерфейсах — вызываем явно.
-        WeakReferenceMessenger.Default.Register(this, (QuickAddViewModel r, TransactionsChangedMessage m) => r.Receive(m));
-        WeakReferenceMessenger.Default.Register(this, (QuickAddViewModel r, CategoryPickedMessage m) => r.Receive(m));
+        // Баланс и пилюля «в день» обновляются сразу после любой операции.
+        WeakReferenceMessenger.Default.Register<QuickAddViewModel, TransactionsChangedMessage>(this, static (r, m) => r.Receive(m));
+
+        // Выбор из «Все категории»: статическое событие (мессенджер доставлял
+        // ненадёжно). Экран ввода — постоянная вкладка, подписка живёт с процессом.
+        CategoryPickedMessage.Picked += OnCategoryPicked;
     }
 
-    /// <summary>Что-то изменило операции/счета — перечитываем баланс и пилюлю «в день».</summary>
+    private void OnCategoryPicked(string categoryId)
+    {
+        SelectCategoryById(categoryId);
+        TryQuickSave();
+    }
+
+    /// <summary>Что-то изменило операции/счета — перечитываем баланс, пилюлю «в день»,
+    /// долги, счета и категории (в т.ч. добавленные на других экранах).</summary>
     public void Receive(TransactionsChangedMessage message)
     {
+        LoadAccounts();
+        ReloadCategories();
         RefreshBalance();
         RefreshPaydayHint();
-    }
-
-    /// <summary>Выбор из экрана «Все категории»: выделяем и, при quick save, сразу сохраняем.</summary>
-    public void Receive(CategoryPickedMessage message)
-    {
-        SelectCategoryById(message.CategoryId);
-        TryQuickSave();
+        RefreshDebtsSummary();
     }
 
     [ObservableProperty]
@@ -135,6 +141,21 @@ public partial class QuickAddViewModel : ObservableObject,
 
     public bool HasPaydayHint => PaydayHintText.Length > 0;
 
+    /// <summary>«Долги +17 000 ₽» — сальдо открытых долгов в шапке; скрыто, когда долгов нет.</summary>
+    [ObservableProperty]
+    public partial string DebtsSummaryText { get; set; } = "";
+
+    public bool HasDebtsSummary => DebtsSummaryText.Length > 0;
+
+    /// <summary>Долг, который гасится текущим переводом (id). null — перевод без долга.</summary>
+    private string? _debtId;
+
+    /// <summary>Варианты ActionSheet погашения: (id долга или null, подпись).</summary>
+    private readonly List<(string? Id, string Option)> _debtOptions = [];
+
+    [ObservableProperty]
+    public partial string DebtButtonText { get; set; } = "Погасить долг";
+
     /// <summary>Страница подставляет показ ошибок (DisplayAlert).</summary>
     public Func<string, string, Task>? AlertAsync { get; set; }
 
@@ -161,6 +182,26 @@ public partial class QuickAddViewModel : ObservableObject,
 
     public async Task InitializeAsync()
     {
+        // Полная инициализация — один раз. Повторное Appearing (возврат с «Все»,
+        // с правки и т.п.) НЕ должно перечитывать категории: выбор из «Все категории»
+        // затирался последней операцией. Свежесть данных держит Receive.
+        if (_initialized)
+        {
+            if (!IsEditing)
+            {
+                Date = DateTime.Now;
+                _editTimeOfDay = DateTime.Now.TimeOfDay;
+            }
+
+            RefreshBalance();
+            RefreshPaydayHint();
+            RefreshDebtsSummary();
+            RefreshCategoryLabel();
+            return;
+        }
+
+        _initialized = true;
+
         if (!IsEditing)
         {
             if (!string.IsNullOrEmpty(PresetAmount))
@@ -181,6 +222,7 @@ public partial class QuickAddViewModel : ObservableObject,
         ReloadCategories();
         RefreshBalance();
         RefreshPaydayHint();
+        RefreshDebtsSummary();
         RefreshCategoryLabel();
 
         if (_pendingEditId is not null && _editing is null)
@@ -334,6 +376,35 @@ public partial class QuickAddViewModel : ObservableObject,
         }
 
         OnPropertyChanged(nameof(HasPaydayHint));
+    }
+
+    /// <summary>Сальдо открытых долгов: «мне должны» минус «я должен», по остаткам.</summary>
+    private void RefreshDebtsSummary()
+    {
+        var active = _db.Debts.GetActive();
+        if (active.Count == 0)
+        {
+            DebtsSummaryText = "";
+            OnPropertyChanged(nameof(HasDebtsSummary));
+            return;
+        }
+
+        var net = active.Sum(d =>
+        {
+            var remaining = _db.Debts.GetRemaining(d);
+            return d.Direction == DebtDirection.OwedToMe ? remaining : -remaining;
+        });
+
+        if (net == 0)
+        {
+            DebtsSummaryText = "";
+        }
+        else
+        {
+            DebtsSummaryText = $"Долги {MoneyFormat.SignedRubles(net)}";
+        }
+
+        OnPropertyChanged(nameof(HasDebtsSummary));
     }
 
     /// <summary>Хвост подписи « · тап сохраняет» — только когда включён быстрый ввод.</summary>
@@ -513,6 +584,28 @@ public partial class QuickAddViewModel : ObservableObject,
         RefreshPickerTexts();
     }
 
+    /// <summary>Тап по «Погасить долг» (перевод): выбор открытого долга или снятие привязки.</summary>
+    [RelayCommand]
+    private async Task PickDebtAsync()
+    {
+        _debtOptions.Clear();
+        _debtOptions.Add((null, "Не связывать с долгом"));
+        foreach (var debt in _db.Debts.GetActive())
+        {
+            _debtOptions.Add((debt.Id,
+                $"{debt.PersonName} · осталось {MoneyFormat.Rubles(_db.Debts.GetRemaining(debt))}"));
+        }
+
+        var picked = await PickAsync?.Invoke("Погашение долга", [.. _debtOptions.Select(o => o.Option)])!;
+        if (picked is null)
+        {
+            return;
+        }
+
+        _debtId = _debtOptions.FirstOrDefault(o => o.Option == picked).Id;
+        DebtButtonText = picked == "Не связывать с долгом" ? "Погасить долг" : $"Долг: {picked.Split(" · ")[0]}";
+    }
+
     [RelayCommand]
     private void SelectRoot(CategoryChip? chip)
     {
@@ -641,6 +734,18 @@ public partial class QuickAddViewModel : ObservableObject,
         try
         {
             _transactions.Save(tx);
+
+            // Перевод может гасить долг: транзакция уже записана этим сохранением,
+            // поэтому в долг уходит только платёж (createTransaction: false).
+            if (IsTransfer && _debtId is not null)
+            {
+                var debt = _db.Debts.Get(_debtId);
+                if (debt is { Status: DebtStatus.Active })
+                {
+                    _debts.AddPayment(debt, amountMinor, dateUnix, createTransaction: false);
+                }
+            }
+
             TransactionsChangedMessage.Broadcast();
         }
         catch (ArgumentException ex)
@@ -662,7 +767,10 @@ public partial class QuickAddViewModel : ObservableObject,
         AmountText = "";
         MemoText = "";
         Date = DateTime.Now;
+        _debtId = null;
+        DebtButtonText = "Погасить долг";
         RefreshBalance();
+        RefreshDebtsSummary();
         ReloadCategories();
 
         if (WidgetSource == "widget")
@@ -734,15 +842,19 @@ public partial class QuickAddViewModel : ObservableObject,
             return;
         }
 
-        var childChip = SubCategories.FirstOrDefault(c => c.Id == categoryId);
-        if (childChip is not null)
+        // Подкатегория другого корня: её нет в текущей ленте — ищем родителя в БД,
+        // переключаемся на него и выделяем ребёнка через trySelectChildId.
+        var category = _db.Categories.Get(categoryId);
+        var parentId = category?.ParentId;
+        if (parentId is null)
         {
-            var parentChip = RootCategories.FirstOrDefault(r =>
-                _db.Categories.Get(childChip.Id)?.ParentId == r.Id);
-            if (parentChip is not null)
-            {
-                SelectRoot(parentChip, trySelectChildId: childChip.Id);
-            }
+            return;
+        }
+
+        var parentChip = RootCategories.FirstOrDefault(c => c.Id == parentId);
+        if (parentChip is not null)
+        {
+            SelectRoot(parentChip, trySelectChildId: categoryId);
         }
     }
 

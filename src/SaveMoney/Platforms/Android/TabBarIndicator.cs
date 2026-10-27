@@ -4,76 +4,33 @@ namespace SaveMoney.Platforms.Android;
 
 /// <summary>
 /// Полоска 2dp над активной вкладкой нижнего таб-бара Shell (макет).
-/// Вешается напрямую на HandlerChanged/PropertyChanged Shell — БЕЗ механизма
-/// Effects: EffectsFactory в DI MAUI 10 не зарегистрирован и крашит приложение
-/// при attach (на WinUI это доказал смоук, на Android — та же причина «не запускается»).
 /// MAUI Shell рисует табы через BottomNavigationView без штатного индикатора вкладки,
-/// поэтому полоска — дочерний View, позиция движется по Shell.CurrentItem.
-/// Свой ItemSelected listener MAUI не перезаписывается. Любой сбой глушится:
+/// поэтому полоска — дочерний View. Позиция синхронизируется лёгким опросом
+/// (Handler, 200 мс): SelectedItemId таб-бара — истина в последней инстанции.
+/// Прошлые попытки были ненадёжны: Shell.PropertyChanged не ловил переключение,
+/// а ViewTreeObserver корня отмирает после первой раскладки (listener перестаёт
+/// получать события). Механизм Effects не используется: EffectsFactory в DI MAUI 10
+/// не зарегистрирован и валил приложение при attach. Любой сбой глушится:
 /// полоска — косметика и не должна валить приложение.
 /// </summary>
 public static class TabBarIndicator
 {
-    private static BottomNavigationView? _navView;
-    private static global::Android.Views.View? _strip;
-    private static Shell? _shell;
     private static bool _subscribed;
+    private static bool _started;
 
     public static void Attach(Shell shell)
     {
-        _shell = shell;
-        if (!_subscribed)
-        {
-            shell.HandlerChanged += OnHandlerChanged;
-            shell.PropertyChanged += OnShellPropertyChanged;
-            _subscribed = true;
-        }
-
-        if (shell.Handler is not null)
-        {
-            TryFindAndAttach(shell);
-        }
-    }
-
-    private static void OnHandlerChanged(object? sender, EventArgs e)
-    {
-        if (sender is Shell shell && shell.Handler is not null)
-        {
-            TryFindAndAttach(shell);
-        }
-    }
-
-    private static void TryFindAndAttach(Shell shell)
-    {
         try
         {
-            if (_strip is not null)
+            if (!_subscribed)
             {
-                UpdateStrip(animated: false);
-                return;
+                // Attach вызывается из конструктора AppShell — Handler ещё не создан.
+                // Стартуем цикл опроса при первом появлении PlatformView.
+                _subscribed = true;
+                shell.HandlerChanged += OnHandlerChanged;
             }
 
-            if (shell.Handler?.PlatformView is not global::Android.Views.ViewGroup root)
-            {
-                return;
-            }
-
-            // Таб-бар собирается лениво: после первой раскладки ищем BottomNavigationView.
-            if (root.ViewTreeObserver is not null)
-            {
-                root.ViewTreeObserver.AddOnGlobalLayoutListener(new OnceLayoutListener(root.ViewTreeObserver,
-                    () =>
-                    {
-                        try
-                        {
-                            FindAndAttach(root);
-                        }
-                        catch
-                        {
-                            // полоска не должна валить приложение
-                        }
-                    }));
-            }
+            TryStart(shell);
         }
         catch
         {
@@ -81,51 +38,80 @@ public static class TabBarIndicator
         }
     }
 
-    private static void FindAndAttach(global::Android.Views.ViewGroup root)
+    private static void OnHandlerChanged(object? sender, EventArgs e)
     {
-        _navView = FindBottomNavigationView(root);
-        if (_navView is null || _strip is not null)
+        if (sender is Shell shell)
         {
-            return;
+            TryStart(shell);
         }
-
-        var density = _navView.Resources?.DisplayMetrics?.Density ?? 1f;
-        var accent = Application.Current?.RequestedTheme == AppTheme.Dark
-            ? new global::Android.Graphics.Color(0xFF, 0x7A, 0x1A)
-            : new global::Android.Graphics.Color(0xFF, 0x6B, 0x00);
-
-        _strip = new global::Android.Views.View(_navView.Context!)
-        {
-            Background = new global::Android.Graphics.Drawables.ColorDrawable(accent),
-        };
-        var heightPx = (int)Math.Round(2 * density);
-        // Ширина и X задаются в UpdateStrip; BottomNavigationView — FrameLayout.
-        _strip.LayoutParameters = new global::Android.Widget.FrameLayout.LayoutParams(
-            global::Android.Views.ViewGroup.LayoutParams.MatchParent, heightPx,
-            global::Android.Views.GravityFlags.Top);
-
-        _navView.AddView(_strip);
-        UpdateStrip(animated: false);
     }
 
-    private static void OnShellPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    private static void TryStart(Shell shell)
     {
-        if (e.PropertyName is nameof(Shell.CurrentItem) or nameof(Shell.CurrentState))
+        try
+        {
+            if (_started || shell.Handler?.PlatformView is not global::Android.Views.ViewGroup root)
+            {
+                return;
+            }
+
+            _started = true;
+            var handler = new global::Android.OS.Handler(global::Android.OS.Looper.MainLooper!);
+
+            // Первый проход сразу, затем каждые 200 мс: пара сравнений int —
+            // нагрузка ничтожна, и полоска всегда на месте.
+            handler.PostDelayed(() => Tick(handler, root), 100);
+        }
+        catch
+        {
+            // полоска не должна валить приложение
+        }
+
+        static void Tick(global::Android.OS.Handler handler, global::Android.Views.ViewGroup root)
         {
             try
             {
-                UpdateStrip(animated: true);
+                Sync(root);
             }
             catch
             {
                 // полоска не должна валить приложение
             }
+
+            handler.PostDelayed(() => Tick(handler, root), 200);
         }
     }
 
-    private static void UpdateStrip(bool animated)
+    private static BottomNavigationView? _navView;
+    private static global::Android.Views.View? _strip;
+    private static int _lastIndex = -1;
+    private static int _lastWidth = -1;
+
+    private static void Sync(global::Android.Views.ViewGroup root)
     {
-        if (_navView is null || _strip is null || _shell is null)
+        if (_strip is null)
+        {
+            _navView = FindBottomNavigationView(root);
+            if (_navView is null)
+            {
+                return;
+            }
+
+            var density = _navView.Resources?.DisplayMetrics?.Density ?? 1f;
+            var accent = Application.Current?.RequestedTheme == AppTheme.Dark
+                ? new global::Android.Graphics.Color(0xFF, 0x7A, 0x1A)
+                : new global::Android.Graphics.Color(0xFF, 0x6B, 0x00);
+
+            _strip = new global::Android.Views.View(_navView.Context!)
+            {
+                Background = new global::Android.Graphics.Drawables.ColorDrawable(accent),
+            };
+            _strip.LayoutParameters = new global::Android.Widget.FrameLayout.LayoutParams(
+                0, (int)Math.Round(2 * density), global::Android.Views.GravityFlags.Top);
+            _navView.AddView(_strip);
+        }
+
+        if (_navView is null || _strip is null)
         {
             return;
         }
@@ -136,46 +122,64 @@ public static class TabBarIndicator
             return;
         }
 
-        var index = _shell.CurrentItem is null ? 0 : _shell.Items.IndexOf(_shell.CurrentItem);
-        if (index < 0)
+        // Индекс активной вкладки берём у самого таб-бара — истина в последней инстанции.
+        var selectedId = _navView.SelectedItemId;
+        var index = 0;
+        for (var i = 0; i < menuSize; i++)
         {
-            index = 0;
+            if (_navView.Menu!.GetItem(i).ItemId == selectedId)
+            {
+                index = i;
+                break;
+            }
         }
 
         var itemWidth = _navView.Width / menuSize;
+        if (itemWidth <= 0)
+        {
+            return;
+        }
+
         var targetX = index * itemWidth;
 
-        if (animated && _strip.TranslationX != targetX)
+        // Позицию и ширину задаём ТОЛЬКО при реальном изменении — иначе каждый
+        // проход вызывает requestLayout по кругу.
+        if (_lastIndex != index || _lastWidth != itemWidth)
         {
-            _strip.Animate()?.SetDuration(180)
-                .SetInterpolator(new global::Android.Views.Animations.DecelerateInterpolator())
-                .TranslationX(targetX);
+            _lastIndex = index;
+            _lastWidth = itemWidth;
+            if (_strip.LayoutParameters is global::Android.Widget.FrameLayout.LayoutParams lp)
+            {
+                lp.Width = itemWidth;
+                _strip.LayoutParameters = lp;
+            }
+
+            _strip.TranslationX = targetX;
         }
-        else
+        else if (_strip.TranslationX != targetX)
         {
             _strip.TranslationX = targetX;
         }
-
-        // Ширина вкладки может измениться при повороте — перезадать параметр.
-        if (_strip.LayoutParameters is global::Android.Widget.FrameLayout.LayoutParams lp && lp.Width != itemWidth)
-        {
-            lp.Width = itemWidth;
-            _strip.LayoutParameters = lp;
-        }
     }
 
-    private static BottomNavigationView? FindBottomNavigationView(global::Android.Views.View root)
+    private static BottomNavigationView? FindBottomNavigationView(global::Android.Views.View view)
     {
-        if (root is BottomNavigationView nav)
+        if (view is BottomNavigationView nav)
         {
             return nav;
         }
 
-        if (root is global::Android.Views.ViewGroup group)
+        if (view is global::Android.Views.ViewGroup group)
         {
             for (var i = 0; i < group.ChildCount; i++)
             {
-                var found = FindBottomNavigationView(group.GetChildAt(i)!);
+                var child = group.GetChildAt(i);
+                if (child is null)
+                {
+                    continue;
+                }
+
+                var found = FindBottomNavigationView(child);
                 if (found is not null)
                 {
                     return found;
@@ -184,32 +188,5 @@ public static class TabBarIndicator
         }
 
         return null;
-    }
-
-    /// <summary>Одноразовый GlobalLayout: после первой раскладки ищем BottomNavigationView и отписываемся.</summary>
-    private class OnceLayoutListener(global::Android.Views.ViewTreeObserver observer, Action action)
-        : Java.Lang.Object, global::Android.Views.ViewTreeObserver.IOnGlobalLayoutListener
-    {
-        private bool _fired;
-
-        public void OnGlobalLayout()
-        {
-            if (_fired)
-            {
-                return;
-            }
-
-            _fired = true;
-            try
-            {
-                observer.RemoveOnGlobalLayoutListener(this);
-            }
-            catch
-            {
-                // observer мог быть мёртв к моменту отписки — не критично.
-            }
-
-            action();
-        }
     }
 }

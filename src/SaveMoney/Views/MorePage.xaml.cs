@@ -20,6 +20,20 @@ public partial class MorePage : ContentPage
     {
         base.OnAppearing();
 
+        // Повторное переключение на вкладку «Ещё» показывало последний открытый
+        // раздел (Shell хранит навстек вкладки): сбрасываем его до корня. Возврат
+        // с push-страницы сюда уже приходит с пустым стеком — не трогаем.
+        // Поп сразу из Appearing Shell игнорирует посреди переключения — даём
+        // переходу доиграть и проверяем ещё раз.
+        if (Navigation.NavigationStack.Count > 1)
+        {
+            await Task.Delay(150);
+            if (Navigation.NavigationStack.Count > 1)
+            {
+                await Navigation.PopToRootAsync(animated: false);
+            }
+        }
+
         // Живые подписи: балансы/долги/лимиты могли измениться с прошлого показа.
         _viewModel.RefreshSubtitles();
 
