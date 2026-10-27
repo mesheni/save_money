@@ -97,9 +97,10 @@ public partial class QuickAddViewModel : ObservableObject,
     [ObservableProperty]
     public partial DateTime Date { get; set; } = DateTime.Now;
 
-    /// <summary>Подпись под календарём на клавише даты: «Сегодня» или «25 окт».</summary>
-    public string DateFormatText =>
-        Date.Date == DateTime.Now.Date ? "Сегодня" : "d MMM";
+    /// <summary>Подпись на клавише даты: «Сегодня» или «25 окт». Format-хак DatePicker
+    /// с literal «Сегодня» на Android не отрисовывается — текст пишет Label.</summary>
+    public string DateButtonText =>
+        Date.Date == DateTime.Now.Date ? "Сегодня" : Date.ToString("d MMM");
 
     [ObservableProperty]
     public partial bool IsEditing { get; set; }
@@ -752,5 +753,5 @@ public partial class QuickAddViewModel : ObservableObject,
     partial void OnIsIncomeChanged(bool value) => NotifyModeChanged();
     partial void OnIsTransferChanged(bool value) => NotifyModeChanged();
 
-    partial void OnDateChanged(DateTime value) => OnPropertyChanged(nameof(DateFormatText));
+    partial void OnDateChanged(DateTime value) => OnPropertyChanged(nameof(DateButtonText));
 }

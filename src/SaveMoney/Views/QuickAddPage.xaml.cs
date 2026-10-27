@@ -53,6 +53,10 @@ public partial class QuickAddPage : ContentPage
     {
         await _viewModel.InitializeAsync();
 
+        // Навбар скрыт на вкладке ввода (режим виден в сегменте, место дорого),
+        // но при правке транзакции нужен back — включаем только там.
+        Shell.SetNavBarIsVisible(this, _viewModel.IsEditing);
+
         // Count-up баланса только при первом показе экрана за сессию страницы.
         // Кадры пишем в свойство VM: прямой set Label.Text стирает one-way binding,
         // и баланс потом «замерзает» до перезапуска приложения.

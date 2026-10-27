@@ -188,7 +188,7 @@
         <Setter Property="CornerRadius" Value="12" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
         <Setter Property="FontSize" Value="22" />
-        <Setter Property="HeightRequest" Value="46" />
+        <Setter Property="HeightRequest" Value="44" />
     </Style>
 
     <!-- Плоская строка списка с разделителями (редизайн): без рамки и фона,

@@ -5,23 +5,29 @@
              xmlns:ctl="clr-namespace:SaveMoney.Controls"
              x:Class="SaveMoney.Views.QuickAddPage"
              Title="{Binding ModeText}"
+             Shell.NavBarIsVisible="False"
              Appearing="OnAppearing">
 
     <!-- Экран ввода по макету: шапка (всего + пилюля «в день до зарплаты»), сегмент,
          крупная сумма с кареткой, строка полей (магазин/счёт), сетка категорий 4×2,
          подкатегории лентой, клавиатура 4×3 с датой и кнопкой «Сохранить» справа.
-         Категории — растягиваемая строка, клавиатура — Auto: на низких экранах
-         сжимается блок категорий, а клавиши никогда не обрезаются. -->
-    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto" RowSpacing="8" Padding="16,10,16,12">
+         Навбар Shell скрыт (режим виден в сегменте) — иначе контент не влезает
+         на устройство; клавиатура Auto с фикс. клавишами, наезды исключены. -->
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto" RowSpacing="6" Padding="14,10,14,10">
 
-        <!-- Шапка: баланс слева, пилюля «в день до зарплаты» справа. -->
+        <!-- Шапка: режим (при правке), баланс слева, пилюля «в день до зарплаты» справа. -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
-            <HorizontalStackLayout Grid.Column="0" Spacing="5" VerticalOptions="Center">
-                <Label Text="Всего" FontSize="14"
-                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                <Label x:Name="BalanceLabel" Text="{Binding BalanceText}" FontSize="14" FontFamily="InterSemiBold"
-                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
-            </HorizontalStackLayout>
+            <VerticalStackLayout Grid.Column="0" Spacing="1">
+                <Label Text="{Binding ModeText}" FontSize="12" FontFamily="InterSemiBold"
+                       IsVisible="{Binding IsEditing}"
+                       TextColor="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}"/>
+                <HorizontalStackLayout Spacing="5">
+                    <Label Text="Всего" FontSize="14"
+                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                    <Label x:Name="BalanceLabel" Text="{Binding BalanceText}" FontSize="14" FontFamily="InterSemiBold"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
             <Border Grid.Column="1" StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="12,0,10,0" HeightRequest="32"
                     BackgroundColor="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}"
                     VerticalOptions="Center"
@@ -240,17 +246,23 @@
             <Button Grid.Row="1" Grid.Column="0" Text="4" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="4"/>
             <Button Grid.Row="1" Grid.Column="1" Text="5" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="5"/>
             <Button Grid.Row="1" Grid.Column="2" Text="6" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="6"/>
-            <!-- Дата: «Сегодня» по умолчанию, формат меняется после выбора даты. -->
+            <!-- Дата: невидимый DatePicker ловит тап и открывает календарь,
+                 подпись («Сегодня» / «25 окт») пишет Label — Format-literal
+                 на Android DatePicker не отрисовывается. -->
             <Border Grid.Row="1" Grid.Column="3" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="2"
                     BackgroundColor="{AppThemeBinding Light={StaticResource KeyBgLight}, Dark={StaticResource KeyBgDark}}">
-                <VerticalStackLayout VerticalOptions="Center" Spacing="2">
-                    <Label Text="{x:Static ctl:Glyphs.Calendar}" FontFamily="MaterialSymbolsRounded" FontSize="16"
+                <Grid RowDefinitions="Auto,Auto" RowSpacing="2" Padding="0,4">
+                    <DatePicker Grid.Row="0" Grid.RowSpan="2" Date="{Binding Date}"
+                                Opacity="0" BackgroundColor="Transparent" MinimumHeightRequest="0"
+                                HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"/>
+                    <Label Grid.Row="0" Text="{x:Static ctl:Glyphs.Calendar}" FontFamily="MaterialSymbolsRounded" FontSize="16"
+                           InputTransparent="True"
                            HorizontalOptions="Center"
                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
-                    <DatePicker Date="{Binding Date}" Format="{Binding DateFormatText}" FontSize="12"
-                                BackgroundColor="Transparent" MinimumHeightRequest="0" HeightRequest="26"
-                                TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
-                </VerticalStackLayout>
+                    <Label Grid.Row="1" Text="{Binding DateButtonText}" FontSize="11" InputTransparent="True"
+                           HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                </Grid>
             </Border>
 
             <Button Grid.Row="2" Grid.Column="0" Text="7" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="7"/>
@@ -258,7 +270,7 @@
             <Button Grid.Row="2" Grid.Column="2" Text="9" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="9"/>
 
             <Button x:Name="SaveButton" Grid.Row="2" Grid.RowSpan="2" Grid.Column="3"
-                    Text="Сохранить" FontSize="12" Padding="2,0"
+                    Text="Сохранить" FontSize="14" Padding="2,0"
                     Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}"/>
 
             <Button Grid.Row="3" Grid.Column="0" Text="," Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter=","/>
