@@ -155,7 +155,8 @@
                         Command="{Binding OpenAllCategoriesCommand}"/>
             </Grid>
 
-            <CollectionView ItemsSource="{Binding TopCategories}" HeightRequest="136">
+            <CollectionView ItemsSource="{Binding TopCategories}" HeightRequest="136"
+                            VerticalScrollBarVisibility="Never">
                 <CollectionView.ItemsLayout>
                     <GridItemsLayout Orientation="Vertical" Span="4"
                                      HorizontalItemSpacing="8" VerticalItemSpacing="8"/>
@@ -203,6 +204,7 @@
 
             <!-- Подкатегории выбранного корня: горизонтальная лента чипов. -->
             <CollectionView ItemsSource="{Binding SubCategories}" ItemsLayout="HorizontalList" HeightRequest="36"
+                            HorizontalScrollBarVisibility="Never"
                             IsVisible="{Binding HasSubCategories}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:CategoryChip">

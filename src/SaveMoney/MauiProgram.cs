@@ -39,6 +39,32 @@ public static class MauiProgram
                 fonts.AddFont("MaterialSymbolsRounded-sub.ttf", "MaterialSymbolsRounded");
             });
 
+#if ANDROID
+        // Убираем Material-подчёркивание у всех полей на Android: поля форм обёрнуты
+        // в Border с рамкой — вместе с underline получалась двойная линия.
+        Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("NoUnderline", (handler, _) =>
+        {
+            if (handler.PlatformView is Android.Widget.EditText editText)
+            {
+                editText.Background = null;
+            }
+        });
+        Microsoft.Maui.Handlers.PickerHandler.Mapper.AppendToMapping("NoUnderline", (handler, _) =>
+        {
+            if (handler.PlatformView is Android.Views.View picker)
+            {
+                picker.Background = null;
+            }
+        });
+        Microsoft.Maui.Handlers.DatePickerHandler.Mapper.AppendToMapping("NoUnderline", (handler, _) =>
+        {
+            if (handler.PlatformView is Android.Views.View datePicker)
+            {
+                datePicker.Background = null;
+            }
+        });
+#endif
+
         var dbPath = Path.Combine(FileSystem.AppDataDirectory, "savemoney.db");
         builder.Services.AddSingleton(new AppDatabase(dbPath));
         builder.Services.AddSingleton<BalanceService>();

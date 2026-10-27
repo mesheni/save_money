@@ -28,7 +28,8 @@
             </Border>
 
             <Label Text="Цвет" FontSize="12" Opacity="0.6"/>
-            <CollectionView ItemsSource="{Binding Colors}" HeightRequest="136">
+            <CollectionView ItemsSource="{Binding Colors}" HeightRequest="136"
+                            VerticalScrollBarVisibility="Never">
                 <CollectionView.ItemsLayout>
                     <GridItemsLayout Orientation="Vertical" Span="6"
                                      HorizontalItemSpacing="8" VerticalItemSpacing="8"/>
