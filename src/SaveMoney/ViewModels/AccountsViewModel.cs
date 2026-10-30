@@ -23,6 +23,7 @@ public partial class AccountRow : ObservableObject
     {
         AccountKind.Cash => IconKeys.Cash,
         AccountKind.Card => IconKeys.Credit,
+        AccountKind.Credit => IconKeys.Credit,
         AccountKind.Bank => IconKeys.Bank,
         _ => IconKeys.Wallet,
     };
@@ -31,6 +32,7 @@ public partial class AccountRow : ObservableObject
     {
         AccountKind.Cash => "наличные",
         AccountKind.Card => "карта",
+        AccountKind.Credit => "кредитный счёт",
         AccountKind.Bank => "банк. счёт",
         _ => "",
     };

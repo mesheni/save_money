@@ -6,6 +6,9 @@ namespace SaveMoney.Core.Models;
 [Table("debts")]
 public class Debt : BaseEntity
 {
+    [Column("kind")]
+    public string Kind { get; set; } = DebtKind.Personal;
+
     /// <summary>См. <see cref="DebtDirection"/>.</summary>
     [Column("direction")]
     public string Direction { get; set; } = DebtDirection.OwedToMe;

@@ -9,8 +9,11 @@
     <ScrollView>
         <VerticalStackLayout Padding="16,10" Spacing="12">
 
-            <Label Text="Направление" FontSize="12" Opacity="0.6"/>
-            <Border Padding="12,0" MinimumHeightRequest="48"><Picker ItemsSource="{Binding DirectionOptions}" SelectedIndex="{Binding DirectionIndex}" BackgroundColor="Transparent"/></Border>
+            <Label Text="Направление" FontSize="12" Opacity="0.6" IsVisible="{Binding IsPersonalDebt}"/>
+            <Border Padding="12,0" MinimumHeightRequest="48" IsVisible="{Binding IsPersonalDebt}"><Picker ItemsSource="{Binding DirectionOptions}" SelectedIndex="{Binding DirectionIndex}" BackgroundColor="Transparent"/></Border>
+
+            <Label Text="Тип задолженности" FontSize="12" Opacity="0.6"/>
+            <Border Padding="12,0" MinimumHeightRequest="48"><Picker ItemsSource="{Binding KindOptions}" SelectedIndex="{Binding KindIndex}" BackgroundColor="Transparent"/></Border>
 
             <Label Text="Кто" FontSize="12" Opacity="0.6"/>
             <Border Padding="12,0" MinimumHeightRequest="48"><Entry Text="{Binding PersonName}" Placeholder="Имя человека или организации" BackgroundColor="Transparent"/></Border>
@@ -25,7 +28,7 @@
 
             <Border Padding="12,0" MinimumHeightRequest="48" IsVisible="{Binding HasDueDate}"><DatePicker Date="{Binding DueDate}" Format="d MMMM yyyy"/></Border>
 
-            <Label Text="Связанный счёт (для транзакций при погашении)" FontSize="12" Opacity="0.6"/>
+            <Label Text="Счёт по умолчанию для возврата" FontSize="12" Opacity="0.6"/>
             <Border Padding="12,0" MinimumHeightRequest="48"><Picker ItemsSource="{Binding AccountOptions}" SelectedIndex="{Binding AccountIndex}" BackgroundColor="Transparent"/></Border>
 
             <Label Text="Заметка" FontSize="12" Opacity="0.6"/>

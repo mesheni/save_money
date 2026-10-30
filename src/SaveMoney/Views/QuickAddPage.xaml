@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:SaveMoney.ViewModels"
              xmlns:ctl="clr-namespace:SaveMoney.Controls"
+             xmlns:core="clr-namespace:SaveMoney.Core.Services;assembly=SaveMoney.Core"
              x:Class="SaveMoney.Views.QuickAddPage"
              Title="{Binding ModeText}"
              Shell.NavBarIsVisible="False"
@@ -23,15 +24,14 @@
                 <Label Text="{Binding ModeText}" FontSize="12" FontFamily="InterSemiBold"
                        IsVisible="{Binding IsEditing}"
                        TextColor="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}"/>
-                <HorizontalStackLayout Spacing="5">
+                <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*" ColumnSpacing="5" RowSpacing="1">
                     <Label Text="Всего" FontSize="14"
                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                    <Label x:Name="BalanceLabel" Text="{Binding BalanceText}" FontSize="14" FontFamily="InterSemiBold"
-                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
-                    <Label Text="{Binding DebtsSummaryText}" FontSize="14" FontFamily="InterSemiBold" Margin="8,0,0,0"
-                           IsVisible="{Binding HasDebtsSummary}"
+                    <Label Grid.Column="1" x:Name="BalanceLabel" Text="{Binding BalanceText}" FontSize="14" FontFamily="InterSemiBold"/>
+                    <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding DebtsSummaryText}" FontSize="14" FontFamily="InterSemiBold"
+                           IsVisible="{Binding HasDebtsSummary}" LineBreakMode="WordWrap"
                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                </HorizontalStackLayout>
+                </Grid>
             </VerticalStackLayout>
             <Border Grid.Column="1" StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="12,0,10,0" HeightRequest="32"
                     BackgroundColor="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}"
@@ -52,8 +52,8 @@
 
         <!-- Сегмент: активная кнопка — карточка с рамкой, неактивные — прозрачные. -->
         <Border Grid.Row="1" Style="{StaticResource SegContainer}">
-            <Grid x:Name="SegGrid" ColumnDefinitions="*,*,*" ColumnSpacing="3">
-                <Button Grid.Column="0" Text="Расход" Style="{StaticResource SegButton}"
+            <Grid x:Name="SegGrid" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="3" RowSpacing="3">
+                <Button Grid.Column="0" Text="Расход" Style="{StaticResource SegButton}" Padding="4,0"
                         Command="{Binding SetExpenseCommand}">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding IsExpenseMode}" Value="True">
@@ -64,7 +64,7 @@
                         </DataTrigger>
                     </Button.Triggers>
                 </Button>
-                <Button Grid.Column="1" Text="Доход" Style="{StaticResource SegButton}"
+                <Button Grid.Column="1" Text="Доход" Style="{StaticResource SegButton}" Padding="4,0"
                         Command="{Binding SetIncomeCommand}">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding IsIncome}" Value="True">
@@ -75,7 +75,7 @@
                         </DataTrigger>
                     </Button.Triggers>
                 </Button>
-                <Button Grid.Column="2" Text="Перевод" Style="{StaticResource SegButton}"
+                <Button Grid.Row="1" Grid.Column="0" Text="Перевод" Style="{StaticResource SegButton}" Padding="4,0"
                         Command="{Binding SetTransferCommand}">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding IsTransfer}" Value="True">
@@ -86,8 +86,44 @@
                         </DataTrigger>
                     </Button.Triggers>
                 </Button>
+                <Button Grid.Row="1" Grid.Column="1" Text="Погашение" Style="{StaticResource SegButton}" Padding="4,0"
+                        Command="{Binding SetRepaymentCommand}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding IsRepayment}" Value="True">
+                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"/>
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                            <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+                            <Setter Property="BorderWidth" Value="1"/>
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
             </Grid>
         </Border>
+
+        <VerticalStackLayout IsVisible="{Binding IsRepayment}" Spacing="8">
+            <Button Text="{Binding DebtButtonText}" Command="{Binding PickDebtCommand}"
+                    Style="{StaticResource GhostButton}" LineBreakMode="WordWrap"
+                    HorizontalOptions="Fill" SemanticProperties.Description="Выбрать задолженность"/>
+            <Label Text="{Binding RepaymentRemainingText}" FontSize="14" HorizontalTextAlignment="Center"/>
+            <VerticalStackLayout IsVisible="{Binding IsChoosingRepayment}" Spacing="8">
+                <Label Text="Выберите задолженность" Style="{StaticResource GroupLabel}"/>
+                <Label Text="Нет открытых задолженностей. Добавьте долг, кредит или кредитный счёт с отрицательным балансом."
+                       IsVisible="{Binding HasNoRepaymentTargets}" FontSize="14"/>
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding RepaymentTargets}" Spacing="8">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="core:RepaymentTarget">
+                            <Button Text="{Binding Label}" LineBreakMode="WordWrap" MinimumHeightRequest="56"
+                                    Padding="12,8" Style="{StaticResource GhostButton}"
+                                    Command="{Binding SelectRepaymentCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}"
+                                    CommandParameter="{Binding .}"/>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+                <Button Text="Добавить долг" Command="{Binding AddPersonalDebtCommand}" Style="{StaticResource GhostButton}"/>
+                <Button Text="Добавить кредит" Command="{Binding AddConsumerLoanCommand}" Style="{StaticResource GhostButton}"/>
+                <Button Text="Добавить кредитный счёт" Command="{Binding AddCreditAccountCommand}" Style="{StaticResource GhostButton}"/>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
 
         <!-- Сумма: знак по режиму, число, оранжевая каретка, ₽. Выравнивание вправо. -->
         <HorizontalStackLayout Grid.Row="2" HorizontalOptions="End" Spacing="6" HeightRequest="48">
@@ -114,23 +150,28 @@
                     <Label Text="{x:Static ctl:Glyphs.Search}" FontFamily="MaterialSymbolsRounded" FontSize="18"
                            VerticalOptions="Center"
                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                    <Entry Text="{Binding MemoText}" Placeholder="Магазин или заметка"
+                    <Entry Text="{Binding MemoText}" Placeholder="{Binding MemoPlaceholder}"
                            BackgroundColor="Transparent" FontSize="15" MinimumHeightRequest="42"
                            ClearButtonVisibility="WhileEditing"/>
                 </HorizontalStackLayout>
             </Border>
             <Border Grid.Row="1" Grid.Column="0" StrokeShape="RoundRectangle 12" Padding="12,0" MinimumHeightRequest="48"
                     SemanticProperties.Description="Выбрать счёт" SemanticProperties.Hint="Открывает список счетов">
+                <Border.Triggers>
+                    <DataTrigger TargetType="Border" Binding="{Binding IsRepayment}" Value="True">
+                        <Setter Property="Grid.ColumnSpan" Value="2"/>
+                    </DataTrigger>
+                </Border.Triggers>
                 <Grid>
-                <HorizontalStackLayout Spacing="7" VerticalOptions="Center">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="7" VerticalOptions="Center">
                     <Label Text="{x:Static ctl:Glyphs.CreditCard}" FontFamily="MaterialSymbolsRounded" FontSize="18"
                            VerticalOptions="Center"
                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                    <Label Text="{Binding AccountPickerText}" FontSize="14" VerticalOptions="Center"/>
-                    <Label Text="{x:Static ctl:Glyphs.ChevronDown}" FontFamily="MaterialSymbolsRounded" FontSize="16"
+                    <Label Grid.Column="1" Text="{Binding AccountPickerText}" FontSize="14" VerticalOptions="Center" LineBreakMode="WordWrap"/>
+                    <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronDown}" FontFamily="MaterialSymbolsRounded" FontSize="16"
                            VerticalOptions="Center"
                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                </HorizontalStackLayout>
+                </Grid>
                 <Button Text="" Command="{Binding PickAccountCommand}" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
                         SemanticProperties.Description="Выбрать счёт" SemanticProperties.Hint="Открывает список счетов"/>
                 </Grid>
@@ -154,29 +195,14 @@
             </Border>
         </Grid>
 
-        <!-- Погашение долга переводом: пилюля видна только в режиме «Перевод». -->
-        <Border Grid.Row="4" StrokeShape="RoundRectangle 12" Padding="12,0" MinimumHeightRequest="48"
-                SemanticProperties.Description="Связать перевод с долгом"
-                IsVisible="{Binding IsTransfer}">
-            <Grid>
-            <HorizontalStackLayout Spacing="7" VerticalOptions="Center">
-                <Label Text="{x:Static ctl:Glyphs.Handshake}" FontFamily="MaterialSymbolsRounded" FontSize="18"
-                       VerticalOptions="Center"
-                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                <Label Text="{Binding DebtButtonText}" FontSize="14" VerticalOptions="Center"/>
-                <Label Text="{x:Static ctl:Glyphs.ChevronDown}" FontFamily="MaterialSymbolsRounded" FontSize="16"
-                       VerticalOptions="Center"
-                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-            </HorizontalStackLayout>
-            <Button Text="" Command="{Binding PickDebtCommand}" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
-                    SemanticProperties.Description="Связать перевод с долгом"/>
-            </Grid>
-        </Border>
+        <Button Text="Погасить долг" Command="{Binding SaveCommand}" IsVisible="{Binding IsRepayment}"
+                Style="{StaticResource PrimaryButton}" HeightRequest="-1" MinimumHeightRequest="48"
+                Padding="12,8" LineBreakMode="WordWrap"/>
 
         <!-- Категории: сетка 4×2, лента подкатегорий под ней. Блок лежит в компактном
              ScrollView без полосы: на низких экранах скроллится он, клавиатура
              и её цифры не сжимаются никогда. -->
-            <VerticalStackLayout Spacing="8">
+            <VerticalStackLayout Spacing="8" IsVisible="{Binding IsOperation}">
                 <Grid ColumnDefinitions="*,Auto">
                     <Label Grid.Column="0" Text="{Binding CategoryLabelText}" FontSize="13" VerticalOptions="Center"
                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
@@ -316,12 +342,14 @@
                  из-за чего кнопка болталась в центре двух рядов с пустотами.
                  Fill растягивает ровно на высоту ячейки (2 ряда). -->
             <Button x:Name="SaveButton" Grid.Row="2" Grid.RowSpan="2" Grid.Column="3"
-                    Text="✓" FontSize="24" Padding="2,0" SemanticProperties.Description="Сохранить операцию"
+                    Text="{Binding SaveButtonText}" LineBreakMode="WordWrap" FontSize="24" Padding="2,0" SemanticProperties.Description="{Binding SaveDescription}"
                     FontFamily="InterSemiBold" VerticalOptions="Fill"
                     BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"
                     TextColor="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}"
                     BorderColor="Transparent" BorderWidth="0" CornerRadius="14"
-                    Command="{Binding SaveCommand}"/>
+                    Command="{Binding SaveCommand}">
+
+            </Button>
 
             <Button Grid.Row="3" Grid.Column="0" Text="," Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter=","/>
             <Button Grid.Row="3" Grid.Column="1" Text="0" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="0"/>

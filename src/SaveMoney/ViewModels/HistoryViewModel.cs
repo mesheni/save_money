@@ -259,7 +259,7 @@ public partial class HistoryViewModel(AppDatabase db, HistoryService history) : 
         var tx = _db.Transactions.Get(item.Id);
         if (tx is not null)
         {
-            _db.Transactions.SoftDelete(tx);
+            new RepaymentService(_db).Delete(tx);
             TransactionsChangedMessage.Broadcast();
         }
 
@@ -338,8 +338,8 @@ public partial class HistoryViewModel(AppDatabase db, HistoryService history) : 
             }
 
             var visibleItems = g.Items.ToList();
-            income += visibleItems.Where(i => i.SignedAmountMinor > 0).Sum(i => i.SignedAmountMinor);
-            expense += visibleItems.Where(i => i.SignedAmountMinor < 0).Sum(i => -i.SignedAmountMinor);
+            income += visibleItems.Where(i => i.Kind == TransactionKind.Income).Sum(i => i.AmountMinor);
+            expense += visibleItems.Where(i => i.Kind == TransactionKind.Expense).Sum(i => i.AmountMinor);
             Groups.Add(new HistoryGroupVM(visibleItems.Select(i => new HistoryItemVM
             {
                 Id = i.Id,
@@ -353,8 +353,8 @@ public partial class HistoryViewModel(AppDatabase db, HistoryService history) : 
             }))
             {
                 Date = g.Date,
-                IncomeMinor = visibleItems.Where(i => i.SignedAmountMinor > 0).Sum(i => i.SignedAmountMinor),
-                ExpenseMinor = visibleItems.Where(i => i.SignedAmountMinor < 0).Sum(i => -i.SignedAmountMinor),
+                IncomeMinor = visibleItems.Where(i => i.Kind == TransactionKind.Income).Sum(i => i.AmountMinor),
+                ExpenseMinor = visibleItems.Where(i => i.Kind == TransactionKind.Expense).Sum(i => i.AmountMinor),
             });
         }
 

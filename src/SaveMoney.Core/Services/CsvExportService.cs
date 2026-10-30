@@ -22,7 +22,7 @@ public sealed class CsvExportService(AppDatabase database)
         var categories = _db.Categories.GetAll().ToDictionary(c => c.Id);
 
         var sb = new StringBuilder();
-        sb.AppendLine("Дата;Тип;Сумма;Категория;Счёт;Счёт-получатель;Магазин;Заметка");
+        sb.AppendLine("Дата;Тип;Сумма;Категория;Счёт;Счёт-получатель;Магазин;Заметка;Задолженность;ID задолженности");
 
         foreach (var tx in transactions)
         {
@@ -32,10 +32,11 @@ public sealed class CsvExportService(AppDatabase database)
                 TransactionKind.Expense => "Расход",
                 TransactionKind.Income => "Доход",
                 TransactionKind.Transfer => "Перевод",
+                TransactionKind.DebtRepayment => "Погашение долга",
                 _ => tx.Kind,
             };
 
-            var amountMinor = tx.Kind == TransactionKind.Expense ? -tx.AmountMinor : tx.AmountMinor;
+            var amountMinor = tx.Kind is TransactionKind.Expense or TransactionKind.DebtRepayment ? -tx.AmountMinor : tx.AmountMinor;
 
             string CategoryName(string? id) =>
                 id is null ? "" : categories.TryGetValue(id, out var c) ? c.Name : "(категория удалена)";
@@ -50,6 +51,11 @@ public sealed class CsvExportService(AppDatabase database)
                 Text(tx.TransferAccountId is null ? "" : accounts.GetValueOrDefault(tx.TransferAccountId, "(счёт удалён)")),
                 Text(tx.Payee ?? ""),
                 Text(tx.Note ?? ""),
+                Text(tx.Kind != TransactionKind.DebtRepayment ? "" : tx.DebtId is not null
+                    ? (_db.Debts.Get(tx.DebtId)?.Kind == DebtKind.ConsumerLoan ? "Потребительский кредит: " : "Личный долг: ")
+                        + (_db.Debts.Get(tx.DebtId)?.PersonName ?? "(долг удалён)")
+                    : "Кредитный счёт: " + accounts.GetValueOrDefault(tx.TransferAccountId ?? "", "(счёт удалён)")),
+                Text(tx.Kind == TransactionKind.DebtRepayment ? tx.DebtId ?? tx.TransferAccountId ?? "" : ""),
             };
 
             sb.AppendLine(string.Join(';', fields));

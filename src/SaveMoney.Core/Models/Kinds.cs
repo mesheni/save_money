@@ -3,6 +3,7 @@ namespace SaveMoney.Core.Models;
 /// <summary>Строковые константы вместо enum — чтобы миграции БД никогда не ломались переименованием.</summary>
 public static class AccountKind
 {
+    public const string Credit = "credit";
     public const string Cash = "cash";
     public const string Bank = "bank";
     public const string Card = "card";
@@ -16,9 +17,16 @@ public static class CategoryKind
 
 public static class TransactionKind
 {
+    public const string DebtRepayment = "debt_repayment";
     public const string Expense = "expense";
     public const string Income = "income";
     public const string Transfer = "transfer";
+}
+
+public static class DebtKind
+{
+    public const string Personal = "personal";
+    public const string ConsumerLoan = "consumer_loan";
 }
 
 public static class TransactionSource

@@ -22,7 +22,7 @@ public sealed class BalanceService(AppDatabase database)
             """
             SELECT COALESCE(SUM(amount_minor), 0)
             FROM transactions
-            WHERE is_deleted = 0 AND is_pending_review = 0 AND kind = 'transfer' AND account_id = ?
+            WHERE is_deleted = 0 AND is_pending_review = 0 AND kind IN ('transfer', 'debt_repayment') AND account_id = ?
             """,
             account.Id);
 
@@ -30,7 +30,7 @@ public sealed class BalanceService(AppDatabase database)
             """
             SELECT COALESCE(SUM(COALESCE(transfer_amount_minor, amount_minor)), 0)
             FROM transactions
-            WHERE is_deleted = 0 AND is_pending_review = 0 AND kind = 'transfer' AND transfer_account_id = ?
+            WHERE is_deleted = 0 AND is_pending_review = 0 AND kind IN ('transfer', 'debt_repayment') AND transfer_account_id = ?
             """,
             account.Id);
 
@@ -64,11 +64,11 @@ public sealed class BalanceService(AppDatabase database)
                 UNION ALL
                 SELECT account_id, -amount_minor
                 FROM transactions
-                WHERE is_deleted = 0 AND is_pending_review = 0 AND kind = 'transfer'
+                WHERE is_deleted = 0 AND is_pending_review = 0 AND kind IN ('transfer', 'debt_repayment')
                 UNION ALL
                 SELECT transfer_account_id, COALESCE(transfer_amount_minor, amount_minor)
                 FROM transactions
-                WHERE is_deleted = 0 AND is_pending_review = 0 AND kind = 'transfer'
+                WHERE is_deleted = 0 AND is_pending_review = 0 AND kind IN ('transfer', 'debt_repayment')
             )
             GROUP BY acc_id
             """)

@@ -120,7 +120,7 @@ public class ReportAndCsvTests : IDisposable
             var content = File.ReadAllText(path, Encoding.UTF8);
             var lines = content.TrimEnd().Split('\n');
 
-            Assert.Equal("Дата;Тип;Сумма;Категория;Счёт;Счёт-получатель;Магазин;Заметка", lines[0].TrimEnd('\r'));
+            Assert.Equal("Дата;Тип;Сумма;Категория;Счёт;Счёт-получатель;Магазин;Заметка;Задолженность;ID задолженности", lines[0].TrimEnd('\r'));
             Assert.Equal(3, lines.Length);
             // сортировка по убыванию даты: перевод 11.09 раньше расхода 10.09
             Assert.Contains("11.09.2026 10:00;Перевод;50,00;;Сбер;(счёт удалён);;", lines[1]);

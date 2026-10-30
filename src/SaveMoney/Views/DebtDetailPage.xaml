@@ -43,7 +43,8 @@
         <CollectionView.Footer>
         <VerticalStackLayout Padding="16,10" Spacing="14">
 
-            <VerticalStackLayout Spacing="10" IsVisible="{Binding IsOpen}">
+            <Button Text="Погасить долг" Style="{StaticResource PrimaryButton}" Command="{Binding RepayCommand}" IsVisible="{Binding CanRepay}"/>
+            <VerticalStackLayout Spacing="10" IsVisible="{Binding CanReceivePayment}">
                 <Label Text="Добавить платёж" Style="{StaticResource GroupLabel}"/>
                 <Border Padding="12,0" MinimumHeightRequest="48">
                     <Entry Text="{Binding PaymentAmountText}" Placeholder="Сумма, ₽" Keyboard="Numeric" BackgroundColor="Transparent"/>

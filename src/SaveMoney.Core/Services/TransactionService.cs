@@ -57,7 +57,11 @@ public sealed class TransactionService(AppDatabase database)
             transaction.Payee = null;
         }
 
-        database.Transactions.Save(transaction);
+        if (transaction.Kind == TransactionKind.DebtRepayment
+            || database.Transactions.Get(transaction.Id)?.Kind == TransactionKind.DebtRepayment)
+            new RepaymentService(database).Save(transaction);
+        else
+            database.Transactions.Save(transaction);
 
         if (transaction.Kind != TransactionKind.Transfer
             && !string.IsNullOrWhiteSpace(transaction.Payee)

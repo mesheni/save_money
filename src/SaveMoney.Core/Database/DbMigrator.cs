@@ -9,7 +9,7 @@ namespace SaveMoney.Core.Database;
 /// </summary>
 public static class DbMigrator
 {
-    public const int CurrentVersion = 2;
+    public const int CurrentVersion = 3;
 
     /// <summary>Эмодзи v1 → ключи иконок v2 (categories.icon). Литералы — ровно как в сидах/палитре v1.</summary>
     private static readonly (string Emoji, string Key)[] EmojiToIconKey =
@@ -57,6 +57,14 @@ public static class DbMigrator
             // 🎁 был и у «Кэшбэк и бонусы» — общее правило отдаёт gift, исправляем на bonus.
             db.Execute("UPDATE categories SET icon = ? WHERE name = ? AND icon = ?",
                 IconKeys.Bonus, "Кэшбэк и бонусы", IconKeys.Gift);
+        }
+
+        if (version < 3)
+        {
+            db.CreateTable<Debt>(CreateFlags.ImplicitPK | CreateFlags.ImplicitIndex);
+            db.CreateTable<DebtPayment>(CreateFlags.ImplicitPK | CreateFlags.ImplicitIndex);
+            db.CreateTable<Transaction>(CreateFlags.ImplicitPK | CreateFlags.ImplicitIndex);
+            db.Execute("UPDATE debts SET kind = ? WHERE kind IS NULL OR kind = ''", DebtKind.Personal);
         }
 
         if (version > CurrentVersion)

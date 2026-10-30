@@ -16,6 +16,7 @@ namespace SaveMoney.ViewModels;
 /// "transaction?amount=100".
 /// </summary>
 [QueryProperty(nameof(EditId), "id")]
+[QueryProperty(nameof(PresetDebtId), "repayDebt")]
 [QueryProperty(nameof(PresetAmount), "amount")]
 [QueryProperty(nameof(WidgetSource), "source")]
 public partial class QuickAddViewModel : ObservableObject,
@@ -31,6 +32,7 @@ public partial class QuickAddViewModel : ObservableObject,
     private string? _pendingEditId;
     private Transaction? _editing;
     private bool _initialized;
+    public bool IsStandaloneRepayment { get; private set; }
 
     /// <summary>Время суток исходной транзакции — правка не должна переписывать его на «сейчас».</summary>
     private TimeSpan _editTimeOfDay = DateTime.Now.TimeOfDay;
@@ -78,7 +80,11 @@ public partial class QuickAddViewModel : ObservableObject,
     /// <summary>Знак слева от суммы: «−» расход, «+» доход, пусто у перевода.</summary>
     public string SignText => IsTransfer ? "" : IsIncome ? "+" : "−";
 
-    partial void OnAmountTextChanged(string value) => OnPropertyChanged(nameof(AmountDisplay));
+    partial void OnAmountTextChanged(string value)
+    {
+        OnPropertyChanged(nameof(AmountDisplay));
+        OnPropertyChanged(nameof(RepaymentRemainingText));
+    }
 
     [ObservableProperty]
     public partial string BalanceText { get; set; } = "…";
@@ -114,8 +120,8 @@ public partial class QuickAddViewModel : ObservableObject,
     [ObservableProperty]
     public partial string ModeText { get; set; } = "Расход";
 
-    public bool IsOperation => !IsTransfer;
-    public bool IsExpenseMode => !IsIncome && !IsTransfer;
+    public bool IsOperation => !IsTransfer && !IsRepayment;
+    public bool IsExpenseMode => !IsIncome && !IsTransfer && !IsRepayment;
 
     /// <summary>Текст подписи над сеткой категорий.</summary>
     [ObservableProperty]
@@ -147,14 +153,46 @@ public partial class QuickAddViewModel : ObservableObject,
 
     public bool HasDebtsSummary => DebtsSummaryText.Length > 0;
 
-    /// <summary>Долг, который гасится текущим переводом (id). null — перевод без долга.</summary>
-    private string? _debtId;
+    private RepaymentTarget? _repaymentTarget;
+    public string? PresetDebtId { get; set; }
+    public ObservableCollection<RepaymentTarget> RepaymentTargets { get; } = [];
+    [ObservableProperty] public partial bool IsRepayment { get; set; }
+    [ObservableProperty] public partial bool IsChoosingRepayment { get; set; } = true;
+    [ObservableProperty] public partial string DebtButtonText { get; set; } = "Выбрать задолженность";
+    public string SaveButtonText => "✓";
+    public string SaveDescription => IsRepayment ? "Погасить долг" : "Сохранить операцию";
+    public string MemoPlaceholder => IsRepayment ? "Заметка к погашению" : "Магазин или заметка";
+    public bool HasNoRepaymentTargets => RepaymentTargets.Count == 0;
+    public string RepaymentRemainingText => _repaymentTarget is null ? "Выберите долг или кредитный счёт"
+        : $"Остаток: {MoneyFormat.Rubles(_repaymentTarget.RemainingMinor)} → {MoneyFormat.Rubles(Math.Max(0, _repaymentTarget.RemainingMinor - MoneyFormat.ParseInput(AmountText)))}";
 
-    /// <summary>Варианты ActionSheet погашения: (id долга или null, подпись).</summary>
-    private readonly List<(string? Id, string Option)> _debtOptions = [];
+    private void RefreshRepaymentTargets()
+    {
+        var selected = _repaymentTarget;
+        RepaymentTargets.Clear();
+        foreach (var target in new RepaymentService(_db).GetTargets(_editing?.Id)) RepaymentTargets.Add(target);
+        _repaymentTarget = RepaymentTargets.FirstOrDefault(t => t.Id == selected?.Id && t.IsCreditAccount == selected.IsCreditAccount);
+        DebtButtonText = _repaymentTarget?.Label ?? "Выбрать задолженность";
+        if (_repaymentTarget is null) IsChoosingRepayment = true;
+        OnPropertyChanged(nameof(HasNoRepaymentTargets));
+        OnPropertyChanged(nameof(RepaymentRemainingText));
+    }
 
-    [ObservableProperty]
-    public partial string DebtButtonText { get; set; } = "Погасить долг";
+    [RelayCommand]
+    private void SelectRepayment(RepaymentTarget? target)
+    {
+        _repaymentTarget = target;
+        DebtButtonText = target?.Label ?? "Выбрать задолженность";
+        IsChoosingRepayment = target is null;
+        if (target?.IsCreditAccount == true && Accounts.FirstOrDefault(a => a.IsSelected)?.Id == target.Id)
+            SelectChip(Accounts, Accounts.FirstOrDefault(a => a.Id != target.Id));
+        RefreshPickerTexts();
+        OnPropertyChanged(nameof(RepaymentRemainingText));
+    }
+
+    [RelayCommand] private Task AddPersonalDebtAsync() => Shell.Current.GoToAsync("debtnew?dir=i_owe");
+    [RelayCommand] private Task AddConsumerLoanAsync() => Shell.Current.GoToAsync("debtnew?dir=i_owe&kind=consumer_loan");
+    [RelayCommand] private Task AddCreditAccountAsync() => Shell.Current.GoToAsync("account?kind=credit");
 
     /// <summary>Страница подставляет показ ошибок (DisplayAlert).</summary>
     public Func<string, string, Task>? AlertAsync { get; set; }
@@ -197,6 +235,8 @@ public partial class QuickAddViewModel : ObservableObject,
             RefreshPaydayHint();
             RefreshDebtsSummary();
             RefreshCategoryLabel();
+            LoadAccounts();
+            if (IsRepayment) RefreshRepaymentTargets();
             return;
         }
 
@@ -229,12 +269,20 @@ public partial class QuickAddViewModel : ObservableObject,
         {
             await LoadForEditAsync(_pendingEditId);
         }
+        if (PresetDebtId is not null)
+        {
+            IsStandaloneRepayment = true;
+            SetRepayment();
+            SelectRepayment(RepaymentTargets.FirstOrDefault(t => !t.IsCreditAccount && t.Id == PresetDebtId));
+            PresetDebtId = null;
+        }
     }
 
     private void LoadAccounts(string? selectId = null)
     {
         var previous = Accounts.FirstOrDefault(a => a.IsSelected)?.Id;
-        var all = _db.Accounts.GetAll();
+        // Historical ordinary operations may still reference an archived account.
+        var all = IsEditing && !IsRepayment ? _db.Accounts.GetAll() : _db.Accounts.GetAllActive();
 
         Accounts.Clear();
         foreach (var account in all)
@@ -242,7 +290,10 @@ public partial class QuickAddViewModel : ObservableObject,
             Accounts.Add(new AccountChip { Id = account.Id, Name = account.Name });
         }
 
-        var selectedId = selectId ?? previous ?? Accounts.FirstOrDefault()?.Id;
+        var preferredId = selectId ?? previous ?? (IsEditing ? _editing?.AccountId : null);
+        // Never silently move an edited operation away from a missing source.
+        var selectedId = IsEditing ? preferredId : Accounts.Any(a => a.Id == preferredId)
+            ? preferredId : Accounts.FirstOrDefault()?.Id;
         SelectChip(Accounts, Accounts.FirstOrDefault(a => a.Id == selectedId));
         RebuildTargetAccounts();
     }
@@ -272,7 +323,7 @@ public partial class QuickAddViewModel : ObservableObject,
 
     private void RefreshPickerTexts()
     {
-        AccountPickerText = Accounts.FirstOrDefault(a => a.IsSelected)?.Name ?? "";
+        AccountPickerText = (IsRepayment ? "Оплата: " : "") + (Accounts.FirstOrDefault(a => a.IsSelected)?.Name ?? "Выбрать счёт");
         TargetPickerText = TargetAccounts.FirstOrDefault(a => a.IsSelected)?.Name ?? "";
     }
 
@@ -382,14 +433,16 @@ public partial class QuickAddViewModel : ObservableObject,
     private void RefreshDebtsSummary()
     {
         var active = _db.Debts.GetActive();
-        if (active.Count == 0)
+        var creditDebt = _db.Accounts.GetAllActive().Where(a => a.Kind == AccountKind.Credit)
+            .Sum(a => Math.Min(0, _balance.GetAccountBalance(a)));
+        if (active.Count == 0 && creditDebt == 0)
         {
             DebtsSummaryText = "";
             OnPropertyChanged(nameof(HasDebtsSummary));
             return;
         }
 
-        var net = active.Sum(d =>
+        var net = creditDebt + active.Sum(d =>
         {
             var remaining = _db.Debts.GetRemaining(d);
             return d.Direction == DebtDirection.OwedToMe ? remaining : -remaining;
@@ -416,7 +469,7 @@ public partial class QuickAddViewModel : ObservableObject,
 
     private void UpdateModeText()
     {
-        ModeText = IsTransfer ? "Перевод" : IsIncome ? "Доход" : "Расход";
+        ModeText = IsRepayment ? "Погашение" : IsTransfer ? "Перевод" : IsIncome ? "Доход" : "Расход";
     }    // --- Команды ---
 
     [RelayCommand]
@@ -479,6 +532,7 @@ public partial class QuickAddViewModel : ObservableObject,
     [RelayCommand]
     private void SetExpense()
     {
+        IsRepayment = false;
         IsIncome = false;
         IsTransfer = false;
         UpdateModeText();
@@ -489,6 +543,7 @@ public partial class QuickAddViewModel : ObservableObject,
     [RelayCommand]
     private void SetIncome()
     {
+        IsRepayment = false;
         IsIncome = true;
         IsTransfer = false;
         UpdateModeText();
@@ -499,17 +554,35 @@ public partial class QuickAddViewModel : ObservableObject,
     [RelayCommand]
     private void SetTransfer()
     {
+        IsRepayment = false;
+        IsIncome = false;
         IsTransfer = true;
         UpdateModeText();
         NotifyModeChanged();
         RefreshPickerTexts();
     }
 
+    [RelayCommand]
+    private void SetRepayment()
+    {
+        IsIncome = false;
+        IsTransfer = false;
+        IsRepayment = true;
+        LoadAccounts(_db.Settings.Get(RepaymentService.LastAccountKey));
+        RefreshRepaymentTargets();
+        UpdateModeText();
+        NotifyModeChanged();
+    }
+
     private void NotifyModeChanged()
     {
+        RefreshPickerTexts();
         OnPropertyChanged(nameof(IsOperation));
         OnPropertyChanged(nameof(IsExpenseMode));
         OnPropertyChanged(nameof(SignText));
+        OnPropertyChanged(nameof(SaveButtonText));
+        OnPropertyChanged(nameof(SaveDescription));
+        OnPropertyChanged(nameof(MemoPlaceholder));
     }
 
     [RelayCommand]
@@ -544,7 +617,8 @@ public partial class QuickAddViewModel : ObservableObject,
     [RelayCommand]
     private async Task PickAccountAsync()
     {
-        var options = Accounts.Select(a => a.Name).ToArray();
+        var available = Accounts.Where(a => !IsRepayment || _repaymentTarget?.IsCreditAccount != true || a.Id != _repaymentTarget.Id).ToList();
+        var options = available.Select((a, i) => $"{a.Name} · {i + 1}").ToArray();
         if (options.Length == 0)
         {
             return;
@@ -556,7 +630,9 @@ public partial class QuickAddViewModel : ObservableObject,
             return;
         }
 
-        SelectChip(Accounts, Accounts.FirstOrDefault(a => a.Name == picked));
+        var index = Array.IndexOf(options, picked);
+        if (index < 0) return;
+        SelectChip(Accounts, available[index]);
         RebuildTargetAccounts();
     }
 
@@ -584,26 +660,11 @@ public partial class QuickAddViewModel : ObservableObject,
         RefreshPickerTexts();
     }
 
-    /// <summary>Тап по «Погасить долг» (перевод): выбор открытого долга или снятие привязки.</summary>
     [RelayCommand]
-    private async Task PickDebtAsync()
+    private void PickDebt()
     {
-        _debtOptions.Clear();
-        _debtOptions.Add((null, "Не связывать с долгом"));
-        foreach (var debt in _db.Debts.GetActive())
-        {
-            _debtOptions.Add((debt.Id,
-                $"{debt.PersonName} · осталось {MoneyFormat.Rubles(_db.Debts.GetRemaining(debt))}"));
-        }
-
-        var picked = await PickAsync?.Invoke("Погашение долга", [.. _debtOptions.Select(o => o.Option)])!;
-        if (picked is null)
-        {
-            return;
-        }
-
-        _debtId = _debtOptions.FirstOrDefault(o => o.Option == picked).Id;
-        DebtButtonText = picked == "Не связывать с долгом" ? "Погасить долг" : $"Долг: {picked.Split(" · ")[0]}";
+        RefreshRepaymentTargets();
+        IsChoosingRepayment = true;
     }
 
     [RelayCommand]
@@ -655,7 +716,7 @@ public partial class QuickAddViewModel : ObservableObject,
     private void TryQuickSave()
     {
         if (IsEditing
-            || IsTransfer
+            || IsTransfer || IsRepayment
             || MoneyFormat.ParseInput(AmountText) <= 0
             || !_db.Settings.GetBool(SettingKeys.QuickSaveOnCategory, false))
         {
@@ -682,7 +743,7 @@ public partial class QuickAddViewModel : ObservableObject,
             return;
         }
 
-        var kind = IsTransfer ? TransactionKind.Transfer : IsIncome ? TransactionKind.Income : TransactionKind.Expense;
+        var kind = IsRepayment ? TransactionKind.DebtRepayment : IsTransfer ? TransactionKind.Transfer : IsIncome ? TransactionKind.Income : TransactionKind.Expense;
         var dateUnix = ToUnix(Date);
 
         var tx = _editing ?? new Transaction
@@ -694,7 +755,21 @@ public partial class QuickAddViewModel : ObservableObject,
         tx.Kind = kind;
         tx.DateUnix = dateUnix;
 
-        if (IsTransfer)
+        tx.DebtId = null;
+        if (IsRepayment)
+        {
+            if (_repaymentTarget is null)
+            {
+                await AlertAsync!.Invoke("Погашение", "Выберите задолженность");
+                return;
+            }
+            tx.DebtId = _repaymentTarget.IsCreditAccount ? null : _repaymentTarget.Id;
+            tx.TransferAccountId = _repaymentTarget.IsCreditAccount ? _repaymentTarget.Id : null;
+            tx.CategoryId = null;
+            tx.Payee = null;
+            tx.Note = string.IsNullOrWhiteSpace(MemoText) ? null : MemoText.Trim();
+        }
+        else if (IsTransfer)
         {
             var target = TargetAccounts.FirstOrDefault(a => a.IsSelected);
             if (target is null)
@@ -735,26 +810,15 @@ public partial class QuickAddViewModel : ObservableObject,
         {
             _transactions.Save(tx);
 
-            // Перевод может гасить долг: транзакция уже записана этим сохранением,
-            // поэтому в долг уходит только платёж (createTransaction: false).
-            if (IsTransfer && _debtId is not null)
-            {
-                var debt = _db.Debts.Get(_debtId);
-                if (debt is { Status: DebtStatus.Active })
-                {
-                    _debts.AddPayment(debt, amountMinor, dateUnix, createTransaction: false);
-                }
-            }
-
             TransactionsChangedMessage.Broadcast();
         }
-        catch (ArgumentException ex)
+        catch (Exception ex)
         {
             await AlertAsync?.Invoke("Ошибка", ex.Message)!;
             return;
         }
 
-        if (IsEditing)
+        if (IsEditing || IsStandaloneRepayment)
         {
             if (CloseAsync is not null)
             {
@@ -767,8 +831,9 @@ public partial class QuickAddViewModel : ObservableObject,
         AmountText = "";
         MemoText = "";
         Date = DateTime.Now;
-        _debtId = null;
-        DebtButtonText = "Погасить долг";
+        _repaymentTarget = null;
+        DebtButtonText = "Выбрать задолженность";
+        if (IsRepayment) RefreshRepaymentTargets();
         RefreshBalance();
         RefreshDebtsSummary();
         ReloadCategories();
@@ -799,7 +864,13 @@ public partial class QuickAddViewModel : ObservableObject,
         _editing = tx;
         IsEditing = true;
 
-        if (tx.Kind == TransactionKind.Income)
+        if (tx.Kind == TransactionKind.DebtRepayment)
+        {
+            SetRepayment();
+            SelectRepayment(RepaymentTargets.FirstOrDefault(t => t.Id == (tx.DebtId ?? tx.TransferAccountId)
+                && t.IsCreditAccount == (tx.DebtId is null)));
+        }
+        else if (tx.Kind == TransactionKind.Income)
         {
             SetIncome();
         }
@@ -862,6 +933,7 @@ public partial class QuickAddViewModel : ObservableObject,
         new DateTimeOffset(local.Year, local.Month, local.Day, _editTimeOfDay.Hours, _editTimeOfDay.Minutes, 0,
             TimeZoneInfo.Local.GetUtcOffset(local)).ToUnixTimeSeconds();
 
+    partial void OnIsRepaymentChanged(bool value) => NotifyModeChanged();
     partial void OnIsIncomeChanged(bool value) => NotifyModeChanged();
     partial void OnIsTransferChanged(bool value) => NotifyModeChanged();
 

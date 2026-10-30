@@ -9,6 +9,9 @@ namespace SaveMoney.Core.Models;
 [Table("transactions")]
 public class Transaction : BaseEntity
 {
+    [Indexed, Column("debt_id")]
+    public string? DebtId { get; set; }
+
     [Indexed, Column("account_id")]
     public string AccountId { get; set; } = "";
 

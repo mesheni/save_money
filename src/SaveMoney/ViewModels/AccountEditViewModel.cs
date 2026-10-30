@@ -9,6 +9,7 @@ using SaveMoney.Messaging;
 namespace SaveMoney.ViewModels;
 
 [QueryProperty(nameof(AccountId), "id")]
+[QueryProperty(nameof(PresetKind), "kind")]
 public partial class AccountEditViewModel(AppDatabase db) : ObservableObject
 {
     private readonly AppDatabase _db = db;
@@ -25,7 +26,7 @@ public partial class AccountEditViewModel(AppDatabase db) : ObservableObject
 
     public ObservableCollection<ColorChip> Colors { get; } = [];
 
-    public IReadOnlyList<string> KindOptions { get; } = ["Наличные", "Карта", "Банковский счёт"];
+    public IReadOnlyList<string> KindOptions { get; } = ["Наличные", "Карта", "Банковский счёт", "Кредитный счёт"];
 
     [ObservableProperty]
     public partial string Title { get; set; } = "Новый счёт";
@@ -49,6 +50,8 @@ public partial class AccountEditViewModel(AppDatabase db) : ObservableObject
     public partial bool IsExisting { get; set; }
 
     public Func<string, string, Task>? AlertAsync { get; set; }
+
+    public string? PresetKind { get => null; set { if (value == AccountKind.Credit) KindIndex = 3; } }
 
     public string? AccountId
     {
@@ -91,6 +94,7 @@ public partial class AccountEditViewModel(AppDatabase db) : ObservableObject
             AccountKind.Cash => 0,
             AccountKind.Card => 1,
             AccountKind.Bank => 2,
+            AccountKind.Credit => 3,
             _ => 1,
         };
         InitialBalanceText = MoneyFormat.ForInput(account.InitialBalanceMinor);
@@ -131,6 +135,7 @@ public partial class AccountEditViewModel(AppDatabase db) : ObservableObject
         {
             0 => AccountKind.Cash,
             2 => AccountKind.Bank,
+            3 => AccountKind.Credit,
             _ => AccountKind.Card,
         };
 

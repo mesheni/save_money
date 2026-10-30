@@ -130,9 +130,20 @@ public partial class DebtsViewModel(AppDatabase db) : ObservableObject
 }
 
 [QueryProperty(nameof(Dir), "dir")]
+[QueryProperty(nameof(PresetKind), "kind")]
 [QueryProperty(nameof(DebtId), "id")]
 public partial class DebtEditViewModel(AppDatabase db) : ObservableObject
 {
+    public IReadOnlyList<string> KindOptions { get; } = ["Личный долг", "Потребительский кредит"];
+    [ObservableProperty] public partial int KindIndex { get; set; }
+    public bool IsPersonalDebt => KindIndex == 0;
+    partial void OnKindIndexChanged(int value)
+    {
+        if (value == 1) DirectionIndex = 1;
+        OnPropertyChanged(nameof(IsPersonalDebt));
+    }
+    public string? PresetKind { get => null; set { if (value == DebtKind.ConsumerLoan) { KindIndex = 1; DirectionIndex = 1; } } }
+
     private readonly AppDatabase _db = db;
     private string? _id;
     private Debt? _editing;
@@ -216,6 +227,7 @@ public partial class DebtEditViewModel(AppDatabase db) : ObservableObject
         Title = "Долг";
         DirectionIndex = debt.Direction == DebtDirection.IOwe ? 1 : 0;
         PersonName = debt.PersonName;
+        KindIndex = debt.Kind == DebtKind.ConsumerLoan ? 1 : 0;
         AmountText = MoneyFormat.ForInput(debt.AmountMinor);
         Note = debt.Note ?? "";
         HasDueDate = debt.DueDateUnix is not null;
@@ -263,7 +275,8 @@ public partial class DebtEditViewModel(AppDatabase db) : ObservableObject
         }
 
         var debt = _editing ?? new Debt();
-        debt.Direction = DirectionIndex == 1 ? DebtDirection.IOwe : DebtDirection.OwedToMe;
+        debt.Kind = KindIndex == 1 ? DebtKind.ConsumerLoan : DebtKind.Personal;
+        debt.Direction = KindIndex == 1 || DirectionIndex == 1 ? DebtDirection.IOwe : DebtDirection.OwedToMe;
         debt.PersonName = PersonName.Trim();
         debt.AmountMinor = amount;
         debt.Note = string.IsNullOrWhiteSpace(Note) ? null : Note.Trim();
@@ -323,8 +336,17 @@ public partial class DebtDetailViewModel(AppDatabase db, DebtService debts) : Ob
 
     /// <summary>Положительная пара к IsSettled: биндинг с «!» не выживает при SourceGen.</summary>
     public bool IsOpen => !IsSettled;
+    public bool CanRepay => IsOpen && _debt?.Direction == DebtDirection.IOwe;
+    public bool CanReceivePayment => IsOpen && _debt?.Direction == DebtDirection.OwedToMe;
+    [RelayCommand]
+    private Task RepayAsync() => Shell.Current.GoToAsync($"transaction?repayDebt={DebtId}");
 
-    partial void OnIsSettledChanged(bool value) => OnPropertyChanged(nameof(IsOpen));
+    partial void OnIsSettledChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsOpen));
+        OnPropertyChanged(nameof(CanRepay));
+        OnPropertyChanged(nameof(CanReceivePayment));
+    }
 
     [ObservableProperty]
     public partial bool CanLinkTransaction { get; set; }
@@ -372,8 +394,10 @@ public partial class DebtDetailViewModel(AppDatabase db, DebtService debts) : Ob
             return;
         }
 
+        OnPropertyChanged(nameof(CanRepay));
+        OnPropertyChanged(nameof(CanReceivePayment));
         PersonTitle = _debt.PersonName;
-        DirectionText = _debt.Direction == DebtDirection.IOwe ? "Я должен" : "Мне должны";
+        DirectionText = _debt.Kind == DebtKind.ConsumerLoan ? "Потребительский кредит" : _debt.Direction == DebtDirection.IOwe ? "Я должен" : "Мне должны";
         TotalText = MoneyFormat.Rubles(_debt.AmountMinor);
         RemainingText = MoneyFormat.Rubles(_db.Debts.GetRemaining(_debt));
         DueText = _debt.DueDateUnix is { } due

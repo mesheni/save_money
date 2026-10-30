@@ -18,6 +18,7 @@ public class HistoryItem
     public long SignedAmountMinor => Kind switch
     {
         TransactionKind.Expense => -AmountMinor,
+        TransactionKind.DebtRepayment => IsTransferOut ? -AmountMinor : AmountMinor,
         TransactionKind.Transfer => IsTransferOut ? -AmountMinor : AmountMinor,
         _ => AmountMinor,
     };
@@ -36,7 +37,7 @@ public class HistoryItem
     public string? CategoryId { get; init; }
 
     /// <summary>Цвет суммы: красный для расхода и ухода денег при переводе.</summary>
-    public bool IsExpense => Kind == TransactionKind.Expense
+    public bool IsExpense => (Kind == TransactionKind.DebtRepayment && IsTransferOut) || Kind == TransactionKind.Expense
         || (Kind == TransactionKind.Transfer && IsTransferOut);
 }
 
@@ -78,19 +79,25 @@ public sealed class HistoryService(AppDatabase database)
         {
             var title = tx.Kind switch
             {
+                TransactionKind.DebtRepayment => "Погашение: " + (tx.DebtId is not null
+                    ? database.Debts.Get(tx.DebtId)?.PersonName ?? "(долг удалён)"
+                    : AccountName(tx.TransferAccountId)),
                 TransactionKind.Transfer => $"{AccountName(tx.AccountId)} → {AccountName(tx.TransferAccountId)}",
                 _ when tx.CategoryId is null => "Без категории",
                 _ when categories.TryGetValue(tx.CategoryId, out var cat) => cat.Name,
                 _ => "(категория удалена)",
             };
 
-            var icon = tx.Kind == TransactionKind.Transfer
+            var icon = tx.Kind == TransactionKind.DebtRepayment ? IconKeys.Credit : tx.Kind == TransactionKind.Transfer
                 ? IconKeys.Transfer
                 : tx.CategoryId is not null && categories.TryGetValue(tx.CategoryId, out var c)
                     ? c.Icon ?? IconKeys.Other
                     : IconKeys.Other;
 
             var subtitleParts = new List<string>();
+            if (tx.Kind == TransactionKind.DebtRepayment)
+                subtitleParts.Add(tx.DebtId is null ? "Кредитный счёт"
+                    : database.Debts.Get(tx.DebtId)?.Kind == DebtKind.ConsumerLoan ? "Потребительский кредит" : "Личный долг");
             if (tx.Kind != TransactionKind.Transfer)
             {
                 subtitleParts.Add(AccountName(tx.AccountId));
@@ -108,7 +115,9 @@ public sealed class HistoryService(AppDatabase database)
             // собственная сумма (может отличаться от зачисленной), на счёт-получатель
             // приходит TransferAmountMinor. В общем списке «Все счета» перевод
             // нейтрален — деньги не покидали кошелёк.
-            var isTransferOut = tx.Kind == TransactionKind.Transfer
+            var isTransferOut = tx.Kind == TransactionKind.DebtRepayment
+                ? accountId is null || tx.TransferAccountId != accountId
+                : tx.Kind == TransactionKind.Transfer
                 && accountId is not null
                 && tx.TransferAccountId != accountId;
 
