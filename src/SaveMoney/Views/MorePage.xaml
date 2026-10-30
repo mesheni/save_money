@@ -19,11 +19,12 @@
                 <Label Text="Деньги" FontSize="13"
                        TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
                        Margin="0,8,0,4"/>
-                <CollectionView ItemsSource="{Binding MoneyItems}" IsEnabled="True">
-                    <CollectionView.ItemTemplate>
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding MoneyItems}" IsEnabled="True">
+                    <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="vm:MoreMenuItem">
                             <Grid RowDefinitions="Auto,1">
-                                <Grid Grid.Row="0" HeightRequest="60" ColumnSpacing="14" ColumnDefinitions="24,*,Auto">
+                                <Grid Grid.Row="0" MinimumHeightRequest="60" Padding="0,8" ColumnSpacing="14" ColumnDefinitions="24,*,Auto"
+                                      SemanticProperties.Description="{Binding Title}" SemanticProperties.Hint="Открыть раздел">
                                     <Grid.Triggers>
                                         <DataTrigger TargetType="Grid" Binding="{Binding IsEnabled}" Value="False">
                                             <Setter Property="Opacity" Value="0.45"/>
@@ -34,7 +35,7 @@
                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
                                     <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                         <Label Text="{Binding Title}" FontSize="16"/>
-                                        <Label Text="{Binding Subtitle}" FontSize="13">
+                                        <Label Text="{Binding Subtitle}" FontSize="13" LineBreakMode="WordWrap">
                                             <Label.Triggers>
                                                 <DataTrigger TargetType="Label" Binding="{Binding IsAlert}" Value="True">
                                                     <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}"/>
@@ -46,25 +47,28 @@
                                     <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18"
                                            VerticalOptions="Center"
                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                                    <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding OpenCommand, Source={RelativeSource AncestorType={x:Type vm:MoreViewModel}}}" CommandParameter="{Binding .}"/>
-                                    </Grid.GestureRecognizers>
+                                    <Button Grid.ColumnSpan="3" Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
+                                            IsEnabled="{Binding IsEnabled}"
+                                            Command="{Binding OpenCommand, Source={RelativeSource AncestorType={x:Type vm:MoreViewModel}}}"
+                                            CommandParameter="{Binding .}" SemanticProperties.Description="{Binding Title}"
+                                            SemanticProperties.Hint="Открыть раздел"/>
                                 </Grid>
                                 <BoxView Grid.Row="1" HeightRequest="1"
                                          Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
                             </Grid>
                         </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
 
                 <Label Text="Планирование" FontSize="13"
                        TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
                        Margin="0,20,0,4"/>
-                <CollectionView ItemsSource="{Binding PlanningItems}">
-                    <CollectionView.ItemTemplate>
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding PlanningItems}">
+                    <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="vm:MoreMenuItem">
                             <Grid RowDefinitions="Auto,1">
-                                <Grid Grid.Row="0" HeightRequest="60" ColumnSpacing="14" ColumnDefinitions="24,*,Auto">
+                                <Grid Grid.Row="0" MinimumHeightRequest="60" Padding="0,8" ColumnSpacing="14" ColumnDefinitions="24,*,Auto"
+                                      SemanticProperties.Description="{Binding Title}" SemanticProperties.Hint="Открыть раздел">
                                     <Grid.Triggers>
                                         <DataTrigger TargetType="Grid" Binding="{Binding IsEnabled}" Value="False">
                                             <Setter Property="Opacity" Value="0.45"/>
@@ -75,7 +79,7 @@
                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
                                     <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                         <Label Text="{Binding Title}" FontSize="16"/>
-                                        <Label Text="{Binding Subtitle}" FontSize="13">
+                                        <Label Text="{Binding Subtitle}" FontSize="13" LineBreakMode="WordWrap">
                                             <Label.Triggers>
                                                 <DataTrigger TargetType="Label" Binding="{Binding IsAlert}" Value="True">
                                                     <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}"/>
@@ -87,25 +91,28 @@
                                     <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18"
                                            VerticalOptions="Center"
                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                                    <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding OpenCommand, Source={RelativeSource AncestorType={x:Type vm:MoreViewModel}}}" CommandParameter="{Binding .}"/>
-                                    </Grid.GestureRecognizers>
+                                    <Button Grid.ColumnSpan="3" Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
+                                            IsEnabled="{Binding IsEnabled}"
+                                            Command="{Binding OpenCommand, Source={RelativeSource AncestorType={x:Type vm:MoreViewModel}}}"
+                                            CommandParameter="{Binding .}" SemanticProperties.Description="{Binding Title}"
+                                            SemanticProperties.Hint="Открыть раздел"/>
                                 </Grid>
                                 <BoxView Grid.Row="1" HeightRequest="1"
                                          Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
                             </Grid>
                         </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
 
                 <Label Text="Приложение" FontSize="13"
                        TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
                        Margin="0,20,0,4"/>
-                <CollectionView ItemsSource="{Binding AppItems}">
-                    <CollectionView.ItemTemplate>
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding AppItems}">
+                    <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="vm:MoreMenuItem">
                             <Grid RowDefinitions="Auto,1">
-                                <Grid Grid.Row="0" HeightRequest="60" ColumnSpacing="14" ColumnDefinitions="24,*,Auto">
+                                <Grid Grid.Row="0" MinimumHeightRequest="60" Padding="0,8" ColumnSpacing="14" ColumnDefinitions="24,*,Auto"
+                                      SemanticProperties.Description="{Binding Title}" SemanticProperties.Hint="Открыть раздел">
                                     <Grid.Triggers>
                                         <DataTrigger TargetType="Grid" Binding="{Binding IsEnabled}" Value="False">
                                             <Setter Property="Opacity" Value="0.45"/>
@@ -116,22 +123,24 @@
                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
                                     <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                         <Label Text="{Binding Title}" FontSize="16"/>
-                                        <Label Text="{Binding Subtitle}" FontSize="13"
+                                        <Label Text="{Binding Subtitle}" FontSize="13" LineBreakMode="WordWrap"
                                                TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                                     </VerticalStackLayout>
                                     <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18"
                                            VerticalOptions="Center"
                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                                    <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding OpenCommand, Source={RelativeSource AncestorType={x:Type vm:MoreViewModel}}}" CommandParameter="{Binding .}"/>
-                                    </Grid.GestureRecognizers>
+                                    <Button Grid.ColumnSpan="3" Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
+                                            IsEnabled="{Binding IsEnabled}"
+                                            Command="{Binding OpenCommand, Source={RelativeSource AncestorType={x:Type vm:MoreViewModel}}}"
+                                            CommandParameter="{Binding .}" SemanticProperties.Description="{Binding Title}"
+                                            SemanticProperties.Hint="Открыть раздел"/>
                                 </Grid>
                                 <BoxView Grid.Row="1" HeightRequest="1"
                                          Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
                             </Grid>
                         </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
 
             </VerticalStackLayout>
         </ScrollView>

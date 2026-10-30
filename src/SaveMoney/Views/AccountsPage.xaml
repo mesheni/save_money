@@ -8,7 +8,7 @@
              Appearing="OnAppearing">
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Command="{Binding AddCommand}">
+        <ToolbarItem Text="Добавить счёт" Command="{Binding AddCommand}">
             <ToolbarItem.IconImageSource>
                 <FontImageSource Glyph="{x:Static ctl:Glyphs.Add}" FontFamily="MaterialSymbolsRounded" Size="20"
                                  Color="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
@@ -30,7 +30,7 @@
                             </SwipeItems>
                         </SwipeView.RightItems>
                         <Grid RowDefinitions="Auto,1">
-                            <Grid Grid.Row="0" HeightRequest="60" ColumnDefinitions="24,*,Auto" ColumnSpacing="14">
+                            <Grid Grid.Row="0" MinimumHeightRequest="60" Padding="0,6" ColumnDefinitions="24,*,Auto" ColumnSpacing="14">
                                 <Label Grid.Column="0" Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="24"
                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
                                        VerticalOptions="Center"/>

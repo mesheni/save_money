@@ -8,7 +8,7 @@
              Appearing="OnAppearing">
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Command="{Binding AddCommand}">
+        <ToolbarItem Text="Добавить лимит" Command="{Binding AddCommand}">
             <ToolbarItem.IconImageSource>
                 <FontImageSource Glyph="{x:Static ctl:Glyphs.Add}" FontFamily="MaterialSymbolsRounded" Size="20"
                                  Color="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
@@ -74,7 +74,8 @@
         </CollectionView>
 
         <Label Grid.Row="1" Text="Бюджетов пока нет — задайте первый лимит кнопкой сверху"
-               IsVisible="{Binding HasNoBudgets}" VerticalOptions="Center" HorizontalOptions="Center" Opacity="0.5"/>
+               IsVisible="{Binding HasNoBudgets}" VerticalOptions="Center" HorizontalOptions="Center"
+               TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
 
     </Grid>
 

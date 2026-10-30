@@ -23,6 +23,8 @@ public partial class TopCategoryRow
     public required Color BarColor { get; init; }
 }
 
+public sealed record DailyReportRow(string DateText, string AmountText);
+
 /// <summary>
 /// Экран отчётов по макету: пилюля периода, сегмент «расходы/доходы», кольцо с суммой
 /// и дельтой к прошлому периоду, топ категорий, столбики по дням, CSV.
@@ -136,6 +138,8 @@ public partial class ReportsViewModel(
     public string DaysCaption => IsExpenses ? "Расходы по дням" : "Доходы по дням";
 
     public ObservableCollection<TopCategoryRow> TopRows { get; } = [];
+
+    public ObservableCollection<DailyReportRow> DailyRows { get; } = [];
 
     public Func<string, string, Task>? AlertAsync { get; set; }
 
@@ -309,6 +313,7 @@ public partial class ReportsViewModel(
     private void BuildDayColumns(long from, long to)
     {
         var points = _reports.GetDynamics(from, to);
+        DailyRows.Clear();
 
         if (points.Count == 0)
         {
@@ -323,6 +328,8 @@ public partial class ReportsViewModel(
         for (var i = 0; i < points.Count; i++)
         {
             var value = (IsExpenses ? points[i].ExpenseMinor : points[i].IncomeMinor) / 100.0;
+            var amountMinor = IsExpenses ? points[i].ExpenseMinor : points[i].IncomeMinor;
+            DailyRows.Add(new DailyReportRow(points[i].Label, MoneyFormat.Rubles(amountMinor)));
             var isLast = i == points.Count - 1;
             grayValues[i] = isLast ? null : value;
             accentValues[i] = isLast ? value : null;

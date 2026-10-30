@@ -188,10 +188,10 @@
         <Setter Property="CornerRadius" Value="12" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
         <Setter Property="FontSize" Value="22" />
-        <Setter Property="HeightRequest" Value="44" />
+        <Setter Property="HeightRequest" Value="48" />
         <!-- Запрет сжатия: на низких экранах Layout иначе ужимает клавиши
              и обрезает цифры; сжиматься должен только блок категорий. -->
-        <Setter Property="MinimumHeightRequest" Value="44" />
+        <Setter Property="MinimumHeightRequest" Value="48" />
         <!-- Вертикальный паддинг обнулён: наследуемые 10dp сверху/снизу при
              увеличенном системном шрифте не оставляли места глифу — цифры
              резались и съезжали. Текст центрируется самой кнопкой. -->
@@ -226,7 +226,7 @@
         <Setter Property="BorderWidth" Value="0" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}" />
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="MinimumHeightRequest" Value="44" />
+        <Setter Property="MinimumHeightRequest" Value="48" />
     </Style>
 
     <Style x:Key="DangerButton" TargetType="Button">

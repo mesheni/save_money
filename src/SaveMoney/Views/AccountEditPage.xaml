@@ -23,20 +23,19 @@
 
             <Label Text="Начальный остаток, ₽ (можно с минусом для кредитки)" FontSize="12" Opacity="0.6"/>
             <Border StrokeShape="RoundRectangle 12" Padding="12,0" HeightRequest="44">
-                <Entry Text="{Binding InitialBalanceText}" Placeholder="0" Keyboard="Text"
+                <Entry Text="{Binding InitialBalanceText}" Placeholder="0" Keyboard="Numeric"
                        BackgroundColor="Transparent" MinimumHeightRequest="42"/>
             </Border>
 
             <Label Text="Цвет" FontSize="12" Opacity="0.6"/>
-            <CollectionView ItemsSource="{Binding Colors}" HeightRequest="136"
-                            VerticalScrollBarVisibility="Never">
+            <CollectionView ItemsSource="{Binding Colors}" HeightRequest="216" VerticalScrollBarVisibility="Never">
                 <CollectionView.ItemsLayout>
-                    <GridItemsLayout Orientation="Vertical" Span="6"
-                                     HorizontalItemSpacing="8" VerticalItemSpacing="8"/>
+                    <GridItemsLayout Orientation="Vertical" Span="4" HorizontalItemSpacing="8" VerticalItemSpacing="8"/>
                 </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:ColorChip">
-                        <Border WidthRequest="46" HeightRequest="40"
+                        <Border MinimumHeightRequest="48" MinimumWidthRequest="48"
+                                SemanticProperties.Description="{Binding AccessibleName}" SemanticProperties.Hint="Выбрать цвет счёта"
                                 StrokeShape="RoundRectangle 20"
                                 BackgroundColor="{Binding Hex}"
                                 StrokeThickness="3"
@@ -46,9 +45,14 @@
                                     <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
                                 </DataTrigger>
                             </Border.Triggers>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding SelectColorCommand, Source={RelativeSource AncestorType={x:Type vm:AccountEditViewModel}}}" CommandParameter="{Binding .}"/>
-                            </Border.GestureRecognizers>
+                            <Grid>
+                                <Button Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
+                                        Command="{Binding SelectColorCommand, Source={RelativeSource AncestorType={x:Type vm:AccountEditViewModel}}}"
+                                        CommandParameter="{Binding .}" SemanticProperties.Description="{Binding AccessibleName}"
+                                        SemanticProperties.Hint="Выбрать цвет счёта"/>
+                                <Label Text="✓" IsVisible="{Binding IsSelected}" HorizontalOptions="Center" VerticalOptions="Center"
+                                       TextColor="White" InputTransparent="True" FontFamily="InterBold" FontSize="20"/>
+                            </Grid>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

@@ -1,4 +1,5 @@
 using CommunityToolkit.Maui;
+using System.Globalization;
 using LiveChartsCore.SkiaSharpView.Maui;
 using Microsoft.Extensions.Logging;
 using SaveMoney.Core.Database;
@@ -18,6 +19,12 @@ public static class MauiProgram
 
     public static MauiApp CreateMauiApp()
     {
+        var russianCulture = CultureInfo.GetCultureInfo("ru-RU");
+        CultureInfo.DefaultThreadCurrentCulture = russianCulture;
+        CultureInfo.DefaultThreadCurrentUICulture = russianCulture;
+        CultureInfo.CurrentCulture = russianCulture;
+        CultureInfo.CurrentUICulture = russianCulture;
+
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()

@@ -10,13 +10,16 @@
         <VerticalStackLayout Padding="16,10" Spacing="12">
 
             <Label Text="Название" FontSize="12" Opacity="0.6"/>
-            <Entry Text="{Binding Name}" Placeholder="Например, Хобби"/>
+            <Border Padding="12,0" MinimumHeightRequest="48">
+                <Entry Text="{Binding Name}" Placeholder="Например, Хобби" BackgroundColor="Transparent"/>
+            </Border>
 
             <Label Text="Иконка" FontSize="12" Opacity="0.6"/>
             <CollectionView ItemsSource="{Binding Icons}" ItemsLayout="HorizontalList" HeightRequest="52">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:IconChip">
-                        <Border WidthRequest="46" HeightRequest="46" Margin="0,0,8,0"
+                        <Border MinimumWidthRequest="48" MinimumHeightRequest="48" Margin="0,0,8,0"
+                                SemanticProperties.Description="{Binding AccessibleName}" SemanticProperties.Hint="Выбрать значок категории"
                                 StrokeShape="RoundRectangle 23"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
                             <Border.Triggers>
@@ -24,12 +27,15 @@
                                     <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}"/>
                                 </DataTrigger>
                             </Border.Triggers>
+                        <Grid>
                             <Label Text="{Binding Key, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="22"
-                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
-                                   HorizontalOptions="Center" VerticalOptions="Center"/>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding SelectIconCommand, Source={RelativeSource AncestorType={x:Type vm:CategoryEditViewModel}}}" CommandParameter="{Binding .}"/>
-                            </Border.GestureRecognizers>
+                                   HorizontalOptions="Center" VerticalOptions="Center" InputTransparent="True"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                            <Button Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
+                                    Command="{Binding SelectIconCommand, Source={RelativeSource AncestorType={x:Type vm:CategoryEditViewModel}}}"
+                                    CommandParameter="{Binding .}" SemanticProperties.Description="{Binding AccessibleName}"
+                                    SemanticProperties.Hint="Выбрать значок категории"/>
+                        </Grid>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

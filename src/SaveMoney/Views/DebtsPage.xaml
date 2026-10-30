@@ -8,7 +8,7 @@
              Appearing="OnAppearing">
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Command="{Binding AddCommand}">
+        <ToolbarItem Text="Добавить долг" Command="{Binding AddCommand}">
             <ToolbarItem.IconImageSource>
                 <FontImageSource Glyph="{x:Static ctl:Glyphs.Add}" FontFamily="MaterialSymbolsRounded" Size="20"
                                  Color="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
@@ -33,7 +33,7 @@
                                     <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                                 </SwipeItems>
                             </SwipeView.RightItems>
-                            <Grid HeightRequest="64" ColumnDefinitions="24,*,Auto" ColumnSpacing="14">
+                            <Grid MinimumHeightRequest="64" Padding="0,6" ColumnDefinitions="24,*,Auto" ColumnSpacing="14">
                                 <Label Grid.Column="0" Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="24"
                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
                                        VerticalOptions="Center"/>
@@ -68,7 +68,8 @@
         </CollectionView>
 
         <Label Grid.Row="2" Text="Долгов нет — добавьте первый кнопкой сверху"
-               IsVisible="{Binding HasNoRows}" VerticalOptions="Center" HorizontalOptions="Center" Opacity="0.5"/>
+               IsVisible="{Binding HasNoRows}" VerticalOptions="Center" HorizontalOptions="Center"
+               TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
 
     </Grid>
 

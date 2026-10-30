@@ -16,7 +16,6 @@ public class AnimatedProgressBar : ProgressBar
     protected override void OnBindingContextChanged()
     {
         base.OnBindingContextChanged();
-        _animated = false;
     }
 
     protected override void OnPropertyChanged(string? propertyName)
@@ -27,6 +26,11 @@ public class AnimatedProgressBar : ProgressBar
         {
             _animated = true;
             var target = Progress;
+            if (!Motion.AnimationsEnabled)
+            {
+                Progress = target;
+                return;
+            }
             Progress = 0;
             _ = this.ProgressTo(target, 350, Motion.Vibrant);
         }

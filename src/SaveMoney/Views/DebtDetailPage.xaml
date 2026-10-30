@@ -6,8 +6,9 @@
              Title="Долг"
              Appearing="OnAppearing">
 
-    <ScrollView>
-        <VerticalStackLayout x:Name="RootStack" Padding="16,10" Spacing="14">
+    <CollectionView ItemsSource="{Binding Payments}" SelectionMode="None" VerticalScrollBarVisibility="Never">
+        <CollectionView.Header>
+        <VerticalStackLayout x:Name="RootStack" Padding="16,10,16,0" Spacing="14">
 
             <Border Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="4">
@@ -22,28 +23,36 @@
             </Border>
 
             <Label Text="Платежи" Style="{StaticResource GroupLabel}"/>
-            <CollectionView ItemsSource="{Binding Payments}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="vm:PaymentRowVM">
-                        <Grid RowDefinitions="Auto,1">
-                            <Grid Grid.Row="0" HeightRequest="48" ColumnDefinitions="*,Auto">
-                                <Label Text="{Binding DateText}" FontSize="15" VerticalOptions="Center"
-                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                                <Label Grid.Column="1" Text="{Binding AmountText}" FontSize="15" FontFamily="InterSemiBold" VerticalOptions="Center"/>
-                            </Grid>
-                            <BoxView Grid.Row="1" HeightRequest="1"
-                                     Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+        </VerticalStackLayout>
+        </CollectionView.Header>
+
+        <CollectionView.ItemTemplate>
+            <DataTemplate x:DataType="vm:PaymentRowVM">
+                <Grid RowDefinitions="Auto,1" Padding="16,0">
+                    <Grid Grid.Row="0" MinimumHeightRequest="48" Padding="0,4" ColumnDefinitions="*,Auto">
+                        <Label Text="{Binding DateText}" FontSize="15" VerticalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                        <Label Grid.Column="1" Text="{Binding AmountText}" FontSize="15" FontFamily="InterSemiBold" VerticalOptions="Center"/>
+                    </Grid>
+                    <BoxView Grid.Row="1" HeightRequest="1"
+                             Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+                </Grid>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+
+        <CollectionView.Footer>
+        <VerticalStackLayout Padding="16,10" Spacing="14">
 
             <VerticalStackLayout Spacing="10" IsVisible="{Binding IsOpen}">
                 <Label Text="Добавить платёж" Style="{StaticResource GroupLabel}"/>
-                <Entry Text="{Binding PaymentAmountText}" Placeholder="Сумма, ₽" Keyboard="Text"/>
+                <Border Padding="12,0" MinimumHeightRequest="48">
+                    <Entry Text="{Binding PaymentAmountText}" Placeholder="Сумма, ₽" Keyboard="Numeric" BackgroundColor="Transparent"/>
+                </Border>
                 <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
                     <Label Text="Дата" VerticalOptions="Center"/>
-                    <DatePicker Date="{Binding PaymentDate}" Format="d MMM yyyy"/>
+                    <Border Padding="12,0" MinimumHeightRequest="48">
+                        <DatePicker Date="{Binding PaymentDate}" Format="d MMM yyyy"/>
+                    </Border>
                 </HorizontalStackLayout>
                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" IsVisible="{Binding CanLinkTransaction}">
                     <Label Text="Провести по связанному счёту" VerticalOptions="Center"/>
@@ -57,6 +66,7 @@
             <Button Text="Удалить долг" Style="{StaticResource DangerButton}" Command="{Binding DeleteCommand}"/>
 
         </VerticalStackLayout>
-    </ScrollView>
+        </CollectionView.Footer>
+    </CollectionView>
 
 </ContentPage>

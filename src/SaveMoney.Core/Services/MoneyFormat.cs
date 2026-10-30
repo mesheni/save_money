@@ -8,10 +8,12 @@ namespace SaveMoney.Core.Services;
 /// </summary>
 public static class MoneyFormat
 {
+    private static readonly CultureInfo RussianCulture = CultureInfo.GetCultureInfo("ru-RU");
+
     public static string Rubles(long minorUnits)
     {
         var rubles = minorUnits / 100m;
-        return $"{rubles:N2} ₽";
+        return $"{rubles.ToString("N2", RussianCulture)} ₽";
     }
 
     public static string SignedRubles(long minorUnits)

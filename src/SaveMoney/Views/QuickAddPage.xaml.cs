@@ -74,6 +74,8 @@ public partial class QuickAddPage : ContentPage
         }
     }
 
+    private void OnPickDateClicked(object? sender, EventArgs e) => DatePickerControl.Focus();
+
     private async Task ShowSavedToastAsync()
     {
         if (_toastVisible)

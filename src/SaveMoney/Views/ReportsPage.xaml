@@ -16,45 +16,30 @@
 
             <Grid ColumnDefinitions="*,Auto">
                 <Label Grid.Column="0" Text="Отчёты" Style="{StaticResource ScreenTitle}" VerticalOptions="Center"/>
-                <Border Grid.Column="1" StrokeShape="RoundRectangle 18" Padding="14,0,10,0" HeightRequest="36"
-                        StrokeThickness="1" VerticalOptions="Center"
+                <Button Grid.Column="1" Text="{Binding PeriodPillText}" Command="{Binding PickPeriodCommand}"
+                        Style="{StaticResource GhostButton}" CornerRadius="24" Padding="14,8" BorderWidth="1"
+                        BorderColor="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
                         BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                        Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
-                    <Border.Triggers>
-                        <DataTrigger TargetType="Border" Binding="{Binding PeriodPillActive}" Value="True">
+                        SemanticProperties.Hint="Выбрать период отчёта" VerticalOptions="Center">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding PeriodPillActive}" Value="True">
                             <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}"/>
-                            <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
+                            <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
                         </DataTrigger>
-                    </Border.Triggers>
-                    <HorizontalStackLayout Spacing="5" VerticalOptions="Center">
-                        <Label Text="{Binding PeriodPillText}" FontSize="14" VerticalOptions="Center">
-                            <Label.Triggers>
-                                <DataTrigger TargetType="Label" Binding="{Binding PeriodPillActive}" Value="True">
-                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}"/>
-                                    <Setter Property="FontFamily" Value="InterSemiBold"/>
-                                </DataTrigger>
-                            </Label.Triggers>
-                        </Label>
-                        <Label Text="{x:Static ctl:Glyphs.ChevronDown}" FontFamily="MaterialSymbolsRounded" FontSize="16"
-                               VerticalOptions="Center"
-                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                    </HorizontalStackLayout>
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding PickPeriodCommand}"/>
-                    </Border.GestureRecognizers>
-                </Border>
+                    </Button.Triggers>
+                </Button>
             </Grid>
 
             <!-- Свой период: два DatePicker вместо календаря ActionSheet. -->
             <HorizontalStackLayout Spacing="8" IsVisible="{Binding IsCustom}">
                 <Border StrokeShape="RoundRectangle 12" Padding="10,0" HeightRequest="40">
-                    <DatePicker Date="{Binding FromDate}" Format="d MMM yy" FontSize="14"
+                    <DatePicker Date="{Binding FromDate}" Format="d MMM yy" FontSize="14" SemanticProperties.Description="Начало периода отчёта"
                                 BackgroundColor="Transparent" VerticalOptions="Center"/>
                 </Border>
                 <Label Text="—" VerticalOptions="Center"
                        TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                 <Border StrokeShape="RoundRectangle 12" Padding="10,0" HeightRequest="40">
-                    <DatePicker Date="{Binding ToDate}" Format="d MMM yy" FontSize="14"
+                    <DatePicker Date="{Binding ToDate}" Format="d MMM yy" FontSize="14" SemanticProperties.Description="Конец периода отчёта"
                                 BackgroundColor="Transparent" VerticalOptions="Center"/>
                 </Border>
             </HorizontalStackLayout>
@@ -88,10 +73,11 @@
             </Border>
 
             <!-- Кольцо + итог с дельтой и средним. -->
-            <Grid ColumnDefinitions="136,*" ColumnSpacing="16" IsVisible="{Binding HasData}">
-                <lvc:PieChart x:Name="DonutChart" Grid.Column="0" Series="{Binding PieSeries}"
-                              WidthRequest="136" HeightRequest="136"/>
-                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+            <VerticalStackLayout Spacing="10" IsVisible="{Binding HasData}">
+                <lvc:PieChart x:Name="DonutChart" Series="{Binding PieSeries}"
+                              WidthRequest="104" HeightRequest="104" HorizontalOptions="Center"
+                              SemanticProperties.Description="Диаграмма распределения операций по категориям"/>
+                <VerticalStackLayout Spacing="2">
                     <Label Text="{Binding PeriodTotalCaption}" FontSize="13"
                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                     <Label Text="{Binding PeriodTotalText}" FontSize="30" FontFamily="InterBold"/>
@@ -108,7 +94,7 @@
                     <Label Text="{Binding AvgPerDayText}" FontSize="13" Margin="0,4,0,0"
                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                 </VerticalStackLayout>
-            </Grid>
+            </VerticalStackLayout>
 
             <Label Text="Нет операций за период" IsVisible="{Binding HasNoData}" HorizontalOptions="Center"
                    TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
@@ -118,32 +104,28 @@
                 <Label Text="Топ категорий" FontSize="13"
                        TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
                        Margin="0,0,0,4"/>
-                <CollectionView ItemsSource="{Binding TopRows}">
-                    <CollectionView.ItemTemplate>
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding TopRows}">
+                    <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="vm:TopCategoryRow">
-                            <Grid HeightRequest="52" ColumnSpacing="12" ColumnDefinitions="12,*">
-                                <BoxView Grid.Column="0" WidthRequest="12" HeightRequest="12" VerticalOptions="Center"
+                            <Grid MinimumHeightRequest="52" Padding="0,4" ColumnSpacing="10" ColumnDefinitions="12,*" RowDefinitions="Auto,Auto,Auto">
+                                <BoxView Grid.RowSpan="3" Grid.Column="0" WidthRequest="12" HeightRequest="12" VerticalOptions="Start" Margin="0,7,0,0"
                                          Color="{Binding BarColor}"/>
-                                <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
-                                    <Grid ColumnDefinitions="*,Auto">
-                                        <Label Grid.Column="0" Text="{Binding Name}" FontSize="15"/>
-                                        <HorizontalStackLayout Grid.Column="1" Spacing="4">
-                                            <Label Text="{Binding AmountText}" FontSize="15" FontFamily="InterSemiBold"/>
-                                            <Label Text="{Binding PercentText}" FontSize="13"
-                                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                                        </HorizontalStackLayout>
-                                    </Grid>
-                                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 3"
+                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding Name}" FontSize="15" LineBreakMode="WordWrap"/>
+                                <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                    <Label Text="{Binding AmountText}" FontSize="15" FontFamily="InterSemiBold" LineBreakMode="NoWrap"/>
+                                    <Label Grid.Column="1" Text="{Binding PercentText}" FontSize="13"
+                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                                </Grid>
+                                <Border Grid.Row="2" Grid.Column="1" StrokeThickness="0" StrokeShape="RoundRectangle 3"
                                             BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}"
                                             HeightRequest="6" Padding="0" HorizontalOptions="Fill">
                                         <ctl:AnimatedProgressBar Progress="{Binding Progress}" HeightRequest="6"
                                                                  ProgressColor="{Binding BarColor}"/>
-                                    </Border>
-                                </VerticalStackLayout>
+                                </Border>
                             </Grid>
                         </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
             </VerticalStackLayout>
 
             <!-- По дням: мини-диаграмма без осей; последний день — акцентный. -->
@@ -156,7 +138,18 @@
                 </Grid>
                 <lvc:CartesianChart x:Name="DaysChart" Series="{Binding DaySeries}"
                                     XAxes="{Binding DayXAxes}" YAxes="{Binding DayYAxes}"
-                                    HeightRequest="64"/>
+                                    HeightRequest="112" SemanticProperties.Description="Столбчатая диаграмма сумм по дням"/>
+                <CollectionView ItemsSource="{Binding DailyRows}" HeightRequest="280" SelectionMode="None"
+                                VerticalScrollBarVisibility="Always">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:DailyReportRow">
+                            <Grid MinimumHeightRequest="48" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <Label Text="{Binding DateText}" VerticalOptions="Center"/>
+                                <Label Grid.Column="1" Text="{Binding AmountText}" FontFamily="InterSemiBold" VerticalOptions="Center"/>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
             </VerticalStackLayout>
 
         </VerticalStackLayout>

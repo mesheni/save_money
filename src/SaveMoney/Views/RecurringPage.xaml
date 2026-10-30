@@ -8,7 +8,7 @@
              Appearing="OnAppearing">
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Command="{Binding AddCommand}">
+        <ToolbarItem Text="Добавить платёж" Command="{Binding AddCommand}">
             <ToolbarItem.IconImageSource>
                 <FontImageSource Glyph="{x:Static ctl:Glyphs.Add}" FontFamily="MaterialSymbolsRounded" Size="20"
                                  Color="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
@@ -27,12 +27,12 @@
                                 <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                             </SwipeItems>
                         </SwipeView.RightItems>
-                        <Grid HeightRequest="60" ColumnDefinitions="*,Auto">
+                        <Grid MinimumHeightRequest="60" Padding="0,6" ColumnDefinitions="*,Auto">
                             <VerticalStackLayout Spacing="2" VerticalOptions="Center">
                                 <Label Text="{Binding TitleText}" FontSize="16">
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label" Binding="{Binding IsActive}" Value="False">
-                                            <Setter Property="Opacity" Value="0.5"/>
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
                                         </DataTrigger>
                                     </Label.Triggers>
                                 </Label>
@@ -40,7 +40,7 @@
                                        TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}">
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label" Binding="{Binding IsActive}" Value="False">
-                                            <Setter Property="Opacity" Value="0.6"/>
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
                                         </DataTrigger>
                                     </Label.Triggers>
                                 </Label>
@@ -67,7 +67,8 @@
     </CollectionView>
 
         <Label Text="Регулярных платежей нет — добавьте первый кнопкой сверху"
-               IsVisible="{Binding HasNoRows}" VerticalOptions="Center" HorizontalOptions="Center" Opacity="0.5"/>
+               IsVisible="{Binding HasNoRows}" VerticalOptions="Center" HorizontalOptions="Center"
+               TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
     </Grid>
 
 </ContentPage>

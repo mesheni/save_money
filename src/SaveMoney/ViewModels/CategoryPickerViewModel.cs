@@ -15,6 +15,7 @@ public partial class CategoryRow(string id, string name, string icon, int depth)
     public string Icon { get; } = icon;
     public int Depth { get; } = depth;
     public string Display => $"{Icon} {Name}";
+    public string AccessibleName => Depth > 0 ? $"Подкатегория {Name}" : $"Категория {Name}";
 }
 
 /// <summary>

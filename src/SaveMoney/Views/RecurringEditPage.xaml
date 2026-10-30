@@ -10,38 +10,38 @@
         <VerticalStackLayout Padding="16,10" Spacing="12">
 
             <Label Text="Название (магазин/что это)" FontSize="12" Opacity="0.6"/>
-            <Entry Text="{Binding NameText}" Placeholder="Например, Интернет"/>
+            <Border Padding="12,0" MinimumHeightRequest="48"><Entry Text="{Binding NameText}" Placeholder="Например, Интернет" BackgroundColor="Transparent"/></Border>
 
             <Label Text="Тип" FontSize="12" Opacity="0.6"/>
-            <Picker ItemsSource="{Binding KindOptions}" SelectedIndex="{Binding KindIndex}"/>
+            <Border Padding="12,0" MinimumHeightRequest="48"><Picker ItemsSource="{Binding KindOptions}" SelectedIndex="{Binding KindIndex}" BackgroundColor="Transparent"/></Border>
 
             <Label Text="Счёт" FontSize="12" Opacity="0.6"/>
-            <Picker ItemsSource="{Binding AccountOptions}" SelectedIndex="{Binding AccountIndex}"/>
+            <Border Padding="12,0" MinimumHeightRequest="48"><Picker ItemsSource="{Binding AccountOptions}" SelectedIndex="{Binding AccountIndex}" BackgroundColor="Transparent"/></Border>
 
             <Label Text="Категория" FontSize="12" Opacity="0.6"/>
-            <Picker ItemsSource="{Binding CategoryOptions}" SelectedIndex="{Binding CategoryIndex}"/>
+            <Border Padding="12,0" MinimumHeightRequest="48"><Picker ItemsSource="{Binding CategoryOptions}" SelectedIndex="{Binding CategoryIndex}" BackgroundColor="Transparent"/></Border>
 
             <Label Text="Сумма, ₽" FontSize="12" Opacity="0.6"/>
-            <Entry Text="{Binding AmountText}" Placeholder="0" Keyboard="Text"/>
+            <Border Padding="12,0" MinimumHeightRequest="48"><Entry Text="{Binding AmountText}" Placeholder="0" Keyboard="Numeric" BackgroundColor="Transparent"/></Border>
 
             <Label Text="Периодичность" FontSize="12" Opacity="0.6" Margin="0,8,0,0"/>
-            <Picker ItemsSource="{Binding RecurrenceOptions}" SelectedIndex="{Binding RecurrenceIndex}"/>
+            <Border Padding="12,0" MinimumHeightRequest="48"><Picker ItemsSource="{Binding RecurrenceOptions}" SelectedIndex="{Binding RecurrenceIndex}" BackgroundColor="Transparent"/></Border>
 
-            <HorizontalStackLayout Spacing="8" IsVisible="{Binding IsMonthly}" VerticalOptions="Center">
+            <VerticalStackLayout Spacing="4" IsVisible="{Binding IsMonthly}" VerticalOptions="Center">
                 <Label Text="День месяца" VerticalOptions="Center"/>
-                <Picker ItemsSource="{Binding DayOfMonthOptions}" SelectedIndex="{Binding DayOfMonthIndex}" WidthRequest="100"/>
-            </HorizontalStackLayout>
+                <Border Padding="12,0" MinimumHeightRequest="48"><Picker ItemsSource="{Binding DayOfMonthOptions}" SelectedIndex="{Binding DayOfMonthIndex}" BackgroundColor="Transparent"/></Border>
+            </VerticalStackLayout>
 
-            <HorizontalStackLayout Spacing="8" IsVisible="{Binding IsEveryN}" VerticalOptions="Center">
+            <VerticalStackLayout Spacing="4" IsVisible="{Binding IsEveryN}" VerticalOptions="Center">
                 <Label Text="Каждые" VerticalOptions="Center"/>
-                <Entry Text="{Binding IntervalDaysText}" WidthRequest="70" Keyboard="Numeric"/>
+                <Border Padding="12,0" MinimumHeightRequest="48"><Entry Text="{Binding IntervalDaysText}" Keyboard="Numeric" BackgroundColor="Transparent"/></Border>
                 <Label Text="дней" VerticalOptions="Center"/>
-            </HorizontalStackLayout>
+            </VerticalStackLayout>
 
-            <HorizontalStackLayout Spacing="8" VerticalOptions="Center" Margin="0,8,0,0">
+            <VerticalStackLayout Spacing="4" VerticalOptions="Center" Margin="0,8,0,0">
                 <Label Text="Следующее списание" VerticalOptions="Center"/>
-                <DatePicker Date="{Binding NextDate}" Format="d MMM yyyy"/>
-            </HorizontalStackLayout>
+                <Border Padding="12,0" MinimumHeightRequest="48"><DatePicker Date="{Binding NextDate}" Format="d MMM yyyy"/></Border>
+            </VerticalStackLayout>
 
             <Grid ColumnDefinitions="*,Auto">
                 <Label Text="Активен" VerticalOptions="Center"/>

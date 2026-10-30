@@ -10,26 +10,26 @@
         <VerticalStackLayout Padding="16,10" Spacing="12">
 
             <Label Text="Направление" FontSize="12" Opacity="0.6"/>
-            <Picker ItemsSource="{Binding DirectionOptions}" SelectedIndex="{Binding DirectionIndex}"/>
+            <Border Padding="12,0" MinimumHeightRequest="48"><Picker ItemsSource="{Binding DirectionOptions}" SelectedIndex="{Binding DirectionIndex}" BackgroundColor="Transparent"/></Border>
 
             <Label Text="Кто" FontSize="12" Opacity="0.6"/>
-            <Entry Text="{Binding PersonName}" Placeholder="Имя человека или организации"/>
+            <Border Padding="12,0" MinimumHeightRequest="48"><Entry Text="{Binding PersonName}" Placeholder="Имя человека или организации" BackgroundColor="Transparent"/></Border>
 
             <Label Text="Полная сумма, ₽" FontSize="12" Opacity="0.6"/>
-            <Entry Text="{Binding AmountText}" Placeholder="0" Keyboard="Text"/>
+            <Border Padding="12,0" MinimumHeightRequest="48"><Entry Text="{Binding AmountText}" Placeholder="0" Keyboard="Numeric" BackgroundColor="Transparent"/></Border>
 
             <Grid ColumnDefinitions="*,Auto">
                 <Label Text="Есть срок возврата" VerticalOptions="Center"/>
                 <Switch Grid.Column="1" IsToggled="{Binding HasDueDate}"/>
             </Grid>
 
-            <DatePicker Date="{Binding DueDate}" Format="d MMMM yyyy" IsVisible="{Binding HasDueDate}"/>
+            <Border Padding="12,0" MinimumHeightRequest="48" IsVisible="{Binding HasDueDate}"><DatePicker Date="{Binding DueDate}" Format="d MMMM yyyy"/></Border>
 
             <Label Text="Связанный счёт (для транзакций при погашении)" FontSize="12" Opacity="0.6"/>
-            <Picker ItemsSource="{Binding AccountOptions}" SelectedIndex="{Binding AccountIndex}"/>
+            <Border Padding="12,0" MinimumHeightRequest="48"><Picker ItemsSource="{Binding AccountOptions}" SelectedIndex="{Binding AccountIndex}" BackgroundColor="Transparent"/></Border>
 
             <Label Text="Заметка" FontSize="12" Opacity="0.6"/>
-            <Entry Text="{Binding Note}" Placeholder="Необязательно"/>
+            <Border Padding="12,0" MinimumHeightRequest="48"><Entry Text="{Binding Note}" Placeholder="Необязательно" BackgroundColor="Transparent"/></Border>
 
             <Button Text="Сохранить" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}"/>
 

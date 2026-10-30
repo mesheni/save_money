@@ -13,7 +13,9 @@
          погашения долга, сетка категорий 4×2, подкатегории лентой, клавиатура 4×3.
          Навбар Shell скрыт (режим виден в сегменте) — иначе контент не влезает
          на устройство; клавиатура Auto с фикс. клавишами, наезды исключены. -->
-    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto" RowSpacing="6" Padding="14,10,14,10">
+    <Grid RowDefinitions="*,Auto" RowSpacing="6" Padding="14,6,14,8">
+        <ScrollView Grid.Row="0" VerticalScrollBarVisibility="Never">
+        <VerticalStackLayout Spacing="6">
 
         <!-- Шапка: режим (при правке), баланс и сальдо долгов слева, пилюля «в день до зарплаты» справа. -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
@@ -106,8 +108,8 @@
         </HorizontalStackLayout>
 
         <!-- Строка полей: магазин/заметка, счёт (и «куда» при переводе). -->
-        <Grid Grid.Row="3" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
-            <Border Grid.Column="0" StrokeShape="RoundRectangle 12" Padding="12,0" HeightRequest="44">
+        <Grid Grid.Row="3" RowDefinitions="Auto,Auto" ColumnDefinitions="*,*" ColumnSpacing="8" RowSpacing="6">
+            <Border Grid.Row="0" Grid.ColumnSpan="2" StrokeShape="RoundRectangle 12" Padding="12,0" MinimumHeightRequest="48">
                 <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
                     <Label Text="{x:Static ctl:Glyphs.Search}" FontFamily="MaterialSymbolsRounded" FontSize="18"
                            VerticalOptions="Center"
@@ -117,7 +119,9 @@
                            ClearButtonVisibility="WhileEditing"/>
                 </HorizontalStackLayout>
             </Border>
-            <Border Grid.Column="1" StrokeShape="RoundRectangle 12" Padding="12,0" HeightRequest="44">
+            <Border Grid.Row="1" Grid.Column="0" StrokeShape="RoundRectangle 12" Padding="12,0" MinimumHeightRequest="48"
+                    SemanticProperties.Description="Выбрать счёт" SemanticProperties.Hint="Открывает список счетов">
+                <Grid>
                 <HorizontalStackLayout Spacing="7" VerticalOptions="Center">
                     <Label Text="{x:Static ctl:Glyphs.CreditCard}" FontFamily="MaterialSymbolsRounded" FontSize="18"
                            VerticalOptions="Center"
@@ -127,12 +131,14 @@
                            VerticalOptions="Center"
                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                 </HorizontalStackLayout>
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding PickAccountCommand}"/>
-                </Border.GestureRecognizers>
+                <Button Text="" Command="{Binding PickAccountCommand}" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
+                        SemanticProperties.Description="Выбрать счёт" SemanticProperties.Hint="Открывает список счетов"/>
+                </Grid>
             </Border>
-            <Border Grid.Column="2" StrokeShape="RoundRectangle 12" Padding="12,0" HeightRequest="44"
+            <Border Grid.Row="1" Grid.Column="1" StrokeShape="RoundRectangle 12" Padding="12,0" MinimumHeightRequest="48"
+                    SemanticProperties.Description="Выбрать счёт назначения" SemanticProperties.Hint="Открывает список счетов"
                     IsVisible="{Binding IsTransfer}">
+                <Grid>
                 <HorizontalStackLayout Spacing="7" VerticalOptions="Center">
                     <Label Text="{x:Static ctl:Glyphs.SwapHoriz}" FontFamily="MaterialSymbolsRounded" FontSize="18"
                            VerticalOptions="Center"
@@ -142,15 +148,17 @@
                            VerticalOptions="Center"
                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                 </HorizontalStackLayout>
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding PickTargetCommand}"/>
-                </Border.GestureRecognizers>
+                <Button Text="" Command="{Binding PickTargetCommand}" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
+                        SemanticProperties.Description="Выбрать счёт назначения" SemanticProperties.Hint="Открывает список счетов"/>
+                </Grid>
             </Border>
         </Grid>
 
         <!-- Погашение долга переводом: пилюля видна только в режиме «Перевод». -->
-        <Border Grid.Row="4" StrokeShape="RoundRectangle 12" Padding="12,0" HeightRequest="40"
+        <Border Grid.Row="4" StrokeShape="RoundRectangle 12" Padding="12,0" MinimumHeightRequest="48"
+                SemanticProperties.Description="Связать перевод с долгом"
                 IsVisible="{Binding IsTransfer}">
+            <Grid>
             <HorizontalStackLayout Spacing="7" VerticalOptions="Center">
                 <Label Text="{x:Static ctl:Glyphs.Handshake}" FontFamily="MaterialSymbolsRounded" FontSize="18"
                        VerticalOptions="Center"
@@ -160,15 +168,14 @@
                        VerticalOptions="Center"
                        TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
             </HorizontalStackLayout>
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Command="{Binding PickDebtCommand}"/>
-            </Border.GestureRecognizers>
+            <Button Text="" Command="{Binding PickDebtCommand}" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
+                    SemanticProperties.Description="Связать перевод с долгом"/>
+            </Grid>
         </Border>
 
         <!-- Категории: сетка 4×2, лента подкатегорий под ней. Блок лежит в компактном
              ScrollView без полосы: на низких экранах скроллится он, клавиатура
              и её цифры не сжимаются никогда. -->
-        <ScrollView Grid.Row="5" VerticalScrollBarVisibility="Never">
             <VerticalStackLayout Spacing="8">
                 <Grid ColumnDefinitions="*,Auto">
                     <Label Grid.Column="0" Text="{Binding CategoryLabelText}" FontSize="13" VerticalOptions="Center"
@@ -177,7 +184,7 @@
                             Command="{Binding OpenAllCategoriesCommand}"/>
                 </Grid>
 
-            <CollectionView ItemsSource="{Binding TopCategories}" HeightRequest="136"
+            <CollectionView ItemsSource="{Binding TopCategories}" HeightRequest="152"
                             VerticalScrollBarVisibility="Never">
                 <CollectionView.ItemsLayout>
                     <GridItemsLayout Orientation="Vertical" Span="4"
@@ -185,7 +192,8 @@
                 </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:CategoryChip">
-                        <Border HeightRequest="64" StrokeShape="RoundRectangle 12" StrokeThickness="1" Padding="4"
+                        <Border MinimumHeightRequest="64" StrokeShape="RoundRectangle 12" StrokeThickness="1" Padding="4"
+                                SemanticProperties.Description="{Binding AccessibleName}" SemanticProperties.Hint="Выбрать категорию"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource KeyBgLight}, Dark={StaticResource KeyBgDark}}"
                                 Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
                             <Border.Triggers>
@@ -194,6 +202,7 @@
                                     <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
                                 </DataTrigger>
                             </Border.Triggers>
+                            <Grid>
                             <VerticalStackLayout VerticalOptions="Center" Spacing="6">
                                 <Label Text="{Binding Icon, Converter={StaticResource IconGlyph}}"
                                        FontFamily="MaterialSymbolsRounded" FontSize="22"
@@ -215,22 +224,24 @@
                                     </Label.Triggers>
                                 </Label>
                             </VerticalStackLayout>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding SelectRootCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}"
-                                                      CommandParameter="{Binding .}"/>
-                            </Border.GestureRecognizers>
+                            <Button Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
+                                    Command="{Binding SelectRootCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}"
+                                    CommandParameter="{Binding .}" SemanticProperties.Description="{Binding AccessibleName}"
+                                    SemanticProperties.Hint="Выбрать категорию"/>
+                            </Grid>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
             <!-- Подкатегории выбранного корня: горизонтальная лента чипов. -->
-            <CollectionView ItemsSource="{Binding SubCategories}" ItemsLayout="HorizontalList" HeightRequest="36"
+            <CollectionView ItemsSource="{Binding SubCategories}" ItemsLayout="HorizontalList" MinimumHeightRequest="48"
                             HorizontalScrollBarVisibility="Never"
                             IsVisible="{Binding HasSubCategories}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:CategoryChip">
-                        <Border StrokeShape="RoundRectangle 18" Padding="10,7" Margin="0,0,8,0" StrokeThickness="1"
+                        <Border StrokeShape="RoundRectangle 18" Padding="10,7" Margin="0,0,8,0" MinimumHeightRequest="48" StrokeThickness="1"
+                                SemanticProperties.Description="{Binding AccessibleName}" SemanticProperties.Hint="Выбрать подкатегорию"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
                                 Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
                             <Border.Triggers>
@@ -239,6 +250,7 @@
                                     <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
                                 </DataTrigger>
                             </Border.Triggers>
+                            <Grid>
                             <Label Text="{Binding Name}" FontSize="14"
                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}">
                                 <Label.Triggers>
@@ -247,25 +259,27 @@
                                     </DataTrigger>
                                 </Label.Triggers>
                             </Label>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding SelectSubCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}"
-                                                      CommandParameter="{Binding .}"/>
-                            </Border.GestureRecognizers>
+                            <Button Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
+                                    Command="{Binding SelectSubCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}"
+                                    CommandParameter="{Binding .}" SemanticProperties.Description="{Binding AccessibleName}"
+                                    SemanticProperties.Hint="Выбрать подкатегорию"/>
+                            </Grid>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
             </VerticalStackLayout>
+        </VerticalStackLayout>
         </ScrollView>
 
         <!-- Клавиатура 4×3: цифры, стирание, дата, «Сохранить» высотой в два ряда.
              Ряды Auto с фикс. высотой клавиш: экран любой высоты не обрезает цифры. -->
-        <Grid x:Name="Keypad" Grid.Row="6" ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto,Auto,Auto"
+        <Grid x:Name="Keypad" Grid.Row="1" ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto,Auto,Auto"
               ColumnSpacing="6" RowSpacing="6">
             <Button Grid.Row="0" Grid.Column="0" Text="1" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="1"/>
             <Button Grid.Row="0" Grid.Column="1" Text="2" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="2"/>
             <Button Grid.Row="0" Grid.Column="2" Text="3" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="3"/>
-            <Button Grid.Row="0" Grid.Column="3" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="backspace"
+            <Button Grid.Row="0" Grid.Column="3" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="backspace" SemanticProperties.Description="Удалить последнюю цифру"
                     FontFamily="MaterialSymbolsRounded" FontSize="22" Text="{x:Static ctl:Glyphs.Delete}"/>
 
             <Button Grid.Row="1" Grid.Column="0" Text="4" Style="{StaticResource Key}" Command="{Binding DigitCommand}" CommandParameter="4"/>
@@ -277,9 +291,10 @@
             <Border Grid.Row="1" Grid.Column="3" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="2"
                     BackgroundColor="{AppThemeBinding Light={StaticResource KeyBgLight}, Dark={StaticResource KeyBgDark}}">
                 <Grid RowDefinitions="Auto,Auto" RowSpacing="2" Padding="0,4">
-                    <DatePicker Grid.Row="0" Grid.RowSpan="2" Date="{Binding Date}"
+                    <DatePicker x:Name="DatePickerControl" Grid.Row="0" Grid.RowSpan="2" Date="{Binding Date}"
                                 Opacity="0" BackgroundColor="Transparent" MinimumHeightRequest="0"
-                                HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"/>
+                                HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"
+                                SemanticProperties.Description="Дата операции"/>
                     <Label Grid.Row="0" Text="{x:Static ctl:Glyphs.Calendar}" FontFamily="MaterialSymbolsRounded" FontSize="16"
                            InputTransparent="True"
                            HorizontalOptions="Center"
@@ -287,6 +302,9 @@
                     <Label Grid.Row="1" Text="{Binding DateButtonText}" FontSize="11" InputTransparent="True"
                            HorizontalOptions="Center"
                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                    <Button Grid.RowSpan="2" Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
+                            Clicked="OnPickDateClicked" SemanticProperties.Description="Выбрать дату операции"
+                            SemanticProperties.Hint="Открывает календарь"/>
                 </Grid>
             </Border>
 
@@ -298,7 +316,7 @@
                  из-за чего кнопка болталась в центре двух рядов с пустотами.
                  Fill растягивает ровно на высоту ячейки (2 ряда). -->
             <Button x:Name="SaveButton" Grid.Row="2" Grid.RowSpan="2" Grid.Column="3"
-                    Text="Сохранить" FontSize="12" Padding="2,0"
+                    Text="✓" FontSize="24" Padding="2,0" SemanticProperties.Description="Сохранить операцию"
                     FontFamily="InterSemiBold" VerticalOptions="Fill"
                     BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"
                     TextColor="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}"
@@ -311,7 +329,7 @@
         </Grid>
 
         <!-- Тост «Сохранено»: занимает ВСЕ строки грида (без RowSpan живёт в строке баланса). -->
-        <Border x:Name="SavedToast" Grid.Row="0" Grid.RowSpan="7" IsVisible="False" Opacity="0"
+        <Border x:Name="SavedToast" Grid.Row="0" Grid.RowSpan="2" IsVisible="False" Opacity="0"
                 StrokeThickness="0" StrokeShape="RoundRectangle 999" Padding="18,10"
                 BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"
                 HorizontalOptions="Center" VerticalOptions="End" Margin="16,0,16,16"

@@ -5,6 +5,28 @@ namespace SaveMoney.Helpers;
 /// <summary>Моушн-токены дизайн-контракта Vibrant: 150/240 мс, кривая cubic-bezier(0.2,0,0,1).</summary>
 public static class Motion
 {
+    /// <summary>Honors Android's system-wide animator scale when the user disables motion.</summary>
+    public static bool AnimationsEnabled
+    {
+        get
+        {
+#if ANDROID
+            try
+            {
+                return Android.Provider.Settings.Global.GetFloat(
+                    Android.App.Application.Context.ContentResolver!,
+                    Android.Provider.Settings.Global.AnimatorDurationScale, 1f) > 0f;
+            }
+            catch (Exception)
+            {
+                return true;
+            }
+#else
+            return true;
+#endif
+        }
+    }
+
     /// <summary>Микро-взаимодействия (отклик на нажатие), мс.</summary>
     public const uint Micro = 150;
 
@@ -61,6 +83,13 @@ public static class MotionExtensions
     /// <summary>Мягкое появление снизу: fade + подъём на 14px.</summary>
     public static async Task FadeInUpAsync(this View view, uint ms = Motion.Normal, int delayMs = 0)
     {
+        if (!Motion.AnimationsEnabled)
+        {
+            view.Opacity = 1;
+            view.TranslationY = 0;
+            return;
+        }
+
         if (delayMs > 0)
         {
             await Task.Delay(delayMs);
@@ -80,6 +109,12 @@ public static class MotionExtensions
     /// <summary>Отклик на нажатие: сжатие до 0.96 и упругий возврат.</summary>
     public static async Task PulseAsync(this View view)
     {
+        if (!Motion.AnimationsEnabled)
+        {
+            view.Scale = 1;
+            return;
+        }
+
         await view.ScaleTo(0.96, Motion.Micro, Easing.Linear);
         await view.ScaleTo(1, Motion.Micro + 90, Motion.Vibrant);
     }
@@ -92,6 +127,12 @@ public static class MotionExtensions
     /// </summary>
     public static Task CountUpAsync(this Label ticker, double from, double to, Action<double> apply, uint ms = 500)
     {
+        if (!Motion.AnimationsEnabled)
+        {
+            apply(to);
+            return Task.CompletedTask;
+        }
+
         var tcs = new TaskCompletionSource();
         apply(from);
         new Animation(v => apply(from + (to - from) * v))

@@ -30,7 +30,7 @@ public partial class PaydayPage : ContentPage
         }
     }
 
-    private async void OnBackTapped(object? sender, TappedEventArgs e)
+    private async void OnBackClicked(object? sender, EventArgs e)
     {
         await Navigation.PopAsync();
     }
