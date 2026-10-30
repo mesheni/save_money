@@ -235,12 +235,11 @@
             </CollectionView>
 
             <!-- Подкатегории выбранного корня: горизонтальная лента чипов. -->
-            <CollectionView ItemsSource="{Binding SubCategories}" ItemsLayout="HorizontalList" MinimumHeightRequest="48"
-                            HorizontalScrollBarVisibility="Never"
-                            IsVisible="{Binding HasSubCategories}">
-                <CollectionView.ItemTemplate>
+            <FlexLayout BindableLayout.ItemsSource="{Binding SubCategories}" Direction="Row" Wrap="Wrap"
+                        JustifyContent="Start" AlignItems="Start" IsVisible="{Binding HasSubCategories}">
+                <BindableLayout.ItemTemplate>
                     <DataTemplate x:DataType="vm:CategoryChip">
-                        <Border StrokeShape="RoundRectangle 18" Padding="10,7" Margin="0,0,8,0" MinimumHeightRequest="48" StrokeThickness="1"
+                        <Border StrokeShape="RoundRectangle 18" Padding="10,7" Margin="0,0,8,8" MinimumHeightRequest="48" StrokeThickness="1"
                                 SemanticProperties.Description="{Binding AccessibleName}" SemanticProperties.Hint="Выбрать подкатегорию"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
                                 Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
@@ -266,8 +265,8 @@
                             </Grid>
                         </Border>
                     </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                </BindableLayout.ItemTemplate>
+            </FlexLayout>
             </VerticalStackLayout>
         </VerticalStackLayout>
         </ScrollView>
