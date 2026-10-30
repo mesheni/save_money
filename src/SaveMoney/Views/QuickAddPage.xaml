@@ -236,34 +236,35 @@
 
             <!-- Подкатегории выбранного корня: горизонтальная лента чипов. -->
             <FlexLayout BindableLayout.ItemsSource="{Binding SubCategories}" Direction="Row" Wrap="Wrap"
-                        JustifyContent="Start" AlignItems="Start" IsVisible="{Binding HasSubCategories}">
+                        JustifyContent="Center" AlignItems="Center" IsVisible="{Binding HasSubCategories}">
                 <BindableLayout.ItemTemplate>
                     <DataTemplate x:DataType="vm:CategoryChip">
-                        <Border StrokeShape="RoundRectangle 18" Padding="10,7" Margin="0,0,8,8" MinimumHeightRequest="48" StrokeThickness="1"
-                                SemanticProperties.Description="{Binding AccessibleName}" SemanticProperties.Hint="Выбрать подкатегорию"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                                Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
-                            <Border.Triggers>
-                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}"/>
-                                    <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
-                                </DataTrigger>
-                            </Border.Triggers>
-                            <Grid>
-                            <Label Text="{Binding Name}" FontSize="14"
-                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}">
-                                <Label.Triggers>
-                                    <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
-                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}"/>
+                        <Grid ColumnDefinitions="Auto" MinimumHeightRequest="48" Margin="4,0,4,4">
+                            <Border Grid.Column="0" HeightRequest="40" VerticalOptions="Center"
+                                    StrokeShape="RoundRectangle 18" Padding="10,4" StrokeThickness="1"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}"/>
+                                        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
                                     </DataTrigger>
-                                </Label.Triggers>
-                            </Label>
-                            <Button Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
+                                </Border.Triggers>
+                                <Label Text="{Binding Name}" FontSize="14"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Border>
+                            <Button Grid.Column="0" Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
+                                    HorizontalOptions="Fill" VerticalOptions="Fill" MinimumWidthRequest="0" MinimumHeightRequest="48"
                                     Command="{Binding SelectSubCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}"
                                     CommandParameter="{Binding .}" SemanticProperties.Description="{Binding AccessibleName}"
                                     SemanticProperties.Hint="Выбрать подкатегорию"/>
-                            </Grid>
-                        </Border>
+                        </Grid>
                     </DataTemplate>
                 </BindableLayout.ItemTemplate>
             </FlexLayout>
