@@ -23,7 +23,8 @@
                     <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="vm:MoreMenuItem">
                             <Grid RowDefinitions="Auto,1">
-                                <Grid Grid.Row="0" MinimumHeightRequest="60" Padding="0,8" ColumnSpacing="14" ColumnDefinitions="24,*,Auto"
+                                <Grid Grid.Row="0" MinimumHeightRequest="60" Padding="10,8" ColumnSpacing="14" ColumnDefinitions="24,*,Auto"
+                                      BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}"
                                       SemanticProperties.Description="{Binding Title}" SemanticProperties.Hint="Открыть раздел">
                                     <Grid.Triggers>
                                         <DataTrigger TargetType="Grid" Binding="{Binding IsEnabled}" Value="False">
@@ -44,7 +45,7 @@
                                             </Label.Triggers>
                                         </Label>
                                     </VerticalStackLayout>
-                                    <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18"
+                                    <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18" IsVisible="{Binding IsEnabled}"
                                            VerticalOptions="Center"
                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                                     <Button Grid.ColumnSpan="3" Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
@@ -67,7 +68,8 @@
                     <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="vm:MoreMenuItem">
                             <Grid RowDefinitions="Auto,1">
-                                <Grid Grid.Row="0" MinimumHeightRequest="60" Padding="0,8" ColumnSpacing="14" ColumnDefinitions="24,*,Auto"
+                                <Grid Grid.Row="0" MinimumHeightRequest="60" Padding="10,8" ColumnSpacing="14" ColumnDefinitions="24,*,Auto"
+                                      BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}"
                                       SemanticProperties.Description="{Binding Title}" SemanticProperties.Hint="Открыть раздел">
                                     <Grid.Triggers>
                                         <DataTrigger TargetType="Grid" Binding="{Binding IsEnabled}" Value="False">
@@ -88,7 +90,7 @@
                                             </Label.Triggers>
                                         </Label>
                                     </VerticalStackLayout>
-                                    <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18"
+                                    <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18" IsVisible="{Binding IsEnabled}"
                                            VerticalOptions="Center"
                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                                     <Button Grid.ColumnSpan="3" Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
@@ -111,7 +113,8 @@
                     <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="vm:MoreMenuItem">
                             <Grid RowDefinitions="Auto,1">
-                                <Grid Grid.Row="0" MinimumHeightRequest="60" Padding="0,8" ColumnSpacing="14" ColumnDefinitions="24,*,Auto"
+                                <Grid Grid.Row="0" MinimumHeightRequest="60" Padding="10,8" ColumnSpacing="14" ColumnDefinitions="24,*,Auto"
+                                      BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}"
                                       SemanticProperties.Description="{Binding Title}" SemanticProperties.Hint="Открыть раздел">
                                     <Grid.Triggers>
                                         <DataTrigger TargetType="Grid" Binding="{Binding IsEnabled}" Value="False">
@@ -126,7 +129,7 @@
                                         <Label Text="{Binding Subtitle}" FontSize="13" LineBreakMode="WordWrap"
                                                TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                                     </VerticalStackLayout>
-                                    <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18"
+                                    <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18" IsVisible="{Binding IsEnabled}"
                                            VerticalOptions="Center"
                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                                     <Button Grid.ColumnSpan="3" Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"

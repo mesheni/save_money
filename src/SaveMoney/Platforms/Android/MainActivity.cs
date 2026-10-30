@@ -23,6 +23,19 @@ public class MainActivity : MauiAppCompatActivity
 		HandleWidgetIntent(intent);
 	}
 
+	protected override void OnResume()
+	{
+		base.OnResume();
+		SaveMoney.Helpers.ThemePalette.RefreshPlatform();
+	}
+
+	public override void OnWindowFocusChanged(bool hasFocus)
+	{
+		base.OnWindowFocusChanged(hasFocus);
+		if (hasFocus)
+			SaveMoney.Helpers.ThemePalette.RefreshPlatform();
+	}
+
 	/// <summary>
 	/// Тап по кнопке виджета открывает экран ввода с суммой (пустая сумма — кнопка-иконка,
 	/// просто открывает ввод). При холодном старте Shell ещё не готов — ждём его прогрева.

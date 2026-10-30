@@ -86,6 +86,7 @@ public static class TabBarIndicator
     private static global::Android.Views.View? _strip;
     private static int _lastIndex = -1;
     private static int _lastWidth = -1;
+    private static global::Android.Graphics.Color? _lastAccent;
 
     private static void Sync(global::Android.Views.ViewGroup root)
     {
@@ -98,9 +99,7 @@ public static class TabBarIndicator
             }
 
             var density = _navView.Resources?.DisplayMetrics?.Density ?? 1f;
-            var accent = Application.Current?.RequestedTheme == AppTheme.Dark
-                ? new global::Android.Graphics.Color(0xFF, 0x7A, 0x1A)
-                : new global::Android.Graphics.Color(0xFF, 0x6B, 0x00);
+            var accent = CurrentAccent();
 
             _strip = new global::Android.Views.View(_navView.Context!)
             {
@@ -114,6 +113,13 @@ public static class TabBarIndicator
         if (_navView is null || _strip is null)
         {
             return;
+        }
+
+        var currentAccent = CurrentAccent();
+        if (_lastAccent != currentAccent)
+        {
+            _strip.SetBackgroundColor(currentAccent);
+            _lastAccent = currentAccent;
         }
 
         var menuSize = _navView.Menu?.Size() ?? 0;
@@ -160,6 +166,12 @@ public static class TabBarIndicator
         {
             _strip.TranslationX = targetX;
         }
+    }
+
+    private static global::Android.Graphics.Color CurrentAccent()
+    {
+        var color = SaveMoney.Helpers.ThemePalette.AccentColor;
+        return new global::Android.Graphics.Color((byte)(color.Red * 255), (byte)(color.Green * 255), (byte)(color.Blue * 255));
     }
 
     private static BottomNavigationView? FindBottomNavigationView(global::Android.Views.View view)

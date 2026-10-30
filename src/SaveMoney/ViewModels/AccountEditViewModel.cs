@@ -18,10 +18,10 @@ public partial class AccountEditViewModel(AppDatabase db) : ObservableObject
 
     public static readonly string[] Palette =
     [
-        "#5B8DEF", "#4C6EF5", "#35A7D8", "#3AB0A2",
-        "#2E9455", "#7FB93C", "#E8B31A", "#FF9F45",
-        "#FF6B00", "#DC3D43", "#E56A9A", "#9C7BC7",
-        "#6C5CE7", "#A1887F", "#6B7280", "#50607A",
+        "#92B7CE", "#A6C5D8", "#8CBDB8", "#91B5A2",
+        "#A7C69E", "#C3CE9A", "#E3C98F", "#D9A18A",
+        "#E8B39B", "#D5A1B3", "#C3A5C9", "#ADA6CE",
+        "#A9B5D2", "#BAA99F", "#AFB9BA", "#9EAEBB",
     ];
 
     public ObservableCollection<ColorChip> Colors { get; } = [];
@@ -100,7 +100,10 @@ public partial class AccountEditViewModel(AppDatabase db) : ObservableObject
         InitialBalanceText = MoneyFormat.ForInput(account.InitialBalanceMinor);
         IncludeInTotal = account.IncludeInTotal;
         Archived = account.Archived;
-        SelectColor(account.Color ?? Palette[0]);
+        var savedColor = account.Color ?? Palette[0];
+        if (!Colors.Any(chip => chip.Hex.Equals(savedColor, StringComparison.OrdinalIgnoreCase)))
+            Colors.Add(new ColorChip { Hex = savedColor });
+        SelectColor(savedColor);
 
         return Task.CompletedTask;
     }

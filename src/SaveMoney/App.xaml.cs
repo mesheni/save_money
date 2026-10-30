@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SaveMoney.Core.Database;
 using SaveMoney.Core.Services;
+using SaveMoney.Helpers;
 
 namespace SaveMoney;
 
@@ -11,14 +12,16 @@ public partial class App : Application
         InitializeComponent();
 
         // Сохранённая тема применяется до создания окна, чтобы не мигать светлой.
-        var theme = MauiProgram.Services.GetRequiredService<AppDatabase>()
-            .Settings.Get(SaveMoney.Core.Models.SettingKeys.Theme);
+        var settings = MauiProgram.Services.GetRequiredService<AppDatabase>().Settings;
+        var theme = settings.Get(SaveMoney.Core.Models.SettingKeys.Theme);
         UserAppTheme = theme switch
         {
             "light" => AppTheme.Light,
             "dark" => AppTheme.Dark,
             _ => AppTheme.Unspecified,
         };
+        ThemePalette.Apply(settings.Get(SaveMoney.Core.Models.SettingKeys.Accent), RequestedTheme);
+        RequestedThemeChanged += (_, args) => ThemePalette.Apply(ThemePalette.SelectedKey, args.RequestedTheme);
     }
 
     protected override Window CreateWindow(IActivationState? activationState)

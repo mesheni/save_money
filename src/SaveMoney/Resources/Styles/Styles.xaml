@@ -17,8 +17,8 @@
         <Setter Property="Shell.DisabledColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
         <Setter Property="Shell.NavBarHasShadow" Value="False" />
         <Setter Property="Shell.TabBarBackgroundColor" Value="{AppThemeBinding Light={StaticResource PageBgLight}, Dark={StaticResource PageBgDark}}" />
-        <Setter Property="Shell.TabBarForegroundColor" Value="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}" />
-        <Setter Property="Shell.TabBarTitleColor" Value="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}" />
+        <Setter Property="Shell.TabBarForegroundColor" Value="{DynamicResource AccentText}" />
+        <Setter Property="Shell.TabBarTitleColor" Value="{DynamicResource AccentText}" />
         <Setter Property="Shell.TabBarUnselectedColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
     </Style>
 
@@ -50,6 +50,12 @@
                         <VisualState Name="Pressed">
                             <VisualState.Setters>
                                 <Setter Property="Scale" Value="0.96" />
+                                <Setter Property="Opacity" Value="0.76" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState Name="Disabled">
+                            <VisualState.Setters>
+                                <Setter Property="Opacity" Value="0.42" />
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
@@ -91,11 +97,11 @@
     </Style>
 
     <Style TargetType="ProgressBar">
-        <Setter Property="ProgressColor" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}" />
+        <Setter Property="ProgressColor" Value="{DynamicResource Accent}" />
     </Style>
 
     <Style TargetType="Switch">
-        <Setter Property="OnColor" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}" />
+        <Setter Property="OnColor" Value="{DynamicResource Accent}" />
         <Setter Property="ThumbColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
     </Style>
 
@@ -210,8 +216,8 @@
 
     <Style x:Key="PrimaryButton" TargetType="Button">
         <Setter Property="FontFamily" Value="InterSemiBold" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}" />
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource Accent}" />
+        <Setter Property="TextColor" Value="{DynamicResource OnAccent}" />
         <Setter Property="BorderColor" Value="Transparent" />
         <Setter Property="BorderWidth" Value="0" />
         <Setter Property="CornerRadius" Value="14" />
@@ -221,10 +227,11 @@
 
     <Style x:Key="GhostButton" TargetType="Button">
         <Setter Property="FontFamily" Value="InterSemiBold" />
-        <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="BorderColor" Value="Transparent" />
-        <Setter Property="BorderWidth" Value="0" />
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource AccentSoft}" />
+        <Setter Property="BorderColor" Value="{DynamicResource Accent}" />
+        <Setter Property="BorderWidth" Value="1" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="TextColor" Value="{DynamicResource AccentText}" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="MinimumHeightRequest" Value="48" />
     </Style>

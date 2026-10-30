@@ -28,7 +28,7 @@
             </Border>
 
             <Label Text="Цвет" FontSize="12" Opacity="0.6"/>
-            <CollectionView ItemsSource="{Binding Colors}" HeightRequest="216" VerticalScrollBarVisibility="Never">
+            <CollectionView ItemsSource="{Binding Colors}" HeightRequest="280" VerticalScrollBarVisibility="Never">
                 <CollectionView.ItemsLayout>
                     <GridItemsLayout Orientation="Vertical" Span="4" HorizontalItemSpacing="8" VerticalItemSpacing="8"/>
                 </CollectionView.ItemsLayout>
@@ -42,7 +42,7 @@
                                 Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
                             <Border.Triggers>
                                 <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                    <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
+                                    <Setter Property="Stroke" Value="{DynamicResource Accent}"/>
                                 </DataTrigger>
                             </Border.Triggers>
                             <Grid>
@@ -50,8 +50,14 @@
                                         Command="{Binding SelectColorCommand, Source={RelativeSource AncestorType={x:Type vm:AccountEditViewModel}}}"
                                         CommandParameter="{Binding .}" SemanticProperties.Description="{Binding AccessibleName}"
                                         SemanticProperties.Hint="Выбрать цвет счёта"/>
-                                <Label Text="✓" IsVisible="{Binding IsSelected}" HorizontalOptions="Center" VerticalOptions="Center"
-                                       TextColor="White" InputTransparent="True" FontFamily="InterBold" FontSize="20"/>
+                                <Border IsVisible="{Binding IsSelected}" WidthRequest="26" HeightRequest="26"
+                                        HorizontalOptions="Center" VerticalOptions="Center" StrokeThickness="0"
+                                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                                        InputTransparent="True">
+                                    <Label Text="✓" HorizontalOptions="Center" VerticalOptions="Center"
+                                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                           FontFamily="InterBold" FontSize="17"/>
+                                </Border>
                             </Grid>
                         </Border>
                     </DataTemplate>

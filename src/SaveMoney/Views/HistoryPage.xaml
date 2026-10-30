@@ -22,14 +22,14 @@
         <!-- Строка поиска: появляется по тапу на лупу. -->
         <Border Grid.Row="1" StrokeShape="RoundRectangle 12" Padding="12,0" HeightRequest="44"
                 IsVisible="{Binding IsSearchVisible}">
-            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8" VerticalOptions="Center">
                 <Label Text="{x:Static ctl:Glyphs.Search}" FontFamily="MaterialSymbolsRounded" FontSize="18"
                        VerticalOptions="Center"
                        TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                <Entry Text="{Binding SearchText}" Placeholder="Поиск по операциям"
+                <Entry Grid.Column="1" Text="{Binding SearchText}" Placeholder="Поиск по операциям"
                        BackgroundColor="Transparent" FontSize="15" MinimumHeightRequest="42"
                        SemanticProperties.Description="Поиск операций"/>
-            </HorizontalStackLayout>
+            </Grid>
         </Border>
 
         <!-- Пилюли-фильтры: активная подсвечивается. -->
@@ -41,8 +41,8 @@
                     SemanticProperties.Hint="Выбрать период">
                 <Button.Triggers>
                     <DataTrigger TargetType="Button" Binding="{Binding PeriodPillActive}" Value="True">
-                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}"/>
-                        <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
+                        <Setter Property="BackgroundColor" Value="{DynamicResource AccentSoft}"/>
+                        <Setter Property="BorderColor" Value="{DynamicResource Accent}"/>
                     </DataTrigger>
                 </Button.Triggers>
             </Button>
@@ -52,8 +52,8 @@
                     SemanticProperties.Hint="Фильтр по счёту">
                 <Button.Triggers>
                     <DataTrigger TargetType="Button" Binding="{Binding AccountPillActive}" Value="True">
-                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}"/>
-                        <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
+                        <Setter Property="BackgroundColor" Value="{DynamicResource AccentSoft}"/>
+                        <Setter Property="BorderColor" Value="{DynamicResource Accent}"/>
                     </DataTrigger>
                 </Button.Triggers>
             </Button>
@@ -63,8 +63,8 @@
                     SemanticProperties.Hint="Фильтр по категории">
                 <Button.Triggers>
                     <DataTrigger TargetType="Button" Binding="{Binding CategoryPillActive}" Value="True">
-                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}"/>
-                        <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
+                        <Setter Property="BackgroundColor" Value="{DynamicResource AccentSoft}"/>
+                        <Setter Property="BorderColor" Value="{DynamicResource Accent}"/>
                     </DataTrigger>
                 </Button.Triggers>
             </Button>
@@ -115,7 +115,9 @@
                                     <SwipeItem Text="Удалить" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                                 </SwipeItems>
                             </SwipeView.RightItems>
-                            <Grid MinimumHeightRequest="60" ColumnSpacing="12" ColumnDefinitions="40,*,Auto" Padding="0,6">
+                            <Grid MinimumHeightRequest="60" ColumnSpacing="10" ColumnDefinitions="40,*,Auto,Auto" Padding="10,6"
+                                  BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}"
+                                  SemanticProperties.Hint="Открыть операцию для изменения">
                                 <Border Grid.Column="0" WidthRequest="40" HeightRequest="40" StrokeThickness="0"
                                         StrokeShape="RoundRectangle 20" HorizontalOptions="Start" VerticalOptions="Center"
                                         BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}">
@@ -140,6 +142,8 @@
                                         </DataTrigger>
                                     </Label.Triggers>
                                 </Label>
+                                <Label Grid.Column="3" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18" VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:HistoryViewModel}}}" CommandParameter="{Binding .}"/>
                                 </Grid.GestureRecognizers>

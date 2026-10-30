@@ -76,6 +76,7 @@ public partial class QuickAddViewModel : ObservableObject,
     public partial string AmountText { get; set; } = "";
 
     public string AmountDisplay => string.IsNullOrEmpty(AmountText) ? "0" : AmountText;
+    public double AmountFontSize => AmountDisplay.Length > 9 ? 24 : AmountDisplay.Length > 6 ? 32 : 42;
 
     /// <summary>Знак слева от суммы: «−» расход, «+» доход, пусто у перевода.</summary>
     public string SignText => IsTransfer ? "" : IsIncome ? "+" : "−";
@@ -83,6 +84,7 @@ public partial class QuickAddViewModel : ObservableObject,
     partial void OnAmountTextChanged(string value)
     {
         OnPropertyChanged(nameof(AmountDisplay));
+        OnPropertyChanged(nameof(AmountFontSize));
         OnPropertyChanged(nameof(RepaymentRemainingText));
     }
 

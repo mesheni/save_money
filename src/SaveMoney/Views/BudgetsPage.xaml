@@ -30,7 +30,9 @@
                                     <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                                 </SwipeItems>
                             </SwipeView.RightItems>
-                            <VerticalStackLayout Padding="0,10" Spacing="7">
+                            <VerticalStackLayout Padding="10" Spacing="7" MinimumHeightRequest="64"
+                                                 BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}"
+                                                 SemanticProperties.Hint="Открыть лимит для изменения">
                                 <Grid ColumnDefinitions="*,Auto,Auto">
                                     <Label FontSize="16">
                                         <Label.FormattedText>

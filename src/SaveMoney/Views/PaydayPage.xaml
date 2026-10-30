@@ -34,7 +34,7 @@
                 </Label>
                 <HorizontalStackLayout Spacing="4">
                     <Label Text="{Binding PerDayText}" FontSize="15" FontFamily="InterSemiBold"
-                           TextColor="{AppThemeBinding Light={StaticResource AccentTextLight}, Dark={StaticResource AccentTextDark}}"/>
+                           TextColor="{DynamicResource AccentText}"/>
                     <Label Text="{Binding DaysLeftText}" FontSize="15"
                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                 </HorizontalStackLayout>

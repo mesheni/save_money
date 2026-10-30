@@ -27,7 +27,9 @@
                                 <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                             </SwipeItems>
                         </SwipeView.RightItems>
-                        <Grid MinimumHeightRequest="60" Padding="0,6" ColumnDefinitions="*,Auto">
+                        <Grid MinimumHeightRequest="60" Padding="10,6" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10"
+                              BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}"
+                              SemanticProperties.Hint="Открыть платёж для изменения">
                             <VerticalStackLayout Spacing="2" VerticalOptions="Center">
                                 <Label Text="{Binding TitleText}" FontSize="16">
                                     <Label.Triggers>
@@ -54,6 +56,8 @@
                                     </DataTrigger>
                                 </Label.Triggers>
                             </Label>
+                            <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18" VerticalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:RecurringViewModel}}}" CommandParameter="{Binding .}"/>
                             </Grid.GestureRecognizers>

@@ -9,6 +9,7 @@ using SkiaSharp;
 using SaveMoney.Core.Database;
 using SaveMoney.Core.Models;
 using SaveMoney.Core.Services;
+using SaveMoney.Helpers;
 
 namespace SaveMoney.ViewModels;
 
@@ -44,7 +45,7 @@ public partial class ReportsViewModel(
     // Тёмная тема — свои ступени: тёмно-графитовые срезы на тёмном фоне не видны.
     private static readonly SKColor[] PaletteLight =
     [
-        new(0xFF, 0x6B, 0x00),
+        new(0xC3, 0xA4, 0x90),
         new(0x17, 0x17, 0x1C),
         new(0x6B, 0x6B, 0x7A),
         new(0xA9, 0xA9, 0xB6),
@@ -56,7 +57,7 @@ public partial class ReportsViewModel(
 
     private static readonly SKColor[] PaletteDark =
     [
-        new(0xFF, 0x7A, 0x1A),
+        new(0xC3, 0xA4, 0x90),
         new(0xF2, 0xF2, 0xF4),
         new(0xB9, 0xB9, 0xC2),
         new(0x8E, 0x8E, 0x98),
@@ -66,15 +67,29 @@ public partial class ReportsViewModel(
         new(0x7C, 0x7C, 0x86),
     ];
 
-    private static SKColor[] Palette =>
-        Application.Current?.RequestedTheme == AppTheme.Dark ? PaletteDark : PaletteLight;
+    private static SKColor[] Palette
+    {
+        get
+        {
+            var colors = (SKColor[])(Application.Current?.RequestedTheme == AppTheme.Dark ? PaletteDark : PaletteLight).Clone();
+            colors[0] = BarsAccent;
+            return colors;
+        }
+    }
 
     private static SKColor BarsGray =>
         Application.Current?.RequestedTheme == AppTheme.Dark
             ? new SKColor(0x45, 0x45, 0x50)
             : new SKColor(0xDA, 0xDA, 0xE1);
 
-    private static readonly SKColor BarsAccent = new(0xFF, 0x6B, 0x00);
+    private static SKColor BarsAccent
+    {
+        get
+        {
+            var color = ThemePalette.AccentColor;
+            return new SKColor((byte)(color.Red * 255), (byte)(color.Green * 255), (byte)(color.Blue * 255));
+        }
+    }
 
     private static readonly string[] PeriodList = ["Неделя", "Месяц", "3 месяца", "Текущий цикл", "Всё", "Свой период"];
 
@@ -135,7 +150,16 @@ public partial class ReportsViewModel(
     [ObservableProperty]
     public partial Axis[] DayYAxes { get; set; } = [new Axis { IsVisible = false, MinLimit = 0 }];
 
-    public string DaysCaption => IsExpenses ? "Расходы по дням" : "Доходы по дням";
+    public string DaysCaption => IsExpenses ? "Распределение расходов" : "Распределение доходов";
+
+    [ObservableProperty]
+    public partial double DailyRowsHeight { get; set; } = 48;
+
+    [ObservableProperty]
+    public partial double DayChartWidth { get; set; } = 320;
+
+    [ObservableProperty]
+    public partial string DayChartHint { get; set; } = "";
 
     public ObservableCollection<TopCategoryRow> TopRows { get; } = [];
 
@@ -321,39 +345,52 @@ public partial class ReportsViewModel(
             return;
         }
 
-        // Одна серия серых столбиков; последний день периода — акцентный
-        // (вторая серия со значениями только в последней точке).
-        var grayValues = new double?[points.Count];
-        var accentValues = new double?[points.Count];
+        var values = new double[points.Count];
+        var weekly = (DateTimeOffset.FromUnixTimeSeconds(to).ToLocalTime().Date
+            - DateTimeOffset.FromUnixTimeSeconds(from).ToLocalTime().Date).TotalDays > 45;
+        DayChartWidth = Math.Max(320, points.Count * 44 + 64);
+        DayChartHint = (weekly ? "Каждый столбец — неделя, подпись — её начало." : "Каждый столбец — один день.")
+            + " Листайте график вбок. Точные суммы — под графиком.";
         for (var i = 0; i < points.Count; i++)
         {
             var value = (IsExpenses ? points[i].ExpenseMinor : points[i].IncomeMinor) / 100.0;
             var amountMinor = IsExpenses ? points[i].ExpenseMinor : points[i].IncomeMinor;
-            DailyRows.Add(new DailyReportRow(points[i].Label, MoneyFormat.Rubles(amountMinor)));
-            var isLast = i == points.Count - 1;
-            grayValues[i] = isLast ? null : value;
-            accentValues[i] = isLast ? value : null;
+            if (amountMinor > 0)
+                DailyRows.Add(new DailyReportRow((weekly ? "Неделя с " : "") + points[i].Label, MoneyFormat.Rubles(amountMinor)));
+            values[i] = value;
         }
+        DailyRowsHeight = Math.Min(240, DailyRows.Count * 48);
 
         DaySeries =
         [
-            new ColumnSeries<double?>
+            new ColumnSeries<double>
             {
-                Values = grayValues,
-                Fill = new SolidColorPaint(BarsGray),
-                MaxBarWidth = 12,
-            },
-            new ColumnSeries<double?>
-            {
-                Values = accentValues,
+                Name = IsExpenses ? "Расходы" : "Доходы",
+                Values = values,
                 Fill = new SolidColorPaint(BarsAccent),
-                MaxBarWidth = 12,
+                MaxBarWidth = 24,
+                Rx = 4,
+                Ry = 4,
+                YToolTipLabelFormatter = point => $"{points[(int)point.Coordinate.SecondaryValue].Label}: {point.Coordinate.PrimaryValue:N2} ₽",
             },
         ];
 
-        // Мини-диаграмма без осей (как в макете): линия-основа задаётся фоном графика.
-        DayXAxes = [new Axis { IsVisible = false, Labels = points.Select(p => p.Label).ToArray() }];
-        DayYAxes = [new Axis { IsVisible = false, MinLimit = 0 }];
+        var dark = Application.Current?.RequestedTheme == AppTheme.Dark;
+        var labelPaint = new SolidColorPaint(SKColor.Parse(dark ? "#B9C3C5" : "#58646A"));
+        DayXAxes = [new Axis
+        {
+            Labels = points.Select(p => p.Label).ToArray(),
+            LabelsPaint = labelPaint, TextSize = 11,
+            MinStep = 1, ForceStepToMin = true, MinLimit = -0.5, MaxLimit = points.Count - 0.5,
+            SeparatorsPaint = null,
+        }];
+        DayYAxes = [new Axis
+        {
+            MinLimit = 0, LabelsPaint = labelPaint, TextSize = 11,
+            Labeler = value => value >= 1000000 ? $"{value / 1000000:0.#} млн ₽"
+                : value >= 1000 ? $"{value / 1000:0.#} тыс ₽" : $"{value:0} ₽",
+            SeparatorsPaint = new SolidColorPaint(SKColor.Parse(dark ? "#3A4146" : "#E1E5E2")) { StrokeThickness = 1 },
+        }];
     }
 
     private void BuildTop(long from, long to, string kind)

@@ -34,11 +34,11 @@ public partial class ReportsPage : ContentPage
     {
         var isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
         var tooltipBackground = new SolidColorPaint(isDark
-            ? new SKColor(0x1A, 0x1A, 0x1F)
+            ? new SKColor(0x22, 0x26, 0x2B)
             : new SKColor(0xFF, 0xFF, 0xFF));
         var tooltipText = new SolidColorPaint(isDark
-            ? new SKColor(0xF2, 0xF2, 0xF4)
-            : new SKColor(0x17, 0x17, 0x1C));
+            ? new SKColor(0xF1, 0xF3, 0xF2)
+            : new SKColor(0x25, 0x30, 0x38));
 
         ApplyChartStyle(DonutChart, tooltipBackground, tooltipText);
         ApplyChartStyle(DaysChart, tooltipBackground, tooltipText);
@@ -67,6 +67,7 @@ public partial class ReportsPage : ContentPage
 
     private async void OnAppearing(object? sender, EventArgs e)
     {
+        StyleCharts();
         await _viewModel.InitializeAsync();
 
         if (!_entranceAnimated)
@@ -74,5 +75,12 @@ public partial class ReportsPage : ContentPage
             _entranceAnimated = true;
             await RootStack.Children.OfType<View>().FadeInUpStaggeredAsync();
         }
+    }
+
+    private async void OnDaysChartSizeChanged(object? sender, EventArgs e)
+    {
+        // При открытии показываем последние даты, а не пустое начало периода.
+        if (DaysChart.Width > 0)
+            await DayChartScroll.ScrollToAsync(DaysChart.Width, 0, false);
     }
 }

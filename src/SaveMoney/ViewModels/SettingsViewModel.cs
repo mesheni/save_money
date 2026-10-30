@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using SaveMoney.Core.Database;
 using SaveMoney.Core.Models;
 using SaveMoney.Core.Services;
+using SaveMoney.Helpers;
 
 namespace SaveMoney.ViewModels;
 
@@ -13,9 +14,14 @@ public partial class SettingsViewModel(AppDatabase db, CsvExportService csv) : O
     private bool _loaded;
 
     public IReadOnlyList<string> ThemeOptions { get; } = ["Системная", "Светлая", "Тёмная"];
+    public IReadOnlyList<string> AccentOptions { get; } = ThemePalette.Options.Select(option => option.Name).ToArray();
+    public Color SelectedAccentPreview => Color.FromArgb(ThemePalette.Options[Math.Clamp(AccentIndex, 0, ThemePalette.Options.Count - 1)].Preview);
 
     [ObservableProperty]
     public partial int ThemeIndex { get; set; }
+
+    [ObservableProperty]
+    public partial int AccentIndex { get; set; }
 
     /// <summary>Ввод за 2 касания: тап по категории с введённой суммой сразу сохраняет операцию.</summary>
     [ObservableProperty]
@@ -43,6 +49,8 @@ public partial class SettingsViewModel(AppDatabase db, CsvExportService csv) : O
             "dark" => 2,
             _ => 0,
         };
+        var savedAccent = _db.Settings.Get(SettingKeys.Accent);
+        AccentIndex = Math.Max(0, ThemePalette.Options.ToList().FindIndex(option => option.Key == savedAccent));
         QuickSaveOnCategory = _db.Settings.GetBool(SettingKeys.QuickSaveOnCategory, false);
 
         return Task.CompletedTask;
@@ -83,6 +91,18 @@ public partial class SettingsViewModel(AppDatabase db, CsvExportService csv) : O
         }
 
         _db.Settings.Set(SettingKeys.Theme, themeValue);
+        ThemePalette.Apply(ThemePalette.SelectedKey, Application.Current?.RequestedTheme ?? AppTheme.Light);
+    }
+
+    partial void OnAccentIndexChanged(int value)
+    {
+        OnPropertyChanged(nameof(SelectedAccentPreview));
+        if (!_loaded || value < 0 || value >= ThemePalette.Options.Count)
+            return;
+
+        var key = ThemePalette.Options[value].Key;
+        _db.Settings.Set(SettingKeys.Accent, key);
+        ThemePalette.Apply(key, Application.Current?.RequestedTheme ?? AppTheme.Light);
     }
 
     [RelayCommand]

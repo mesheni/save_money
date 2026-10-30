@@ -23,26 +23,26 @@
                         SemanticProperties.Hint="Выбрать период отчёта" VerticalOptions="Center">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding PeriodPillActive}" Value="True">
-                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}"/>
-                            <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"/>
+                            <Setter Property="BackgroundColor" Value="{DynamicResource AccentSoft}"/>
+                            <Setter Property="BorderColor" Value="{DynamicResource Accent}"/>
                         </DataTrigger>
                     </Button.Triggers>
                 </Button>
             </Grid>
 
             <!-- Свой период: два DatePicker вместо календаря ActionSheet. -->
-            <HorizontalStackLayout Spacing="8" IsVisible="{Binding IsCustom}">
-                <Border StrokeShape="RoundRectangle 12" Padding="10,0" HeightRequest="40">
+            <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="8" IsVisible="{Binding IsCustom}">
+                <Border StrokeShape="RoundRectangle 12" Padding="10,0" MinimumHeightRequest="48">
                     <DatePicker Date="{Binding FromDate}" Format="d MMM yy" FontSize="14" SemanticProperties.Description="Начало периода отчёта"
                                 BackgroundColor="Transparent" VerticalOptions="Center"/>
                 </Border>
-                <Label Text="—" VerticalOptions="Center"
+                <Label Grid.Column="1" Text="—" VerticalOptions="Center"
                        TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                <Border StrokeShape="RoundRectangle 12" Padding="10,0" HeightRequest="40">
+                <Border Grid.Column="2" StrokeShape="RoundRectangle 12" Padding="10,0" MinimumHeightRequest="48">
                     <DatePicker Date="{Binding ToDate}" Format="d MMM yy" FontSize="14" SemanticProperties.Description="Конец периода отчёта"
                                 BackgroundColor="Transparent" VerticalOptions="Center"/>
                 </Border>
-            </HorizontalStackLayout>
+            </Grid>
 
             <!-- Сегмент расходы/доходы. -->
             <Border Style="{StaticResource SegContainer}">
@@ -136,10 +136,16 @@
                     <Button Grid.Column="1" Text="Скачать CSV" Style="{StaticResource GhostButton}" FontSize="13"
                             Command="{Binding ExportCsvCommand}"/>
                 </Grid>
+                <Label Text="{Binding DayChartHint}" Style="{StaticResource MutedText}"/>
+                <ScrollView x:Name="DayChartScroll" Orientation="Horizontal" HorizontalScrollBarVisibility="Always">
                 <lvc:CartesianChart x:Name="DaysChart" Series="{Binding DaySeries}"
                                     XAxes="{Binding DayXAxes}" YAxes="{Binding DayYAxes}"
-                                    HeightRequest="112" SemanticProperties.Description="Столбчатая диаграмма сумм по дням"/>
-                <CollectionView ItemsSource="{Binding DailyRows}" HeightRequest="280" SelectionMode="None"
+                                    WidthRequest="{Binding DayChartWidth}" HeightRequest="232"
+                                    SizeChanged="OnDaysChartSizeChanged"
+                                    SemanticProperties.Description="График сумм с датами под каждым столбцом"/>
+                </ScrollView>
+                <Label Text="Периоды с операциями" Style="{StaticResource MutedText}" Margin="0,8,0,0"/>
+                <CollectionView ItemsSource="{Binding DailyRows}" HeightRequest="{Binding DailyRowsHeight}" SelectionMode="None"
                                 VerticalScrollBarVisibility="Always">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:DailyReportRow">

@@ -13,8 +13,10 @@
                 <DataTemplate x:DataType="vm:CategoryRow">
                     <Grid RowDefinitions="Auto,Auto">
                         <!-- Строка: отступ 20 у подкатегорий, иконка, имя. Тап — выбор. -->
-                        <Grid Grid.Row="0" MinimumHeightRequest="52" Padding="0,4" ColumnSpacing="12"
-                              ColumnDefinitions="Auto,24,*" SemanticProperties.Description="{Binding AccessibleName}"
+                        <Grid Grid.Row="0" MinimumHeightRequest="52" Padding="10,4" ColumnSpacing="12"
+                              ColumnDefinitions="Auto,24,*,Auto"
+                              BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}"
+                              SemanticProperties.Description="{Binding AccessibleName}"
                               SemanticProperties.Hint="Выбрать категорию">
                             <BoxView Grid.Column="0" Color="Transparent" WidthRequest="0" HorizontalOptions="Start">
                                 <BoxView.Triggers>
@@ -46,7 +48,9 @@
                                     </DataTrigger>
                                 </Label.Triggers>
                             </Label>
-                            <Button Grid.ColumnSpan="3" Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
+                            <Label Grid.Column="3" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18" VerticalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                            <Button Grid.ColumnSpan="4" Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
                                     Command="{Binding PickCommand, Source={RelativeSource AncestorType={x:Type vm:CategoryPickerViewModel}}}"
                                     CommandParameter="{Binding .}" SemanticProperties.Description="{Binding AccessibleName}"
                                     SemanticProperties.Hint="Выбрать категорию"/>

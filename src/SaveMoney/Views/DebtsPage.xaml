@@ -33,7 +33,9 @@
                                     <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                                 </SwipeItems>
                             </SwipeView.RightItems>
-                            <Grid MinimumHeightRequest="64" Padding="0,6" ColumnDefinitions="24,*,Auto" ColumnSpacing="14">
+                            <Grid MinimumHeightRequest="64" Padding="10,6" ColumnDefinitions="24,*,Auto,Auto" ColumnSpacing="10"
+                                  BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}"
+                                  SemanticProperties.Hint="Открыть долг">
                                 <Label Grid.Column="0" Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="24"
                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
                                        VerticalOptions="Center"/>
@@ -55,6 +57,8 @@
                                     <Label Text="{Binding TotalText}" FontSize="12"
                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                                 </VerticalStackLayout>
+                                <Label Grid.Column="3" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18" VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding OpenCommand, Source={RelativeSource AncestorType={x:Type vm:DebtsViewModel}}}" CommandParameter="{Binding .}"/>
                                 </Grid.GestureRecognizers>

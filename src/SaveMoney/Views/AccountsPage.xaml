@@ -30,7 +30,9 @@
                             </SwipeItems>
                         </SwipeView.RightItems>
                         <Grid RowDefinitions="Auto,1">
-                            <Grid Grid.Row="0" MinimumHeightRequest="60" Padding="0,6" ColumnDefinitions="24,*,Auto" ColumnSpacing="14">
+                            <Grid Grid.Row="0" MinimumHeightRequest="60" Padding="10,6" ColumnDefinitions="24,*,Auto,Auto" ColumnSpacing="10"
+                                  BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}"
+                                  SemanticProperties.Hint="Открыть счёт для изменения">
                                 <Label Grid.Column="0" Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="24"
                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
                                        VerticalOptions="Center"/>
@@ -44,6 +46,8 @@
                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                                 </VerticalStackLayout>
                                 <Label Grid.Column="2" Text="{Binding BalanceText}" FontSize="15" FontFamily="InterSemiBold" VerticalOptions="Center"/>
+                                <Label Grid.Column="3" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18" VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:AccountsViewModel}}}" CommandParameter="{Binding .}"/>
                                 </Grid.GestureRecognizers>

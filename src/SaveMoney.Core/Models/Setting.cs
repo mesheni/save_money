@@ -10,6 +10,7 @@ public static class SettingKeys
     public const string CycleAnchorUnix = "cycle_anchor_unix";
     public const string CycleDays = "cycle_days";
     public const string Theme = "theme";
+    public const string Accent = "accent";
     public const string IsPro = "is_pro";
 
     /// <summary>Ввод за 2 касания: тап по категории с введённой суммой сразу сохраняет операцию.</summary>
