@@ -318,8 +318,9 @@ public partial class HistoryViewModel(AppDatabase db, HistoryService history) : 
                         || (i.Subtitle?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false));
                 }
 
+                var filteredItems = items.ToList();
                 ((List<HistoryItem>)g.Items).Clear();
-                ((List<HistoryItem>)g.Items).AddRange(items);
+                ((List<HistoryItem>)g.Items).AddRange(filteredItems);
             }
         }
 
@@ -333,9 +334,10 @@ public partial class HistoryViewModel(AppDatabase db, HistoryService history) : 
                 continue;
             }
 
-            income += g.IncomeMinor;
-            expense += g.ExpenseMinor;
-            Groups.Add(new HistoryGroupVM(g.Items.Select(i => new HistoryItemVM
+            var visibleItems = g.Items.ToList();
+            income += visibleItems.Where(i => i.SignedAmountMinor > 0).Sum(i => i.SignedAmountMinor);
+            expense += visibleItems.Where(i => i.SignedAmountMinor < 0).Sum(i => -i.SignedAmountMinor);
+            Groups.Add(new HistoryGroupVM(visibleItems.Select(i => new HistoryItemVM
             {
                 Id = i.Id,
                 Icon = i.Icon,
@@ -348,8 +350,8 @@ public partial class HistoryViewModel(AppDatabase db, HistoryService history) : 
             }))
             {
                 Date = g.Date,
-                IncomeMinor = g.IncomeMinor,
-                ExpenseMinor = g.ExpenseMinor,
+                IncomeMinor = visibleItems.Where(i => i.SignedAmountMinor > 0).Sum(i => i.SignedAmountMinor),
+                ExpenseMinor = visibleItems.Where(i => i.SignedAmountMinor < 0).Sum(i => -i.SignedAmountMinor),
             });
         }
 
