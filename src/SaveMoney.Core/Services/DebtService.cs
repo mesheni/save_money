@@ -16,53 +16,54 @@ public sealed class DebtService(AppDatabase database, TransactionService transac
 
     public void AddPayment(Debt debt, long amountMinor, long dateUnix, bool createTransaction)
     {
-        if (amountMinor <= 0)
-        {
-            return;
-        }
+        if (amountMinor <= 0) return;
+        if (amountMinor > _db.Debts.GetRemaining(debt))
+            throw new ArgumentException("Сумма должна быть больше нуля и не превышать остаток долга");
 
-        _db.Debts.AddPayment(new DebtPayment
+        _db.Connection.RunInTransaction(() =>
         {
-            DebtId = debt.Id,
-            AmountMinor = amountMinor,
-            DateUnix = dateUnix,
-        });
+            var payment = new DebtPayment { DebtId = debt.Id, AmountMinor = amountMinor, DateUnix = dateUnix };
 
-        if (!createTransaction || string.IsNullOrEmpty(debt.AccountId))
-        {
-            return;
-        }
-
-        var kind = debt.Direction == DebtDirection.OwedToMe
-            ? TransactionKind.Income
-            : TransactionKind.Expense;
-
-        var category = _db.Categories.GetAllActive()
-            .FirstOrDefault(c => c.Kind == kind && c.Name == RepaymentCategoryName);
-        if (category is null)
-        {
-            // Системную категорию могли переименовать: молчаливый пропуск терял бы
-            // обещанную транзакцию — пересоздаём категорию и записываем платёж.
-            category = new Category
+            if (!createTransaction || string.IsNullOrEmpty(debt.AccountId))
             {
-                Name = RepaymentCategoryName,
-                Icon = kind == TransactionKind.Income ? IconKeys.Return : IconKeys.Credit,
-                Kind = kind,
-                IsDefault = true,
-            };
-            _db.Categories.Save(category);
-        }
+                _db.Debts.AddPayment(payment);
+                return;
+            }
 
-        _transactions.Save(new Transaction
-        {
-            AccountId = debt.AccountId!,
-            CategoryId = category.Id,
-            AmountMinor = amountMinor,
-            Kind = kind,
-            Payee = debt.PersonName,
-            Note = $"Долг: {debt.PersonName}",
-            DateUnix = dateUnix,
-            Source = TransactionSource.Manual,
+            var kind = debt.Direction == DebtDirection.OwedToMe
+                ? TransactionKind.Income
+                : TransactionKind.Expense;
+
+            var category = _db.Categories.GetAllActive()
+                .FirstOrDefault(c => c.Kind == kind && c.Name == RepaymentCategoryName);
+            if (category is null)
+            {
+                // Системную категорию могли переименовать: молчаливый пропуск терял бы
+                // обещанную транзакцию — пересоздаём категорию и записываем платёж.
+                category = new Category
+                {
+                    Name = RepaymentCategoryName,
+                    Icon = kind == TransactionKind.Income ? IconKeys.Return : IconKeys.Credit,
+                    Kind = kind,
+                    IsDefault = true,
+                };
+                _db.Categories.Save(category);
+            }
+
+            var transaction = new Transaction
+            {
+                AccountId = debt.AccountId!,
+                CategoryId = category.Id,
+                AmountMinor = amountMinor,
+                Kind = kind,
+                Payee = debt.PersonName,
+                Note = $"Долг: {debt.PersonName}",
+                DateUnix = dateUnix,
+                Source = TransactionSource.Manual,
+            };
+            _transactions.Save(transaction);
+            payment.TransactionId = transaction.Id;
+            _db.Debts.AddPayment(payment);
         });
     }
 }

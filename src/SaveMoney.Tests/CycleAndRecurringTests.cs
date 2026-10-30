@@ -203,9 +203,9 @@ public class CycleAndRecurringTests : IDisposable
         Assert.Equal(1, created);
         Assert.Single(_test.Db.Transactions.GetRecent());
 
-        // Сбойная перенесена в будущее — не остаётся «наступившей» при каждом запуске
+        // При ошибке срок сохраняется, чтобы операцию можно было повторить.
         var broken = _test.Db.RecurringPayments.GetAllActive().Single(r => r.AmountMinor == 0);
-        Assert.True(broken.NextDateUnix > nowUnix);
+        Assert.True(broken.NextDateUnix <= nowUnix);
     }
 
     [Fact]

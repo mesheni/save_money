@@ -118,7 +118,9 @@ public partial class SettingsViewModel(AppDatabase db, CsvExportService csv) : O
         {
             // Секунды в имени: VACUUM INTO падает, если файл уже существует,
             // а две копии в одну минуту — обычный случай.
-            var path = Path.Combine(FileSystem.AppDataDirectory,
+            var backupDirectory = Path.Combine(FileSystem.AppDataDirectory, "backups");
+            Directory.CreateDirectory(backupDirectory);
+            var path = Path.Combine(backupDirectory,
                 $"savemoney-backup-{DateTime.Now:yyyyMMdd_HHmmss}.db");
             // VACUUM большой базы занимает секунды — не замораживаем UI-поток.
             await Task.Run(() => _db.Connection.Execute($"VACUUM INTO '{path.Replace("'", "''")}'"));

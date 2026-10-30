@@ -52,7 +52,7 @@ public sealed class BudgetService(AppDatabase database)
             return [];
         }
 
-        var categories = _db.Categories.GetAllActive();
+        var categories = _db.Categories.GetAll();
         var byId = categories.ToDictionary(c => c.Id);
         var expenses = _db.Transactions.GetBetween(startUnix, endUnix)
             .Where(t => t.Kind == TransactionKind.Expense)

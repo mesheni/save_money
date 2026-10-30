@@ -41,7 +41,7 @@ public sealed class ReportService(AppDatabase database)
             return [];
         }
 
-        var categories = _db.Categories.GetAllActive().ToDictionary(c => c.Id);
+        var categories = _db.Categories.GetAll().ToDictionary(c => c.Id);
         var total = expenses.Sum(t => t.AmountMinor);
 
         var slices = new Dictionary<string, (long Sum, string Name, string Icon)>();

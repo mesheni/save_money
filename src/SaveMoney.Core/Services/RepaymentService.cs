@@ -45,6 +45,8 @@ public sealed class RepaymentService(AppDatabase db)
         db.Connection.RunInTransaction(() =>
         {
             var original = db.Transactions.Get(transaction.Id);
+            var linkedPayments = original is null ? [] : db.Connection.Table<DebtPayment>()
+                .Where(p => p.TransactionId == original.Id && !p.IsDeleted).ToList();
             RemovePayment(original);
             // Exclude the original money movement while validating a replacement.
             if (original is not null) db.Transactions.SoftDelete(original);
@@ -65,7 +67,7 @@ public sealed class RepaymentService(AppDatabase db)
                 transaction.CategoryId = null;
                 transaction.Payee = null;
                 transaction.TransferAmountMinor = null;
-                if (!target.IsCreditAccount)
+                if (!target.IsCreditAccount && !transaction.IsPendingReview)
                     db.Debts.AddPayment(new DebtPayment
                     {
                         DebtId = target.Id, TransactionId = transaction.Id,
@@ -73,7 +75,21 @@ public sealed class RepaymentService(AppDatabase db)
                     });
                 db.Settings.Set(LastAccountKey, transaction.AccountId);
             }
-            else transaction.DebtId = null;
+            else
+            {
+                transaction.DebtId = null;
+                if (original is not null && !transaction.IsPendingReview && transaction.Kind == original.Kind)
+                {
+                    foreach (var payment in linkedPayments)
+                    {
+                        var debt = db.Debts.Get(payment.DebtId);
+                        if (debt is null || transaction.AmountMinor > db.Debts.GetRemaining(debt))
+                            throw new ArgumentException("Сумма превышает остаток долга");
+                        db.Debts.AddPayment(new DebtPayment { DebtId = debt.Id, TransactionId = transaction.Id,
+                            AmountMinor = transaction.AmountMinor, DateUnix = transaction.DateUnix, Note = transaction.Note });
+                    }
+                }
+            }
             transaction.IsDeleted = false;
             db.Transactions.Save(transaction);
         });
@@ -88,15 +104,16 @@ public sealed class RepaymentService(AppDatabase db)
 
     private void RemovePayment(Transaction? original)
     {
-        if (original?.Kind != TransactionKind.DebtRepayment || original.DebtId is null) return;
-        var payments = db.Debts.GetPayments(original.DebtId).Where(p => p.TransactionId == original.Id).ToList();
-        if (payments.Count == 0) return;
+        if (original is null) return;
+        var payments = db.Connection.Table<DebtPayment>().Where(p => p.TransactionId == original.Id && !p.IsDeleted).ToList();
         foreach (var payment in payments)
+        {
             db.Debts.SoftDeletePayment(payment);
-        var debt = db.Debts.Get(original.DebtId);
-        if (debt is null) return;
-        debt.Status = db.Debts.GetRemaining(debt) > 0 ? DebtStatus.Active : DebtStatus.Settled;
-        debt.SettledDateUnix = debt.Status == DebtStatus.Active ? null : original.DateUnix;
-        db.Debts.Save(debt);
+            var debt = db.Debts.Get(payment.DebtId);
+            if (debt is null) continue;
+            debt.Status = db.Debts.GetRemaining(debt) > 0 ? DebtStatus.Active : DebtStatus.Settled;
+            debt.SettledDateUnix = debt.Status == DebtStatus.Active ? null : original.DateUnix;
+            db.Debts.Save(debt);
+        }
     }
 }

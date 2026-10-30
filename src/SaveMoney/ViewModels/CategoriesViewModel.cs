@@ -90,6 +90,9 @@ public partial class CategoriesViewModel(AppDatabase db, CategoryService categor
         }
     }
 
+    [RelayCommand]
+    private async Task DeleteCategoryAsync(CategoryRowVM? row) => await DeleteAsync(row);
+
     public async Task<bool> DeleteAsync(CategoryRowVM? row)
     {
         if (row is null || !row.CanDelete)

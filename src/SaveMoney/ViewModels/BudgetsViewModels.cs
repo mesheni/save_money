@@ -112,6 +112,7 @@ public partial class BudgetEditViewModel(AppDatabase db) : ObservableObject
     private Budget? _editing;
     private List<string> _categoryIds = [];
     private bool _loaded;
+    private bool _categoryMissing;
 
     public ObservableCollection<string> CategoryOptions { get; } = [];
 
@@ -165,6 +166,12 @@ public partial class BudgetEditViewModel(AppDatabase db) : ObservableObject
             {
                 newIndex = idx + 1;
             }
+            else
+            {
+                _categoryMissing = true;
+                CategoryOptions.Add("(категория удалена — выберите другую)");
+                newIndex = CategoryOptions.Count - 1;
+            }
         }
 
         CategoryIndex = newIndex;
@@ -181,6 +188,11 @@ public partial class BudgetEditViewModel(AppDatabase db) : ObservableObject
     [RelayCommand]
     private async Task SaveAsync()
     {
+        if (_categoryMissing && CategoryIndex == CategoryOptions.Count - 1)
+        {
+            await AlertAsync!.Invoke("Ошибка", "Выберите другую категорию бюджета");
+            return;
+        }
         var amount = MoneyFormat.ParseInput(AmountText);
         if (amount <= 0)
         {

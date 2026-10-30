@@ -38,7 +38,7 @@
                                 CommandParameter="{Binding .}"/>
                             <Button Grid.Column="2" Text="{x:Static ctl:Glyphs.Delete}" FontFamily="MaterialSymbolsRounded" FontSize="17" Padding="10,6" Style="{StaticResource DangerButton}"
                                 IsVisible="{Binding CanDelete}"
-                                Command="{Binding DeleteCommand, Source={RelativeSource AncestorType={x:Type vm:CategoriesViewModel}}}"
+                                Command="{Binding DeleteCategoryCommand, Source={RelativeSource AncestorType={x:Type vm:CategoriesViewModel}}}"
                                 CommandParameter="{Binding .}"/>
                         </Grid>
                         <BoxView Grid.Row="1" HeightRequest="1"

@@ -255,8 +255,12 @@ public partial class DebtEditViewModel(AppDatabase db) : ObservableObject
             DueDate = DateTimeOffset.FromUnixTimeSeconds(due).LocalDateTime;
         }
 
-        var accountIdx = debt.AccountId is null ? 0 : _accountIds.IndexOf(debt.AccountId);
-        if (accountIdx < 0)
+        var accountIdx = debt.AccountId is null ? -1 : _accountIds.IndexOf(debt.AccountId);
+        if (debt.AccountId is null)
+        {
+            AccountIndex = 0;
+        }
+        else if (accountIdx < 0)
         {
             // Счёт долга удалён: заглушка вместо молчаливой отвязки при сохранении.
             _accountMissing = true;
@@ -454,7 +458,16 @@ public partial class DebtDetailViewModel(AppDatabase db, DebtService debts) : Ob
             TimeZoneInfo.Local.GetUtcOffset(PaymentDate.Date)).ToUnixTimeSeconds();
 
         var createTransaction = CreateTransaction && CanLinkTransaction;
-        _debts.AddPayment(_debt, amount, dateUnix, createTransaction);
+        try
+        {
+            _debts.AddPayment(_debt, amount, dateUnix, createTransaction);
+            _debt = _db.Debts.Get(_debt.Id);
+        }
+        catch (Exception ex)
+        {
+            await AlertAsync!.Invoke("Ошибка", ex.Message);
+            return;
+        }
 
         if (createTransaction)
         {

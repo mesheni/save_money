@@ -58,6 +58,7 @@ public sealed class TransactionService(AppDatabase database)
         }
 
         if (transaction.Kind == TransactionKind.DebtRepayment
+            || database.Connection.Table<DebtPayment>().Any(p => p.TransactionId == transaction.Id && !p.IsDeleted)
             || database.Transactions.Get(transaction.Id)?.Kind == TransactionKind.DebtRepayment)
             new RepaymentService(database).Save(transaction);
         else

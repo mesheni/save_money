@@ -59,8 +59,23 @@ public sealed class RecurringService(AppDatabase database, TransactionService tr
     /// <summary>Регулярные платежи, срок которых попадает в [from, to) — для дашборда «до зарплаты».</summary>
     public List<RecurringPayment> GetUpcomingBetween(long fromUnix, long toUnix) =>
         _db.RecurringPayments.GetAllActive()
-          .Where(r => r.IsActive && r.NextDateUnix >= fromUnix && r.NextDateUnix < toUnix)
+          .Where(r => r.IsActive && r.NextDateUnix < toUnix)
+          .SelectMany(r => Expand(r, fromUnix, toUnix))
           .ToList();
+
+    private IEnumerable<RecurringPayment> Expand(RecurringPayment recurring, long fromUnix, long toUnix)
+    {
+        var next = recurring.NextDateUnix;
+        while (next < toUnix)
+        {
+            if (next >= fromUnix)
+                yield return new RecurringPayment { AccountId = recurring.AccountId, CategoryId = recurring.CategoryId,
+                    Kind = recurring.Kind, AmountMinor = recurring.AmountMinor, Payee = recurring.Payee, NextDateUnix = next };
+            var following = ComputeNextDateUnix(recurring, next);
+            if (following <= next) yield break;
+            next = following;
+        }
+    }
 
     /// <summary>
     /// Создаёт транзакции по наступившим срокам и переносит next_date в будущее.
@@ -75,45 +90,27 @@ public sealed class RecurringService(AppDatabase database, TransactionService tr
         {
             var dueDateUnix = recurring.NextDateUnix;
 
-            // Одна сбойная запись (битый бэкап: нулевая сумма, невозможная дата)
-            // не должна ронять старт приложения и останавливать остальные платежи.
-            // Сначала переносим срок: иначе сбой после создания транзакции дал бы дубль.
-            long next;
             try
             {
-                next = recurring.NextDateUnix;
-                while (next <= nowUnix)
+                _db.Connection.RunInTransaction(() =>
                 {
-                    next = ComputeNextDateUnix(recurring, next);
-                }
-
-                recurring.NextDateUnix = next;
-                _db.RecurringPayments.Save(recurring);
-            }
-            catch (Exception)
-            {
-                // Строку не удалось даже продвинуть — пропускаем целиком.
-                continue;
-            }
-
-            try
-            {
-                _transactions.Save(new Transaction
-                {
-                    AccountId = recurring.AccountId,
-                    CategoryId = recurring.CategoryId,
-                    AmountMinor = recurring.AmountMinor,
-                    Kind = recurring.Kind,
-                    Payee = recurring.Payee,
-                    Note = recurring.Note,
-                    DateUnix = dueDateUnix,
-                    Source = TransactionSource.Recurring,
+                    var next = recurring.NextDateUnix;
+                    while (next <= nowUnix) next = ComputeNextDateUnix(recurring, next);
+                    _transactions.Save(new Transaction
+                    {
+                        AccountId = recurring.AccountId, CategoryId = recurring.CategoryId,
+                        AmountMinor = recurring.AmountMinor, Kind = recurring.Kind,
+                        Payee = recurring.Payee, Note = recurring.Note, DateUnix = dueDateUnix,
+                        Source = TransactionSource.Recurring,
+                    });
+                    recurring.NextDateUnix = next;
+                    _db.RecurringPayments.Save(recurring);
                 });
                 created++;
             }
             catch (Exception)
             {
-                // Транзакцию создать не удалось — срок уже в будущем, зацикливания нет.
+                // Keep the original due date so the operation can be retried.
             }
         }
 

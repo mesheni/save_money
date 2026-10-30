@@ -4,4 +4,6 @@
 <full-backup-content>
     <exclude domain="file" path="savemoney.db" />
     <exclude domain="file" path="savemoney.db-journal" />
+    <exclude domain="file" path="exports/" />
+    <exclude domain="file" path="backups/" />
 </full-backup-content>

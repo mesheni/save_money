@@ -73,6 +73,20 @@ public static class MauiProgram
 #endif
 
         var dbPath = Path.Combine(FileSystem.AppDataDirectory, "savemoney.db");
+        // Older versions stored manual backups in the app-data root, outside the exclusion.
+        var backupDirectory = Path.Combine(FileSystem.AppDataDirectory, "backups");
+        foreach (var oldBackup in Directory.EnumerateFiles(FileSystem.AppDataDirectory, "savemoney-backup-*.db"))
+        {
+            try
+            {
+                Directory.CreateDirectory(backupDirectory);
+                var target = Path.Combine(backupDirectory, Path.GetFileName(oldBackup));
+                if (File.Exists(target)) target = Path.Combine(backupDirectory, $"{Guid.NewGuid():N}-{Path.GetFileName(oldBackup)}");
+                File.Move(oldBackup, target);
+            }
+            catch (IOException ex) { System.Diagnostics.Debug.WriteLine(ex); }
+            catch (UnauthorizedAccessException ex) { System.Diagnostics.Debug.WriteLine(ex); }
+        }
         builder.Services.AddSingleton(new AppDatabase(dbPath));
         builder.Services.AddSingleton<BalanceService>();
         builder.Services.AddSingleton<TransactionService>();

@@ -33,6 +33,8 @@ public partial class QuickAddViewModel : ObservableObject,
     private string? _pendingEditId;
     private Transaction? _editing;
     private bool _initialized;
+    private bool _settingDate;
+    private bool _dateExplicit;
     public bool IsStandaloneRepayment { get; private set; }
 
     /// <summary>Время суток исходной транзакции — правка не должна переписывать его на «сейчас».</summary>
@@ -51,13 +53,11 @@ public partial class QuickAddViewModel : ObservableObject,
         // Баланс и пилюля «в день» обновляются сразу после любой операции.
         WeakReferenceMessenger.Default.Register<QuickAddViewModel, TransactionsChangedMessage>(this, static (r, m) => r.Receive(m));
 
-        // Выбор из «Все категории»: статическое событие (мессенджер доставлял
-        // ненадёжно). Экран ввода — постоянная вкладка, подписка живёт с процессом.
-        CategoryPickedMessage.Picked += OnCategoryPicked;
     }
 
     private void OnCategoryPicked(string categoryId)
     {
+        CategoryPickedMessage.Unregister(OnCategoryPicked);
         SelectCategoryById(categoryId);
         TryQuickSave();
     }
@@ -228,11 +228,14 @@ public partial class QuickAddViewModel : ObservableObject,
 
     public async Task InitializeAsync()
     {
-        // Полная инициализация — один раз. Повторное Appearing (возврат с «Все»,
-        // с правки и т.п.) НЕ должно перечитывать категории: выбор из «Все категории»
-        // затирался последней операцией. Свежесть данных держит Receive.
+        CategoryPickedMessage.Unregister(OnCategoryPicked);
+        // При возврате обновляем категории, сохраняя текущий выбор.
         if (_initialized)
         {
+            var selectedCategory = SubCategories.FirstOrDefault(c => c.IsSelected)?.Id
+                ?? RootCategories.FirstOrDefault(c => c.IsSelected)?.Id;
+            ReloadCategories();
+            SelectCategoryById(selectedCategory);
             RefreshBalance();
             RefreshPaydayHint();
             RefreshDebtsSummary();
@@ -256,7 +259,7 @@ public partial class QuickAddViewModel : ObservableObject,
             // после дней в фоне молча датировались последним открытием.
             // Время суток — то же: _editTimeOfDay из конструктора протухал так же,
             // а ToUnix штампует им каждую новую запись.
-            Date = DateTime.Now;
+            SetDefaultDate();
             _editTimeOfDay = DateTime.Now.TimeOfDay;
         }
 
@@ -714,6 +717,7 @@ public partial class QuickAddViewModel : ObservableObject,
     private async Task OpenAllCategoriesAsync()
     {
         var kind = IsIncome ? "income" : "expense";
+        CategoryPickedMessage.Register(OnCategoryPicked);
         await Shell.Current.GoToAsync($"categorypicker?kind={kind}");
     }
 
@@ -752,8 +756,14 @@ public partial class QuickAddViewModel : ObservableObject,
         }
 
         var kind = IsRepayment ? TransactionKind.DebtRepayment : IsTransfer ? TransactionKind.Transfer : IsIncome ? TransactionKind.Income : TransactionKind.Expense;
+        if (!IsEditing)
+        {
+            if (!_dateExplicit) SetDefaultDate();
+            _editTimeOfDay = DateTime.Now.TimeOfDay;
+        }
         var dateUnix = ToUnix(Date);
 
+        var originalKind = _editing?.Kind;
         var tx = _editing ?? new Transaction
         {
             Source = WidgetSource == "widget" ? TransactionSource.Widget : TransactionSource.Manual,
@@ -787,7 +797,7 @@ public partial class QuickAddViewModel : ObservableObject,
             }
 
             tx.TransferAccountId = target.Id;
-            tx.TransferAmountMinor = null;
+            if (originalKind != TransactionKind.Transfer) tx.TransferAmountMinor = null;
             tx.CategoryId = null;
             tx.Payee = null;
             tx.Note = string.IsNullOrWhiteSpace(MemoText) ? null : MemoText.Trim();
@@ -838,7 +848,7 @@ public partial class QuickAddViewModel : ObservableObject,
 
         AmountText = "";
         MemoText = "";
-        Date = DateTime.Now;
+        SetDefaultDate();
         _repaymentTarget = null;
         DebtButtonText = "Выбрать задолженность";
         if (IsRepayment) RefreshRepaymentTargets();
@@ -917,7 +927,7 @@ public partial class QuickAddViewModel : ObservableObject,
         var rootChip = RootCategories.FirstOrDefault(c => c.Id == categoryId);
         if (rootChip is not null)
         {
-            SelectRoot(rootChip);
+            SelectRoot(rootChip, trySelectChildId: null);
             return;
         }
 
@@ -945,5 +955,17 @@ public partial class QuickAddViewModel : ObservableObject,
     partial void OnIsIncomeChanged(bool value) => NotifyModeChanged();
     partial void OnIsTransferChanged(bool value) => NotifyModeChanged();
 
-    partial void OnDateChanged(DateTime value) => OnPropertyChanged(nameof(DateButtonText));
+    private void SetDefaultDate()
+    {
+        _settingDate = true;
+        Date = DateTime.Now;
+        _settingDate = false;
+        _dateExplicit = false;
+    }
+
+    partial void OnDateChanged(DateTime value)
+    {
+        if (!_settingDate) _dateExplicit = true;
+        OnPropertyChanged(nameof(DateButtonText));
+    }
 }

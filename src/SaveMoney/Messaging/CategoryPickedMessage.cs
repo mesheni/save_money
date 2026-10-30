@@ -3,13 +3,21 @@ namespace SaveMoney.Messaging;
 /// <summary>
 /// Пользователь выбрал категорию на экране «Все категории» (CategoryPickerPage).
 /// Экран ввода выделяет её и при quick save сразу сохраняет.
-/// Статическое событие вместо WeakReferenceMessenger: state-регистрации
-/// мессенджера доставляли это сообщение ненадёжно (выбор не применялся).
-/// Подписчики — экземпляры QuickAddViewModel, живут столько же, сколько процесс.
+/// Результат доставляется только экрану, последним открывшему выбор категории.
 /// </summary>
 public static class CategoryPickedMessage
 {
-    public static event Action<string>? Picked;
+    private static Action<string>? _recipient;
 
-    public static void Broadcast(string categoryId) => Picked?.Invoke(categoryId);
+    public static void Register(Action<string> recipient) => _recipient = recipient;
+    public static void Unregister(Action<string> recipient)
+    {
+        if (_recipient == recipient) _recipient = null;
+    }
+    public static void Broadcast(string categoryId)
+    {
+        var recipient = _recipient;
+        _recipient = null;
+        recipient?.Invoke(categoryId);
+    }
 }
