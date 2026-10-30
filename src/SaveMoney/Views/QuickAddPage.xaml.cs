@@ -74,7 +74,15 @@ public partial class QuickAddPage : ContentPage
         }
     }
 
-    private void OnPickDateClicked(object? sender, EventArgs e) => DatePickerControl.Focus();
+    private async void OnPickDateClicked(object? sender, EventArgs e)
+    {
+#if ANDROID
+        if (await DateDialog.PickAsync(_viewModel.Date) is { } selected)
+            _viewModel.Date = selected;
+#else
+        DatePickerControl.Focus();
+#endif
+    }
 
     private async Task ShowSavedToastAsync()
     {

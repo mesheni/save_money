@@ -18,7 +18,6 @@ public partial class SettingsPage : ContentPage
         if (BindingContext is SettingsViewModel vm)
         {
             await vm.InitializeAsync();
-            await RootStack.Children.OfType<View>().FadeInUpStaggeredAsync();
         }
     }
 }

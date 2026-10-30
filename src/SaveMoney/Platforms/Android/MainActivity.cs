@@ -8,6 +8,14 @@ namespace SaveMoney;
 [Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTop, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
 public class MainActivity : MauiAppCompatActivity
 {
+    private readonly Platforms.Android.TabSwipeNavigation _tabSwipe = new();
+
+    public override bool DispatchTouchEvent(global::Android.Views.MotionEvent? ev)
+    {
+        if (ev is not null)
+            _tabSwipe.Observe(ev, Window?.DecorView, Resources?.DisplayMetrics?.Density ?? 1);
+        return base.DispatchTouchEvent(ev);
+    }
 	/// <summary>Ключ extra с суммой, переданной из виджета быстрого ввода.</summary>
 	public const string ExtraQuickAmount = "quick_amount";
 

@@ -39,6 +39,9 @@ public partial class AppShell : Shell
 	{
 		base.OnNavigated(args);
 
+		if (CurrentPage is ContentPage page)
+			Helpers.PageMotion.Attach(page);
+
 		// Открытие раздела из «Ещё» — это НЕ push-стек, а Shell URI-состояние
 		// («//more/accounts»): Shell восстанавливает его при каждом возврате на
 		// вкладку, поэтому «Ещё» показывало последний открытый раздел. Лечение:

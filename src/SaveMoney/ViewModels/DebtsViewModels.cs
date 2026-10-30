@@ -10,6 +10,8 @@ namespace SaveMoney.ViewModels;
 
 public partial class DebtRowVM
 {
+    public bool IsCreditAccount { get; init; }
+    public bool IsPersonalDebt => !IsCreditAccount;
     public required string Id { get; init; }
     public required string PersonName { get; init; }
     public required string Icon { get; init; }
@@ -77,6 +79,21 @@ public partial class DebtsViewModel(AppDatabase db) : ObservableObject
             });
         }
 
+        if (DirectionIndex == 1)
+        {
+            foreach (var target in new RepaymentService(_db).GetTargets().Where(t => t.IsCreditAccount))
+            {
+                total += target.RemainingMinor;
+                Rows.Add(new DebtRowVM
+                {
+                    Id = target.Id, IsCreditAccount = true, PersonName = target.Name,
+                    Icon = IconKeys.DebtOut, Subtitle = target.Type,
+                    RemainingText = MoneyFormat.Rubles(target.RemainingMinor),
+                    TotalText = "", IsOverdue = false, Progress = 0,
+                });
+            }
+        }
+
         SummaryText = DirectionIndex == 1
             ? $"Я должен: {MoneyFormat.Rubles(total)}"
             : $"Мне должны: {MoneyFormat.Rubles(total)}";
@@ -94,13 +111,15 @@ public partial class DebtsViewModel(AppDatabase db) : ObservableObject
     {
         if (row is not null)
         {
-            Shell.Current.GoToAsync($"debt?id={row.Id}");
+            Shell.Current.GoToAsync(row.IsCreditAccount
+                ? $"transaction?repayAccount={Uri.EscapeDataString(row.Id)}"
+                : $"debt?id={Uri.EscapeDataString(row.Id)}");
         }
     }
 
     public async Task<bool> DeleteAsync(DebtRowVM? row)
     {
-        if (row is null)
+        if (row is null || row.IsCreditAccount)
         {
             return false;
         }

@@ -6,7 +6,6 @@ namespace SaveMoney.Views;
 
 public partial class PaydayPage : ContentPage
 {
-    private bool _entranceAnimated;
 
     public PaydayPage(PaydayViewModel viewModel)
     {
@@ -22,11 +21,6 @@ public partial class PaydayPage : ContentPage
         if (BindingContext is PaydayViewModel vm)
         {
             await vm.InitializeAsync();
-            if (!_entranceAnimated)
-            {
-                _entranceAnimated = true;
-                await RootStack.Children.OfType<View>().FadeInUpStaggeredAsync();
-            }
         }
     }
 

@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
@@ -177,9 +178,23 @@ public partial class ReportsViewModel(
 
     public Task InitializeAsync()
     {
+        var appearance = $"{Application.Current?.RequestedTheme}:{ThemePalette.AccentColor}:{DateTime.Today:yyyyMMdd}";
+        if (!_registered)
+        {
+            CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Register<ReportsViewModel, SaveMoney.Messaging.TransactionsChangedMessage>(
+                this, static (recipient, _) => recipient._needsRefresh = true);
+            _registered = true;
+        }
+        if (!_needsRefresh && _appearance == appearance) return Task.CompletedTask;
+        _needsRefresh = false;
+        _appearance = appearance;
         Recompute();
         return Task.CompletedTask;
     }
+
+    private bool _registered;
+    private bool _needsRefresh = true;
+    private string? _appearance;
 
     partial void OnPeriodIndexChanged(int value)
     {

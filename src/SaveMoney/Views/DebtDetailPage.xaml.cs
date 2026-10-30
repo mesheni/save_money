@@ -19,6 +19,5 @@ public partial class DebtDetailPage : ContentPage
     private async void OnAppearing(object? sender, EventArgs e)
     {
         await _viewModel.InitializeAsync();
-        await RootStack.Children.OfType<View>().FadeInUpStaggeredAsync();
     }
 }

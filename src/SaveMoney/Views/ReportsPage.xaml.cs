@@ -10,7 +10,6 @@ namespace SaveMoney.Views;
 public partial class ReportsPage : ContentPage
 {
     private readonly ReportsViewModel _viewModel;
-    private bool _entranceAnimated;
 
     public ReportsPage(ReportsViewModel viewModel)
     {
@@ -51,7 +50,7 @@ public partial class ReportsPage : ContentPage
         chart.TooltipBackgroundPaint = background;
         chart.TooltipTextPaint = text;
         chart.TooltipTextSize = 13;
-        chart.AnimationsSpeed = TimeSpan.FromMilliseconds(350);
+        chart.AnimationsSpeed = TimeSpan.FromMilliseconds(Motion.AnimationsEnabled ? 240 : 0);
         chart.EasingFunction = t => (float)Motion.VibrantFunc(t);
     }
 
@@ -61,7 +60,7 @@ public partial class ReportsPage : ContentPage
         chart.TooltipBackgroundPaint = background;
         chart.TooltipTextPaint = text;
         chart.TooltipTextSize = 13;
-        chart.AnimationsSpeed = TimeSpan.FromMilliseconds(350);
+        chart.AnimationsSpeed = TimeSpan.FromMilliseconds(Motion.AnimationsEnabled ? 240 : 0);
         chart.EasingFunction = t => (float)Motion.VibrantFunc(t);
     }
 
@@ -69,12 +68,6 @@ public partial class ReportsPage : ContentPage
     {
         StyleCharts();
         await _viewModel.InitializeAsync();
-
-        if (!_entranceAnimated)
-        {
-            _entranceAnimated = true;
-            await RootStack.Children.OfType<View>().FadeInUpStaggeredAsync();
-        }
     }
 
     private async void OnDaysChartSizeChanged(object? sender, EventArgs e)

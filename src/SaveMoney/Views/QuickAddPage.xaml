@@ -104,9 +104,8 @@
             <Button Text="{Binding DebtButtonText}" Command="{Binding PickDebtCommand}"
                     Style="{StaticResource GhostButton}" LineBreakMode="WordWrap"
                     HorizontalOptions="Fill" SemanticProperties.Description="Выбрать задолженность"/>
-            <Label Text="{Binding RepaymentRemainingText}" FontSize="14" HorizontalTextAlignment="Center"/>
+            <Label Text="{Binding RepaymentRemainingText}" IsVisible="{Binding HasRepaymentTarget}" FontSize="14" HorizontalTextAlignment="Center"/>
             <VerticalStackLayout IsVisible="{Binding IsChoosingRepayment}" Spacing="8">
-                <Label Text="Выберите задолженность" Style="{StaticResource GroupLabel}"/>
                 <Label Text="Нет открытых задолженностей. Добавьте долг, кредит или кредитный счёт с отрицательным балансом."
                        IsVisible="{Binding HasNoRepaymentTargets}" FontSize="14"/>
                 <VerticalStackLayout BindableLayout.ItemsSource="{Binding RepaymentTargets}" Spacing="8">
@@ -261,8 +260,8 @@
                         JustifyContent="Center" AlignItems="Center" IsVisible="{Binding HasSubCategories}">
                 <BindableLayout.ItemTemplate>
                     <DataTemplate x:DataType="vm:CategoryChip">
-                        <Grid ColumnDefinitions="Auto" MinimumHeightRequest="48" Margin="4,0,4,4">
-                            <Border Grid.Column="0" HeightRequest="40" VerticalOptions="Center"
+                        <Grid ColumnDefinitions="Auto" MinimumHeightRequest="48" MaximumWidthRequest="260" Margin="4,0,4,4">
+                            <Border Grid.Column="0" MinimumHeightRequest="40" VerticalOptions="Center"
                                     StrokeShape="RoundRectangle 18" Padding="10,4" StrokeThickness="1"
                                     BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
                                     Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
@@ -272,7 +271,8 @@
                                         <Setter Property="Stroke" Value="{DynamicResource Accent}"/>
                                     </DataTrigger>
                                 </Border.Triggers>
-                                <Label Text="{Binding Name}" FontSize="14"
+                                <Label Text="{Binding Name}" FontSize="14" VerticalTextAlignment="Center"
+                                       HorizontalTextAlignment="Center" LineBreakMode="TailTruncation" MaxLines="1"
                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}">
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
@@ -314,6 +314,7 @@
                     BackgroundColor="{AppThemeBinding Light={StaticResource KeyBgLight}, Dark={StaticResource KeyBgDark}}">
                 <Grid RowDefinitions="Auto,Auto" RowSpacing="2" Padding="0,4">
                     <DatePicker x:Name="DatePickerControl" Grid.Row="0" Grid.RowSpan="2" Date="{Binding Date}"
+                                IsVisible="{OnPlatform Android=False, Default=True}"
                                 Opacity="0" BackgroundColor="Transparent" MinimumHeightRequest="0"
                                 HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"
                                 SemanticProperties.Description="Дата операции"/>

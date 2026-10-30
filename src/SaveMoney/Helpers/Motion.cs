@@ -107,16 +107,22 @@ public static class MotionExtensions
         Task.WhenAll(views.Select((v, i) => v.FadeInUpAsync(ms, i * staggerMs)));
 
     /// <summary>Отклик на нажатие: сжатие до 0.96 и упругий возврат.</summary>
-    public static async Task PulseAsync(this View view)
+    public static Task PulseAsync(this View view)
     {
+        view.AbortAnimation("PressPulse");
         if (!Motion.AnimationsEnabled)
         {
             view.Scale = 1;
-            return;
+            return Task.CompletedTask;
         }
 
-        await view.ScaleTo(0.96, Motion.Micro, Easing.Linear);
-        await view.ScaleTo(1, Motion.Micro + 90, Motion.Vibrant);
+        var completion = new TaskCompletionSource();
+        var animation = new Animation();
+        animation.Add(0, 0.38, new Animation(value => view.Scale = value, 1, 0.96, Easing.Linear));
+        animation.Add(0.38, 1, new Animation(value => view.Scale = value, 0.96, 1, Motion.Vibrant));
+        animation.Commit(view, "PressPulse", length: Motion.Micro * 2 + 90,
+            finished: (_, _) => { view.Scale = 1; completion.TrySetResult(); });
+        return completion.Task;
     }
 
     /// <summary>

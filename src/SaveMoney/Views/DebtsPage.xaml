@@ -30,7 +30,7 @@
                         <SwipeView Grid.Row="0">
                             <SwipeView.RightItems>
                                 <SwipeItems>
-                                    <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
+                                    <SwipeItem IsVisible="{Binding IsPersonalDebt}" Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                                 </SwipeItems>
                             </SwipeView.RightItems>
                             <Grid MinimumHeightRequest="64" Padding="10,6" ColumnDefinitions="24,*,Auto,Auto" ColumnSpacing="10"
@@ -49,12 +49,12 @@
                                             </DataTrigger>
                                         </Label.Triggers>
                                     </Label>
-                                    <ctl:AnimatedProgressBar Progress="{Binding Progress}" HeightRequest="4" WidthRequest="160"
+                                    <ctl:AnimatedProgressBar IsVisible="{Binding IsPersonalDebt}" Progress="{Binding Progress}" HeightRequest="4" WidthRequest="160"
                                                  HorizontalOptions="Start" VerticalOptions="Center"/>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout Grid.Column="2" HorizontalOptions="End" VerticalOptions="Center">
                                     <Label Text="{Binding RemainingText}" FontSize="15" FontFamily="InterSemiBold"/>
-                                    <Label Text="{Binding TotalText}" FontSize="12"
+                                    <Label IsVisible="{Binding IsPersonalDebt}" Text="{Binding TotalText}" FontSize="12"
                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
                                 </VerticalStackLayout>
                                 <Label Grid.Column="3" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18" VerticalOptions="Center"

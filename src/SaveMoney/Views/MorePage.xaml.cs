@@ -7,7 +7,6 @@ namespace SaveMoney.Views;
 public partial class MorePage : ContentPage
 {
     private readonly MoreViewModel _viewModel;
-    private bool _entranceAnimated;
 
     public MorePage(MoreViewModel viewModel)
     {
@@ -36,11 +35,5 @@ public partial class MorePage : ContentPage
 
         // Живые подписи: балансы/долги/лимиты могли измениться с прошлого показа.
         _viewModel.RefreshSubtitles();
-
-        if (!_entranceAnimated)
-        {
-            _entranceAnimated = true;
-            await RootGrid.Children.OfType<View>().FadeInUpStaggeredAsync();
-        }
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using SaveMoney.Core.Database;
 using SaveMoney.Core.Models;
 using SaveMoney.Core.Services;
@@ -62,6 +63,8 @@ public partial class HistoryViewModel(AppDatabase db, HistoryService history) : 
     private readonly HistoryService _history = history;
     private readonly List<string> _accountIds = [];
     private bool _loaded;
+    private bool _needsRefresh = true;
+    private DateTime _refreshDay;
 
     /// <summary>Id категории → фильтр (сама категория и её подкатегории).</summary>
     private string? _categoryId;
@@ -130,6 +133,12 @@ public partial class HistoryViewModel(AppDatabase db, HistoryService history) : 
 
     public async Task InitializeAsync()
     {
+        if (_loaded && !_needsRefresh && _refreshDay == DateTime.Today) return;
+        if (!_loaded)
+            CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Register<HistoryViewModel, TransactionsChangedMessage>(
+                this, static (recipient, _) => recipient._needsRefresh = true);
+        _needsRefresh = false;
+        _refreshDay = DateTime.Today;
         var selectedId = AccountIndex > 0 && AccountIndex <= _accountIds.Count ? _accountIds[AccountIndex - 1] : null;
 
         _accountIds.Clear();

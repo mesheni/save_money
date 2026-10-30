@@ -17,6 +17,7 @@ namespace SaveMoney.ViewModels;
 /// </summary>
 [QueryProperty(nameof(EditId), "id")]
 [QueryProperty(nameof(PresetDebtId), "repayDebt")]
+[QueryProperty(nameof(PresetAccountId), "repayAccount")]
 [QueryProperty(nameof(PresetAmount), "amount")]
 [QueryProperty(nameof(WidgetSource), "source")]
 public partial class QuickAddViewModel : ObservableObject,
@@ -70,6 +71,7 @@ public partial class QuickAddViewModel : ObservableObject,
         RefreshBalance();
         RefreshPaydayHint();
         RefreshDebtsSummary();
+        if (IsRepayment) RefreshRepaymentTargets();
     }
 
     [ObservableProperty]
@@ -157,6 +159,7 @@ public partial class QuickAddViewModel : ObservableObject,
 
     private RepaymentTarget? _repaymentTarget;
     public string? PresetDebtId { get; set; }
+    public string? PresetAccountId { get; set; }
     public ObservableCollection<RepaymentTarget> RepaymentTargets { get; } = [];
     [ObservableProperty] public partial bool IsRepayment { get; set; }
     [ObservableProperty] public partial bool IsChoosingRepayment { get; set; } = true;
@@ -165,8 +168,9 @@ public partial class QuickAddViewModel : ObservableObject,
     public string SaveDescription => IsRepayment ? "Погасить долг" : "Сохранить операцию";
     public string MemoPlaceholder => IsRepayment ? "Заметка к погашению" : "Магазин или заметка";
     public bool HasNoRepaymentTargets => RepaymentTargets.Count == 0;
-    public string RepaymentRemainingText => _repaymentTarget is null ? "Выберите долг или кредитный счёт"
-        : $"Остаток: {MoneyFormat.Rubles(_repaymentTarget.RemainingMinor)} → {MoneyFormat.Rubles(Math.Max(0, _repaymentTarget.RemainingMinor - MoneyFormat.ParseInput(AmountText)))}";
+    public bool HasRepaymentTarget => _repaymentTarget is not null;
+    public string RepaymentRemainingText => _repaymentTarget is null ? ""
+        : $"Осталось: {MoneyFormat.Rubles(_repaymentTarget.RemainingMinor)}";
 
     private void RefreshRepaymentTargets()
     {
@@ -174,9 +178,10 @@ public partial class QuickAddViewModel : ObservableObject,
         RepaymentTargets.Clear();
         foreach (var target in new RepaymentService(_db).GetTargets(_editing?.Id)) RepaymentTargets.Add(target);
         _repaymentTarget = RepaymentTargets.FirstOrDefault(t => t.Id == selected?.Id && t.IsCreditAccount == selected.IsCreditAccount);
-        DebtButtonText = _repaymentTarget?.Label ?? "Выбрать задолженность";
+        DebtButtonText = _repaymentTarget?.Name ?? "Выбрать задолженность";
         if (_repaymentTarget is null) IsChoosingRepayment = true;
         OnPropertyChanged(nameof(HasNoRepaymentTargets));
+        OnPropertyChanged(nameof(HasRepaymentTarget));
         OnPropertyChanged(nameof(RepaymentRemainingText));
     }
 
@@ -184,11 +189,12 @@ public partial class QuickAddViewModel : ObservableObject,
     private void SelectRepayment(RepaymentTarget? target)
     {
         _repaymentTarget = target;
-        DebtButtonText = target?.Label ?? "Выбрать задолженность";
+        DebtButtonText = target?.Name ?? "Выбрать задолженность";
         IsChoosingRepayment = target is null;
         if (target?.IsCreditAccount == true && Accounts.FirstOrDefault(a => a.IsSelected)?.Id == target.Id)
             SelectChip(Accounts, Accounts.FirstOrDefault(a => a.Id != target.Id));
         RefreshPickerTexts();
+        OnPropertyChanged(nameof(HasRepaymentTarget));
         OnPropertyChanged(nameof(RepaymentRemainingText));
     }
 
@@ -227,12 +233,6 @@ public partial class QuickAddViewModel : ObservableObject,
         // затирался последней операцией. Свежесть данных держит Receive.
         if (_initialized)
         {
-            if (!IsEditing)
-            {
-                Date = DateTime.Now;
-                _editTimeOfDay = DateTime.Now.TimeOfDay;
-            }
-
             RefreshBalance();
             RefreshPaydayHint();
             RefreshDebtsSummary();
@@ -271,12 +271,18 @@ public partial class QuickAddViewModel : ObservableObject,
         {
             await LoadForEditAsync(_pendingEditId);
         }
-        if (PresetDebtId is not null)
+        if (PresetDebtId is not null || PresetAccountId is not null)
         {
             IsStandaloneRepayment = true;
             SetRepayment();
-            SelectRepayment(RepaymentTargets.FirstOrDefault(t => !t.IsCreditAccount && t.Id == PresetDebtId));
+            var target = RepaymentTargets.FirstOrDefault(t => PresetAccountId is not null
+                ? t.IsCreditAccount && t.Id == PresetAccountId
+                : !t.IsCreditAccount && t.Id == PresetDebtId);
+            SelectRepayment(target);
             PresetDebtId = null;
+            PresetAccountId = null;
+            if (target is null && AlertAsync is not null)
+                await AlertAsync("Задолженность недоступна", "Она уже погашена или недоступна. Выберите другую задолженность.");
         }
     }
 

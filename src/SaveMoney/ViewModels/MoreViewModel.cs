@@ -86,7 +86,9 @@ public partial class MoreViewModel : ObservableObject
     private string BuildDebtsSubtitle()
     {
         var debts = _db.Debts.GetActive();
-        if (debts.Count == 0)
+        var creditCount = new RepaymentService(_db).GetTargets().Count(t => t.IsCreditAccount);
+        var count = debts.Count + creditCount;
+        if (count == 0)
         {
             return "Нет открытых долгов";
         }
@@ -98,7 +100,7 @@ public partial class MoreViewModel : ObservableObject
 
         var text = owedToMe > 0
             ? $"Мне должны {MoneyFormat.Rubles(owedToMe)}"
-            : $"{debts.Count} {Plural(debts.Count, "долг", "долга", "долгов")} к погашению";
+            : $"{count} {Plural(count, "долг", "долга", "долгов")} к погашению";
         return hasOverdue ? $"{text} · есть просрочка" : text;
     }
 
