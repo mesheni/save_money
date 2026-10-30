@@ -99,6 +99,9 @@ public partial class HistoryViewModel(AppDatabase db, HistoryService history) : 
     /// надпись «Пока пусто» рисовалась поверх непустого списка.</summary>
     public bool HasNoRows => !HasItems;
 
+    [ObservableProperty]
+    public partial string EmptyStateText { get; set; } = "";
+
     partial void OnHasItemsChanged(bool value) => OnPropertyChanged(nameof(HasNoRows));
 
     // --- Пилюли-фильтры ---
@@ -356,6 +359,11 @@ public partial class HistoryViewModel(AppDatabase db, HistoryService history) : 
         }
 
         HasItems = Groups.Count > 0;
+        EmptyStateText = search.Length > 0 || categoryIds is not null || AccountIndex > 0
+            ? "По вашему запросу ничего не найдено"
+            : _db.Transactions.GetRecent(1).Count == 0
+                ? "Пока пусто — добавьте первую операцию на вкладке «Ввод»"
+                : "За выбранный период операций нет";
         IncomeSummaryText = MoneyFormat.SignedRubles(income);
         ExpenseSummaryText = MoneyFormat.SignedRubles(-expense);
         DiffSummaryText = MoneyFormat.SignedRubles(income - expense);

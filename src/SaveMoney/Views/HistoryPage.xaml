@@ -197,7 +197,7 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Label Grid.Row="4" Text="Пока пусто — добавьте первую операцию на вкладке «Ввод»"
+        <Label Grid.Row="4" Text="{Binding EmptyStateText}"
                IsVisible="{Binding HasNoRows}" VerticalOptions="Center" HorizontalOptions="Center"
                TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
 
