@@ -1,74 +1,91 @@
 using Microsoft.Maui.Graphics;
+using SaveMoney.Core.Database;
+using SaveMoney.Core.Models;
 
 namespace SaveMoney.Helpers;
 
-/// <summary>Единый источник выбранного акцента для XAML, графиков и платформенных элементов.</summary>
+/// <summary>One resolved Material 3 scheme shared by XAML, charts and Android chrome.</summary>
 public static class ThemePalette
 {
-    public const string DefaultKey = "apricot";
-
-    public static IReadOnlyList<(string Key, string Name, string Preview)> Options { get; } =
-    [
-        ("apricot", "Абрикосовый", "#D9A18A"),
-        ("sage", "Шалфейный", "#91B5A2"),
-        ("blue", "Голубой", "#92B7CE"),
-        ("lavender", "Лавандовый", "#ADA6CE"),
-        ("rose", "Розовый", "#D5A1B3"),
-    ];
-
-    private static readonly Dictionary<string, (string Light, string Dark, string TextLight, string TextDark, string SoftLight, string SoftDark)> Palettes = new()
-    {
-        ["apricot"] = ("#AE6241", "#D9A18A", "#96502F", "#F1BBA2", "#F8EAE2", "#47352F"),
-        ["sage"] = ("#487B63", "#91B5A2", "#37694F", "#B7D9C3", "#E6F1E9", "#2B4036"),
-        ["blue"] = ("#477C9C", "#92B7CE", "#346A8B", "#B8D9EA", "#E6F0F6", "#2A3C48"),
-        ["lavender"] = ("#76699B", "#ADA6CE", "#625487", "#D0C8EC", "#EEEBF6", "#383447"),
-        ["rose"] = ("#A76179", "#D5A1B3", "#904A64", "#F0BED0", "#F8E9EF", "#46323A"),
-    };
-
+    public const string DefaultKey = MonetScheme.DefaultKey;
+    public static IReadOnlyList<(string Key, string Name, string Preview)> Options => MonetScheme.Options;
     public static string SelectedKey { get; private set; } = DefaultKey;
+    public static string Source { get; private set; } = MonetScheme.Manual;
+    public static event EventHandler? Changed;
+    public static int Revision { get; private set; }
+    public static bool SupportsDeviceColors
+    {
+        get
+        {
+#if ANDROID
+            return OperatingSystem.IsAndroidVersionAtLeast(31);
+#else
+            return false;
+#endif
+        }
+    }
+
+    public static void Initialize(AppDatabase db)
+    {
+        var saved = db.Settings.Get(SettingKeys.ColorSource);
+        var existing = db.Settings.Get(SettingKeys.Accent) is not null || db.Settings.Get(SettingKeys.Theme) is not null
+            || db.Accounts.GetAll().Count > 0;
+        Source = MonetScheme.ResolveSource(saved, existing, SupportsDeviceColors);
+        db.Settings.Set(SettingKeys.ColorSource, Source);
+        Apply(db.Settings.Get(SettingKeys.Accent), Application.Current?.RequestedTheme ?? AppTheme.Light);
+    }
+
+    public static void SetSource(string source)
+    {
+        Source = source == MonetScheme.Device ? MonetScheme.Device : MonetScheme.Manual;
+        Apply(SelectedKey, Application.Current?.RequestedTheme ?? AppTheme.Light);
+    }
 
     public static void Apply(string? key, AppTheme theme)
     {
-        SelectedKey = key is not null && Palettes.ContainsKey(key) ? key : DefaultKey;
-        if (Application.Current?.Resources is not { } resources)
-            return;
-
-        var palette = Palettes[SelectedKey];
+        SelectedKey = MonetScheme.NormalizeKey(key);
+        if (Application.Current?.Resources is not { } resources) return;
         var dark = theme == AppTheme.Dark;
-        resources["Accent"] = Color.FromArgb(dark ? palette.Dark : palette.Light);
-        resources["OnAccent"] = Color.FromArgb(dark ? "#1D2529" : "#FFFFFF");
-        resources["AccentText"] = Color.FromArgb(dark ? palette.TextDark : palette.TextLight);
-        resources["AccentSoft"] = Color.FromArgb(dark ? palette.SoftDark : palette.SoftLight);
+        var scheme = new Dictionary<string, string>(MonetScheme.Create(SelectedKey, dark));
+#if ANDROID
+        if (Source == MonetScheme.Device && SupportsDeviceColors)
+            Platforms.Android.DeviceColors.Apply(scheme, dark);
+#endif
+        var changed = false;
+        foreach (var (role, hex) in scheme)
+        {
+            var color = Color.FromArgb(hex);
+            if (!resources.TryGetValue(role, out var old) || !color.Equals(old))
+            {
+                resources[role] = color;
+                changed = true;
+            }
+        }
+        // Compatibility aliases for code consuming the previous accent contract.
+        resources["Accent"] = resources["Primary"];
+        resources["OnAccent"] = resources["OnPrimary"];
+        resources["AccentText"] = resources["Primary"];
+        resources["AccentSoft"] = resources["PrimaryContainer"];
         RefreshPlatform();
+        Application.Current.Dispatcher.Dispatch(RefreshPlatform);
+        if (changed)
+        {
+#if ANDROID
+            Droid.QuickAddWidgetProvider.SaveAppearance(SelectedKey, Source);
+#endif
+            Revision++;
+            Changed?.Invoke(null, EventArgs.Empty);
+        }
     }
+
+    public static Color Get(string role) => Application.Current?.Resources.TryGetValue(role, out var value) == true && value is Color color
+        ? color : Color.FromArgb(MonetScheme.Create(SelectedKey, false)[role]);
+    public static Color AccentColor => Get("Primary");
 
     public static void RefreshPlatform()
     {
 #if ANDROID
-        var activity = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity;
-        if (activity?.Window is not { } window)
-            return;
-
-        var palette = Palettes[SelectedKey];
-        var dark = Application.Current?.RequestedTheme == AppTheme.Dark;
-        var statusColor = dark ? palette.TextLight : palette.Light;
-        window.SetStatusBarColor(global::Android.Graphics.Color.ParseColor(statusColor));
-        if (global::Android.OS.Build.VERSION.SdkInt >= global::Android.OS.BuildVersionCodes.R)
-        {
-            const int lightStatusBars = 8; // WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-            window.DecorView.WindowInsetsController?.SetSystemBarsAppearance(dark ? 0 : lightStatusBars, lightStatusBars);
-        }
-        if (global::Android.OS.Build.VERSION.SdkInt >= global::Android.OS.BuildVersionCodes.M)
-        {
-            var flags = (int)window.DecorView.SystemUiVisibility;
-            var lightStatusBar = (int)global::Android.Views.SystemUiFlags.LightStatusBar;
-            window.DecorView.SystemUiVisibility = (global::Android.Views.StatusBarVisibility)(dark
-                ? flags & ~lightStatusBar
-                : flags | lightStatusBar);
-        }
+        Platforms.Android.MonetChrome.Refresh();
 #endif
     }
-
-    public static Color AccentColor => Application.Current?.Resources.TryGetValue("Accent", out var value) == true && value is Color color
-        ? color : Color.FromArgb("#AE6241");
 }

@@ -3,41 +3,39 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- ═══ Clean: неявные стили ═══ -->
-
     <Style TargetType="Page" ApplyToDerivedTypes="True">
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource PageBgLight}, Dark={StaticResource PageBgDark}}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource Surface}" />
         <Setter Property="Padding" Value="0" />
     </Style>
 
     <Style TargetType="Shell" ApplyToDerivedTypes="True">
-        <Setter Property="Shell.BackgroundColor" Value="{AppThemeBinding Light={StaticResource PageBgLight}, Dark={StaticResource PageBgDark}}" />
-        <Setter Property="Shell.ForegroundColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
-        <Setter Property="Shell.TitleColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
-        <Setter Property="Shell.DisabledColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+        <Setter Property="Shell.BackgroundColor" Value="{DynamicResource Surface}" />
+        <Setter Property="Shell.ForegroundColor" Value="{DynamicResource OnSurface}" />
+        <Setter Property="Shell.TitleColor" Value="{DynamicResource OnSurface}" />
+        <Setter Property="Shell.DisabledColor" Value="{DynamicResource OnSurfaceVariant}" />
         <Setter Property="Shell.NavBarHasShadow" Value="False" />
-        <Setter Property="Shell.TabBarBackgroundColor" Value="{AppThemeBinding Light={StaticResource PageBgLight}, Dark={StaticResource PageBgDark}}" />
-        <Setter Property="Shell.TabBarForegroundColor" Value="{DynamicResource AccentText}" />
-        <Setter Property="Shell.TabBarTitleColor" Value="{DynamicResource AccentText}" />
-        <Setter Property="Shell.TabBarUnselectedColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+        <Setter Property="Shell.TabBarBackgroundColor" Value="{DynamicResource SurfaceContainer}" />
+        <Setter Property="Shell.TabBarForegroundColor" Value="{DynamicResource Primary}" />
+        <Setter Property="Shell.TabBarTitleColor" Value="{DynamicResource Primary}" />
+        <Setter Property="Shell.TabBarUnselectedColor" Value="{DynamicResource OnSurfaceVariant}" />
     </Style>
 
     <Style TargetType="Label">
         <Setter Property="FontFamily" Value="InterRegular" />
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
-        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor" Value="{DynamicResource OnSurface}" />
+        <Setter Property="FontSize" Value="16" />
     </Style>
 
     <Style TargetType="Button">
         <Setter Property="FontFamily" Value="InterSemiBold" />
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
-        <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+        <Setter Property="TextColor" Value="{DynamicResource OnSurface}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource SurfaceContainerLow}" />
+        <Setter Property="BorderColor" Value="{DynamicResource OutlineVariant}" />
         <Setter Property="BorderWidth" Value="1" />
         <Setter Property="CornerRadius" Value="12" />
-        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontSize" Value="16" />
         <Setter Property="Padding" Value="14,10" />
-        <Setter Property="MinimumHeightRequest" Value="44" />
+        <Setter Property="MinimumHeightRequest" Value="48" />
         <Setter Property="VisualStateManager.VisualStateGroups">
             <Setter.Value>
                 <VisualStateGroupList>
@@ -49,8 +47,8 @@
                         </VisualState>
                         <VisualState Name="Pressed">
                             <VisualState.Setters>
-                                <Setter Property="Scale" Value="0.96" />
-                                <Setter Property="Opacity" Value="0.76" />
+                                <Setter Property="Scale" Value="1" />
+                                <Setter Property="Opacity" Value="1" />
                             </VisualState.Setters>
                         </VisualState>
                         <VisualState Name="Disabled">
@@ -65,190 +63,177 @@
     </Style>
 
     <Style TargetType="Border">
-        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource SurfaceContainerLow}" />
+        <Setter Property="Stroke" Value="{DynamicResource OutlineVariant}" />
         <Setter Property="StrokeShape" Value="RoundRectangle 12" />
         <Setter Property="StrokeThickness" Value="1" />
     </Style>
 
     <Style TargetType="Entry">
         <Setter Property="FontFamily" Value="InterRegular" />
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
-        <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
-        <Setter Property="FontSize" Value="15" />
-        <Setter Property="MinimumHeightRequest" Value="44" />
+        <Setter Property="TextColor" Value="{DynamicResource OnSurface}" />
+        <Setter Property="PlaceholderColor" Value="{DynamicResource OnSurfaceVariant}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource SurfaceContainerLow}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="MinimumHeightRequest" Value="48" />
     </Style>
 
     <Style TargetType="Picker">
         <Setter Property="FontFamily" Value="InterRegular" />
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
-        <Setter Property="TitleColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
-        <Setter Property="FontSize" Value="14" />
-        <Setter Property="MinimumHeightRequest" Value="44" />
+        <Setter Property="TextColor" Value="{DynamicResource OnSurface}" />
+        <Setter Property="TitleColor" Value="{DynamicResource OnSurfaceVariant}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource SurfaceContainerLow}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="MinimumHeightRequest" Value="48" />
     </Style>
 
     <Style TargetType="DatePicker">
         <Setter Property="FontFamily" Value="InterRegular" />
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+        <Setter Property="TextColor" Value="{DynamicResource OnSurface}" />
         <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="FontSize" Value="15" />
-        <Setter Property="MinimumHeightRequest" Value="44" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="MinimumHeightRequest" Value="48" />
     </Style>
 
     <Style TargetType="ProgressBar">
-        <Setter Property="ProgressColor" Value="{DynamicResource Accent}" />
+        <Setter Property="ProgressColor" Value="{DynamicResource Primary}" />
     </Style>
 
     <Style TargetType="Switch">
-        <Setter Property="OnColor" Value="{DynamicResource Accent}" />
-        <Setter Property="ThumbColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
+        <Setter Property="OnColor" Value="{DynamicResource PrimaryContainer}" />
+        <Setter Property="ThumbColor" Value="{DynamicResource Primary}" />
     </Style>
 
     <Style TargetType="SwipeItem">
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource Error}" />
     </Style>
-
-    <!-- ═══ Clean: подписи ═══ -->
 
     <Style x:Key="GroupLabel" TargetType="Label">
         <Setter Property="FontFamily" Value="InterSemiBold" />
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
-        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{DynamicResource OnSurfaceVariant}" />
+        <Setter Property="FontSize" Value="16" />
         <Setter Property="Margin" Value="4,14,4,6" />
     </Style>
 
     <Style x:Key="CardTitle" TargetType="Label">
         <Setter Property="FontFamily" Value="InterSemiBold" />
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
-        <Setter Property="FontSize" Value="15" />
+        <Setter Property="TextColor" Value="{DynamicResource OnSurface}" />
+        <Setter Property="FontSize" Value="20" />
     </Style>
 
     <Style x:Key="MutedText" TargetType="Label">
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
-        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{DynamicResource OnSurfaceVariant}" />
+        <Setter Property="FontSize" Value="16" />
     </Style>
 
     <Style x:Key="Headline" TargetType="Label">
         <Setter Property="FontFamily" Value="InterSemiBold" />
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+        <Setter Property="TextColor" Value="{DynamicResource OnSurface}" />
         <Setter Property="FontSize" Value="24" />
         <Setter Property="HorizontalOptions" Value="Center" />
         <Setter Property="HorizontalTextAlignment" Value="Center" />
     </Style>
 
-    <!-- Заголовки вкладок и push-страниц (вместо NavigationPage-заголовка) -->
     <Style x:Key="ScreenTitle" TargetType="Label">
         <Setter Property="FontFamily" Value="InterBold" />
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
-        <Setter Property="FontSize" Value="26" />
+        <Setter Property="TextColor" Value="{DynamicResource OnSurface}" />
+        <Setter Property="FontSize" Value="28" />
     </Style>
 
     <Style x:Key="PageTitle" TargetType="Label">
         <Setter Property="FontFamily" Value="InterBold" />
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+        <Setter Property="TextColor" Value="{DynamicResource OnSurface}" />
         <Setter Property="FontSize" Value="20" />
     </Style>
 
-    <!-- ═══ Clean: карточки (плоские, тонкая рамка, без теней) ═══ -->
-
     <Style x:Key="Card" TargetType="Border">
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" />
-        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
-        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource SurfaceContainerLow}" />
+        <Setter Property="Stroke" Value="{DynamicResource OutlineVariant}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+        <Setter Property="StrokeThickness" Value="0" />
         <Setter Property="Padding" Value="16" />
     </Style>
 
-    <!-- Карточные строки заменены плоскими списками (FlatRow-паттерн в шаблонах страниц:
-         Grid H60 с разделителем BoxView 1px). -->
-
-
-    <!-- ═══ Clean: сегменты расход/доход/перевод ═══ -->
-
     <Style x:Key="SegContainer" TargetType="Border">
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource SurfaceContainer}" />
         <Setter Property="StrokeThickness" Value="0" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 28" />
         <Setter Property="Padding" Value="4" />
     </Style>
 
     <Style x:Key="SegButton" TargetType="Button">
+        <Setter Property="LineBreakMode" Value="WordWrap" />
         <Setter Property="FontFamily" Value="InterSemiBold" />
         <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="BorderColor" Value="Transparent" />
         <Setter Property="BorderWidth" Value="0" />
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
-        <Setter Property="FontSize" Value="14" />
-        <Setter Property="CornerRadius" Value="9" />
-        <Setter Property="HeightRequest" Value="42" />
+        <Setter Property="TextColor" Value="{DynamicResource OnSurfaceVariant}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="CornerRadius" Value="24" />
+        <Setter Property="MinimumHeightRequest" Value="48" />
     </Style>
-
-    <!-- ═══ Clean: клавиатура (плоские клавиши без рамок) ═══ -->
 
     <Style x:Key="Key" TargetType="Button">
         <Setter Property="FontFamily" Value="InterRegular" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource KeyBgLight}, Dark={StaticResource KeyBgDark}}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource SurfaceContainerHigh}" />
         <Setter Property="BorderColor" Value="Transparent" />
         <Setter Property="BorderWidth" Value="0" />
         <Setter Property="CornerRadius" Value="12" />
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+        <Setter Property="TextColor" Value="{DynamicResource OnSurface}" />
         <Setter Property="FontSize" Value="22" />
-        <Setter Property="HeightRequest" Value="48" />
-        <!-- Запрет сжатия: на низких экранах Layout иначе ужимает клавиши
-             и обрезает цифры; сжиматься должен только блок категорий. -->
-        <Setter Property="MinimumHeightRequest" Value="48" />
-        <!-- Вертикальный паддинг обнулён: наследуемые 10dp сверху/снизу при
-             увеличенном системном шрифте не оставляли места глифу — цифры
-             резались и съезжали. Текст центрируется самой кнопкой. -->
+        <Setter Property="MinimumHeightRequest" Value="56" />
+
         <Setter Property="Padding" Value="4,0" />
     </Style>
 
-    <!-- Плоская строка списка с разделителями (редизайн): без рамки и фона,
-         разделитель — отдельный BoxView после строки. -->
     <Style x:Key="FlatRow" TargetType="Grid">
         <Setter Property="ColumnSpacing" Value="14" />
-        <Setter Property="HeightRequest" Value="60" />
-        <Setter Property="Padding" Value="0" />
+        <Setter Property="MinimumHeightRequest" Value="60" />
+        <Setter Property="Padding" Value="12,12" />
     </Style>
-
-    <!-- ═══ Clean: кнопки действий ═══ -->
 
     <Style x:Key="PrimaryButton" TargetType="Button">
         <Setter Property="FontFamily" Value="InterSemiBold" />
-        <Setter Property="BackgroundColor" Value="{DynamicResource Accent}" />
-        <Setter Property="TextColor" Value="{DynamicResource OnAccent}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource Primary}" />
+        <Setter Property="TextColor" Value="{DynamicResource OnPrimary}" />
         <Setter Property="BorderColor" Value="Transparent" />
         <Setter Property="BorderWidth" Value="0" />
-        <Setter Property="CornerRadius" Value="14" />
-        <Setter Property="FontSize" Value="15" />
-        <Setter Property="HeightRequest" Value="50" />
+        <Setter Property="CornerRadius" Value="28" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="MinimumHeightRequest" Value="56" />
     </Style>
 
     <Style x:Key="GhostButton" TargetType="Button">
         <Setter Property="FontFamily" Value="InterSemiBold" />
-        <Setter Property="BackgroundColor" Value="{DynamicResource AccentSoft}" />
-        <Setter Property="BorderColor" Value="{DynamicResource Accent}" />
-        <Setter Property="BorderWidth" Value="1" />
-        <Setter Property="CornerRadius" Value="12" />
-        <Setter Property="TextColor" Value="{DynamicResource AccentText}" />
-        <Setter Property="FontSize" Value="14" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource SecondaryContainer}" />
+        <Setter Property="BorderColor" Value="{DynamicResource Primary}" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="CornerRadius" Value="24" />
+        <Setter Property="TextColor" Value="{DynamicResource OnSecondaryContainer}" />
+        <Setter Property="FontSize" Value="16" />
         <Setter Property="MinimumHeightRequest" Value="48" />
     </Style>
 
     <Style x:Key="DangerButton" TargetType="Button">
         <Setter Property="FontFamily" Value="InterSemiBold" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource ExpenseSoftLight}, Dark={StaticResource ExpenseSoftDark}}" />
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource ErrorContainer}" />
+        <Setter Property="TextColor" Value="{DynamicResource OnErrorContainer}" />
         <Setter Property="BorderColor" Value="Transparent" />
         <Setter Property="BorderWidth" Value="0" />
-        <Setter Property="CornerRadius" Value="14" />
-        <Setter Property="FontSize" Value="14" />
-        <Setter Property="MinimumHeightRequest" Value="44" />
+        <Setter Property="CornerRadius" Value="24" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="MinimumHeightRequest" Value="48" />
     </Style>
 
-    <!-- Цветные суммы (расход/доход) и выборные состояния чипов делаются inline-триггерами
-         DataTrigger на элементах (со значениями через AppThemeBinding): Style.Triggers с
-         DataTrigger не поддерживаются SourceGen-инфлятором внутри ResourceDictionary. -->
-
+    <Style x:Key="HeroCard" TargetType="Border" BasedOn="{StaticResource Card}">
+        <Setter Property="BackgroundColor" Value="{DynamicResource PrimaryContainer}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 28" />
+        <Setter Property="Padding" Value="20" />
+    </Style>
+    <Style x:Key="FieldError" TargetType="Label">
+        <Setter Property="TextColor" Value="{DynamicResource Error}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="LineBreakMode" Value="WordWrap" />
+        <Setter Property="SemanticProperties.Hint" Value="Ошибка ввода" />
+    </Style>
 </ResourceDictionary>

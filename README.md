@@ -19,14 +19,14 @@
 - **«До зарплаты»**: хватит ли денег, «₽ в день», сменный цикл (якорь + длина).
 - **Отчёты**: произвольный период, круговая и столбчатая диаграммы, топ категорий.
 - **Экспорт CSV** (UTF-8 BOM, `;`, русская локаль Excel), резервная копия базы.
-- **Тема**: системная / светлая / тёмная, дизайн-система «Vibrant» (`design_vibrant/`).
+- **Тема**: системная / светлая / тёмная, дизайн-система **Monet / Material You**: цвета устройства на Android 12+, пять ручных палитр, тональные поверхности и тематические диалоги. Эталон — [`design_monet/`](design_monet/index.html).
 
 ## Стек
 
 - .NET 10 + .NET MAUI (SingleProject: android / windows в CI, iOS-head в проекте)
 - SQLite через sqlite-net-pcl, миграции через `PRAGMA user_version`
 - CommunityToolkit.Mvvm, LiveCharts2 (SkiaSharp)
-- xUnit: 58 тестов на слой `SaveMoney.Core`
+- xUnit: 121 тест, включая Core и проверку палитр/контраста Monet
 
 ## Структура
 
@@ -36,7 +36,7 @@ src/
   SaveMoney/             MAUI-приложение: XAML, ViewModels, Android-платформа
   SaveMoney.Tests/       xunit-тесты Core
 DEVPLAN.md               план разработки: фазы, статусы, отложенное
-UIPLAN.md                карта навигации, макеты экранов, функции по версиям
+UIPLAN.md                навигация, дизайн Monet, совместимость и проверка
 ```
 
 ## Сборка и тесты

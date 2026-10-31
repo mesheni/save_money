@@ -11,7 +11,7 @@ public partial class PaydayPage : ContentPage
     {
         InitializeComponent();
         BindingContext = viewModel;
-        viewModel.AlertAsync = async (title, message) => await DisplayAlertAsync(title, message, "ОК");
+        viewModel.AlertAsync = async (title, message) => await SaveMoney.Helpers.MonetDialogs.AlertAsync(title, message, "ОК");
     }
 
     protected override async void OnAppearing()

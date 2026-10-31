@@ -10,9 +10,8 @@ public partial class AppShell : Shell
 		InitializeComponent();
 
 #if ANDROID
-		// Полоска активной вкладки (макет). Без механизма Effects: EffectsFactory
-		// в DI MAUI 10 не зарегистрирован и валил приложение при attach Shell.
-		Platforms.Android.TabBarIndicator.Attach(this);
+        Loaded += (_, _) => Helpers.ThemePalette.RefreshPlatform();
+        HandlerChanged += (_, _) => Dispatcher.Dispatch(Helpers.ThemePalette.RefreshPlatform);
 #endif
 
 		Routing.RegisterRoute("transaction", typeof(QuickAddPage));
@@ -39,8 +38,7 @@ public partial class AppShell : Shell
 	{
 		base.OnNavigated(args);
 
-		if (CurrentPage is ContentPage page)
-			Helpers.PageMotion.Attach(page);
+		Helpers.ThemePalette.RefreshPlatform();
 
 		// Открытие раздела из «Ещё» — это НЕ push-стек, а Shell URI-состояние
 		// («//more/accounts»): Shell восстанавливает его при каждом возврате на

@@ -11,12 +11,12 @@
         <ToolbarItem Text="Добавить платёж" Command="{Binding AddCommand}">
             <ToolbarItem.IconImageSource>
                 <FontImageSource Glyph="{x:Static ctl:Glyphs.Add}" FontFamily="MaterialSymbolsRounded" Size="20"
-                                 Color="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                                 Color="{DynamicResource OnSurface}" />
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
     </ContentPage.ToolbarItems>
 
-    <Grid Padding="12,6">
+    <Grid Padding="16,12">
         <CollectionView ItemsSource="{Binding Rows}">
         <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="vm:RecurringRowVM">
@@ -24,47 +24,49 @@
                     <SwipeView Grid.Row="0">
                         <SwipeView.RightItems>
                             <SwipeItems>
-                                <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
+                                <SwipeItem Text="Удалить" BackgroundColor="{DynamicResource Error}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                             </SwipeItems>
                         </SwipeView.RightItems>
-                        <Grid MinimumHeightRequest="60" Padding="10,6" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10"
-                              BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}"
+                        <Border Style="{StaticResource Card}" Padding="0" Margin="0,0,0,8">
+<Grid MinimumHeightRequest="60" Padding="16,12" ColumnDefinitions="*,Auto" ColumnSpacing="10"
+                              BackgroundColor="Transparent"
                               SemanticProperties.Hint="Открыть платёж для изменения">
                             <VerticalStackLayout Spacing="2" VerticalOptions="Center">
                                 <Label Text="{Binding TitleText}" FontSize="16">
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label" Binding="{Binding IsActive}" Value="False">
-                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
+                                            <Setter Property="TextColor" Value="{DynamicResource OnSurfaceVariant}"/>
                                         </DataTrigger>
                                     </Label.Triggers>
                                 </Label>
-                                <Label FontSize="13" Text="{Binding SubText}"
-                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}">
+                                <Label FontSize="14" Text="{Binding SubText}"
+                                       TextColor="{DynamicResource OnSurfaceVariant}">
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label" Binding="{Binding IsActive}" Value="False">
-                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
+                                            <Setter Property="TextColor" Value="{DynamicResource OnSurfaceVariant}"/>
                                         </DataTrigger>
                                     </Label.Triggers>
                                 </Label>
-                            </VerticalStackLayout>
-                            <Label Grid.Column="1" Text="{Binding AmountText}" FontSize="15" FontFamily="InterSemiBold"
-                                   TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}"
-                                   VerticalOptions="Center">
+                            <Label Text="{Binding AmountText}" FontSize="16" FontFamily="InterSemiBold"
+                                   TextColor="{DynamicResource Income}"
+                                   VerticalOptions="Center" HorizontalOptions="End">
                                 <Label.Triggers>
                                     <DataTrigger TargetType="Label" Binding="{Binding IsExpense}" Value="True">
-                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}"/>
+                                        <Setter Property="TextColor" Value="{DynamicResource Error}"/>
                                     </DataTrigger>
                                 </Label.Triggers>
                             </Label>
-                            <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18" VerticalOptions="Center"
-                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+</VerticalStackLayout>
+
+                            <Label Grid.Column="1" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontAutoScalingEnabled="False" FontSize="18" VerticalOptions="Center"
+                                   TextColor="{DynamicResource OnSurfaceVariant}"/>
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:RecurringViewModel}}}" CommandParameter="{Binding .}"/>
                             </Grid.GestureRecognizers>
                         </Grid>
+</Border>
                     </SwipeView>
-                    <BoxView Grid.Row="1" HeightRequest="1"
-                             Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+
                 </Grid>
             </DataTemplate>
         </CollectionView.ItemTemplate>
@@ -72,7 +74,7 @@
 
         <Label Text="Регулярных платежей нет — добавьте первый кнопкой сверху"
                IsVisible="{Binding HasNoRows}" VerticalOptions="Center" HorizontalOptions="Center"
-               TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
+               TextColor="{DynamicResource OnSurfaceVariant}"/>
     </Grid>
 
 </ContentPage>

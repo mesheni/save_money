@@ -15,7 +15,26 @@ public partial class SettingsViewModel(AppDatabase db, CsvExportService csv) : O
 
     public IReadOnlyList<string> ThemeOptions { get; } = ["Системная", "Светлая", "Тёмная"];
     public IReadOnlyList<string> AccentOptions { get; } = ThemePalette.Options.Select(option => option.Name).ToArray();
-    public Color SelectedAccentPreview => Color.FromArgb(ThemePalette.Options[Math.Clamp(AccentIndex, 0, ThemePalette.Options.Count - 1)].Preview);
+    public Color SelectedAccentPreview => ThemePalette.Get("PrimaryContainer");
+    public IReadOnlyList<string> ColorSourceOptions { get; } = ThemePalette.SupportsDeviceColors
+        ? ["Цвета устройства", "Своя палитра"] : ["Своя палитра"];
+    public bool IsManualPalette => !ThemePalette.SupportsDeviceColors || ColorSourceIndex == 1;
+    public string PaletteHint => ThemePalette.SupportsDeviceColors
+        ? "Цвета устройства следуют системной палитре Android. Своя палитра сохраняет выбранный оттенок."
+        : "На этом устройстве используется встроенная палитра Material You.";
+
+    [ObservableProperty]
+    public partial int ColorSourceIndex { get; set; }
+
+    partial void OnColorSourceIndexChanged(int value)
+    {
+        OnPropertyChanged(nameof(IsManualPalette));
+        if (!_loaded) return;
+        var source = !IsManualPalette ? MonetScheme.Device : MonetScheme.Manual;
+        _db.Settings.Set(SettingKeys.ColorSource, source);
+        ThemePalette.SetSource(source);
+        OnPropertyChanged(nameof(SelectedAccentPreview));
+    }
 
     [ObservableProperty]
     public partial int ThemeIndex { get; set; }
@@ -42,7 +61,6 @@ public partial class SettingsViewModel(AppDatabase db, CsvExportService csv) : O
             return Task.CompletedTask;
         }
 
-        _loaded = true;
         ThemeIndex = _db.Settings.Get(SettingKeys.Theme) switch
         {
             "light" => 1,
@@ -51,7 +69,9 @@ public partial class SettingsViewModel(AppDatabase db, CsvExportService csv) : O
         };
         var savedAccent = _db.Settings.Get(SettingKeys.Accent);
         AccentIndex = Math.Max(0, ThemePalette.Options.ToList().FindIndex(option => option.Key == savedAccent));
+        ColorSourceIndex = ThemePalette.SupportsDeviceColors && ThemePalette.Source == MonetScheme.Manual ? 1 : 0;
         QuickSaveOnCategory = _db.Settings.GetBool(SettingKeys.QuickSaveOnCategory, false);
+        _loaded = true;
 
         return Task.CompletedTask;
     }
@@ -92,6 +112,7 @@ public partial class SettingsViewModel(AppDatabase db, CsvExportService csv) : O
 
         _db.Settings.Set(SettingKeys.Theme, themeValue);
         ThemePalette.Apply(ThemePalette.SelectedKey, Application.Current?.RequestedTheme ?? AppTheme.Light);
+        OnPropertyChanged(nameof(SelectedAccentPreview));
     }
 
     partial void OnAccentIndexChanged(int value)
@@ -103,6 +124,7 @@ public partial class SettingsViewModel(AppDatabase db, CsvExportService csv) : O
         var key = ThemePalette.Options[value].Key;
         _db.Settings.Set(SettingKeys.Accent, key);
         ThemePalette.Apply(key, Application.Current?.RequestedTheme ?? AppTheme.Light);
+        OnPropertyChanged(nameof(SelectedAccentPreview));
     }
 
     [RelayCommand]

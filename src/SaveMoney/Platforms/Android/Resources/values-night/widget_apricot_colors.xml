@@ -1,0 +1,8 @@
+<resources>
+<color name="widget_apricot_surface">#251E1A</color>
+<color name="widget_apricot_container">#6E3821</color>
+<color name="widget_apricot_primary">#FFB694</color>
+<color name="widget_apricot_on_primary">#55200A</color>
+<color name="widget_apricot_on_container">#FFDBCA</color>
+<color name="widget_apricot_text">#F0DFD8</color>
+</resources>

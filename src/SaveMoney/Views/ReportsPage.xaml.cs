@@ -16,13 +16,21 @@ public partial class ReportsPage : ContentPage
         InitializeComponent();
         _viewModel = viewModel;
         BindingContext = viewModel;
-        viewModel.AlertAsync = async (title, message) => await DisplayAlertAsync(title, message, "ОК");
+        viewModel.AlertAsync = async (title, message) => await SaveMoney.Helpers.MonetDialogs.AlertAsync(title, message, "ОК");
         viewModel.PickAsync = async (title, options) =>
         {
-            var picked = await DisplayActionSheetAsync(title, "Отмена", null, options);
+            var picked = await SaveMoney.Helpers.MonetDialogs.ChooseAsync(title, "Отмена", null, options);
             return picked == "Отмена" ? null : picked;
         };
         StyleCharts();
+        Appearing += (_, _) => ThemePalette.Changed += OnPaletteChanged;
+        Disappearing += (_, _) => ThemePalette.Changed -= OnPaletteChanged;
+    }
+
+    private void OnPaletteChanged(object? sender, EventArgs e)
+    {
+        StyleCharts();
+        _viewModel.RefreshPalette();
     }
 
     /// <summary>
@@ -31,13 +39,8 @@ public partial class ReportsPage : ContentPage
     /// </summary>
     private void StyleCharts()
     {
-        var isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
-        var tooltipBackground = new SolidColorPaint(isDark
-            ? new SKColor(0x22, 0x26, 0x2B)
-            : new SKColor(0xFF, 0xFF, 0xFF));
-        var tooltipText = new SolidColorPaint(isDark
-            ? new SKColor(0xF1, 0xF3, 0xF2)
-            : new SKColor(0x25, 0x30, 0x38));
+        var tooltipBackground = new SolidColorPaint(SKColor.Parse(ThemePalette.Get("SurfaceContainerHigh").ToArgbHex()));
+        var tooltipText = new SolidColorPaint(SKColor.Parse(ThemePalette.Get("OnSurface").ToArgbHex()));
 
         ApplyChartStyle(DonutChart, tooltipBackground, tooltipText);
         ApplyChartStyle(DaysChart, tooltipBackground, tooltipText);

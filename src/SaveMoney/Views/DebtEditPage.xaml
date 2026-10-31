@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:ctl="clr-namespace:SaveMoney.Controls"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:SaveMoney.ViewModels"
              x:Class="SaveMoney.Views.DebtEditPage"
@@ -9,17 +10,19 @@
     <ScrollView>
         <VerticalStackLayout Padding="16,10" Spacing="12">
 
-            <Label Text="Направление" FontSize="12" Opacity="0.6" IsVisible="{Binding IsPersonalDebt}"/>
-            <Border Padding="12,0" MinimumHeightRequest="48" IsVisible="{Binding IsPersonalDebt}"><Picker ItemsSource="{Binding DirectionOptions}" SelectedIndex="{Binding DirectionIndex}" BackgroundColor="Transparent"/></Border>
+            <Label Text="Направление" FontSize="14" TextColor="{DynamicResource OnSurfaceVariant}" IsVisible="{Binding IsPersonalDebt}"/>
+            <Border Padding="12,0" MinimumHeightRequest="48" IsVisible="{Binding IsPersonalDebt}"><ctl:MonetPicker ItemsSource="{Binding DirectionOptions}" SelectedIndex="{Binding DirectionIndex}" BackgroundColor="Transparent"/></Border>
 
-            <Label Text="Тип задолженности" FontSize="12" Opacity="0.6"/>
-            <Border Padding="12,0" MinimumHeightRequest="48"><Picker ItemsSource="{Binding KindOptions}" SelectedIndex="{Binding KindIndex}" BackgroundColor="Transparent"/></Border>
+            <Label Text="Тип задолженности" FontSize="14" TextColor="{DynamicResource OnSurfaceVariant}"/>
+            <Border Padding="12,0" MinimumHeightRequest="48"><ctl:MonetPicker ItemsSource="{Binding KindOptions}" SelectedIndex="{Binding KindIndex}" BackgroundColor="Transparent"/></Border>
 
-            <Label Text="Кто" FontSize="12" Opacity="0.6"/>
+            <Label Text="Кто" FontSize="14" TextColor="{DynamicResource OnSurfaceVariant}"/>
             <Border Padding="12,0" MinimumHeightRequest="48"><Entry Text="{Binding PersonName}" Placeholder="Имя человека или организации" BackgroundColor="Transparent"/></Border>
+            <ctl:ValidationMessage Text="{Binding NameError}"/>
 
-            <Label Text="Полная сумма, ₽" FontSize="12" Opacity="0.6"/>
+            <Label Text="Полная сумма, ₽" FontSize="14" TextColor="{DynamicResource OnSurfaceVariant}"/>
             <Border Padding="12,0" MinimumHeightRequest="48"><Entry Text="{Binding AmountText}" Placeholder="0" Keyboard="Numeric" BackgroundColor="Transparent"/></Border>
+            <ctl:ValidationMessage Text="{Binding AmountError}"/>
 
             <Grid ColumnDefinitions="*,Auto">
                 <Label Text="Есть срок возврата" VerticalOptions="Center"/>
@@ -28,10 +31,11 @@
 
             <Border Padding="12,0" MinimumHeightRequest="48" IsVisible="{Binding HasDueDate}"><DatePicker Date="{Binding DueDate}" Format="d MMMM yyyy"/></Border>
 
-            <Label Text="Счёт по умолчанию для возврата" FontSize="12" Opacity="0.6"/>
-            <Border Padding="12,0" MinimumHeightRequest="48"><Picker ItemsSource="{Binding AccountOptions}" SelectedIndex="{Binding AccountIndex}" BackgroundColor="Transparent"/></Border>
+            <Label Text="Счёт по умолчанию для возврата" FontSize="14" TextColor="{DynamicResource OnSurfaceVariant}"/>
+            <Border Padding="12,0" MinimumHeightRequest="48"><ctl:MonetPicker ItemsSource="{Binding AccountOptions}" SelectedIndex="{Binding AccountIndex}" BackgroundColor="Transparent"/></Border>
+            <ctl:ValidationMessage Text="{Binding AccountError}"/>
 
-            <Label Text="Заметка" FontSize="12" Opacity="0.6"/>
+            <Label Text="Заметка" FontSize="14" TextColor="{DynamicResource OnSurfaceVariant}"/>
             <Border Padding="12,0" MinimumHeightRequest="48"><Entry Text="{Binding Note}" Placeholder="Необязательно" BackgroundColor="Transparent"/></Border>
 
             <Button Text="Сохранить" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}"/>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:ctl="clr-namespace:SaveMoney.Controls"
              xmlns:vm="clr-namespace:SaveMoney.ViewModels"
              x:Class="SaveMoney.Views.AccountEditPage"
              Title="{Binding Title}"
@@ -9,60 +10,27 @@
     <ScrollView VerticalScrollBarVisibility="Never">
         <VerticalStackLayout Padding="16,10" Spacing="12">
 
-            <Label Text="Название" FontSize="12" Opacity="0.6"/>
-            <Border StrokeShape="RoundRectangle 12" Padding="12,0" HeightRequest="44">
+            <Label Text="Название" FontSize="14" TextColor="{DynamicResource OnSurfaceVariant}"/>
+            <Border StrokeShape="RoundRectangle 12" Padding="12,0" MinimumHeightRequest="48">
                 <Entry Text="{Binding Name}" Placeholder="Например, Сбер карта"
-                       BackgroundColor="Transparent" MinimumHeightRequest="42"/>
+                       BackgroundColor="Transparent" MinimumHeightRequest="48"/>
             </Border>
+            <ctl:ValidationMessage Text="{Binding NameError}"/>
 
-            <Label Text="Тип" FontSize="12" Opacity="0.6"/>
-            <Border StrokeShape="RoundRectangle 12" Padding="12,0" HeightRequest="44">
-                <Picker ItemsSource="{Binding KindOptions}" SelectedIndex="{Binding KindIndex}"
+            <Label Text="Тип" FontSize="14" TextColor="{DynamicResource OnSurfaceVariant}"/>
+            <Border StrokeShape="RoundRectangle 12" Padding="12,0" MinimumHeightRequest="48">
+                <ctl:MonetPicker ItemsSource="{Binding KindOptions}" SelectedIndex="{Binding KindIndex}"
                         BackgroundColor="Transparent" VerticalOptions="Center"/>
             </Border>
 
-            <Label Text="Начальный остаток, ₽ (можно с минусом для кредитки)" FontSize="12" Opacity="0.6"/>
-            <Border StrokeShape="RoundRectangle 12" Padding="12,0" HeightRequest="44">
+            <Label Text="Начальный остаток, ₽ (можно с минусом для кредитки)" FontSize="14" TextColor="{DynamicResource OnSurfaceVariant}"/>
+            <Border StrokeShape="RoundRectangle 12" Padding="12,0" MinimumHeightRequest="48">
                 <Entry Text="{Binding InitialBalanceText}" Placeholder="0" Keyboard="Numeric"
-                       BackgroundColor="Transparent" MinimumHeightRequest="42"/>
+                       BackgroundColor="Transparent" MinimumHeightRequest="48"/>
             </Border>
 
-            <Label Text="Цвет" FontSize="12" Opacity="0.6"/>
-            <CollectionView ItemsSource="{Binding Colors}" HeightRequest="280" VerticalScrollBarVisibility="Never">
-                <CollectionView.ItemsLayout>
-                    <GridItemsLayout Orientation="Vertical" Span="4" HorizontalItemSpacing="8" VerticalItemSpacing="8"/>
-                </CollectionView.ItemsLayout>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="vm:ColorChip">
-                        <Border MinimumHeightRequest="48" MinimumWidthRequest="48"
-                                SemanticProperties.Description="{Binding AccessibleName}" SemanticProperties.Hint="Выбрать цвет счёта"
-                                StrokeShape="RoundRectangle 20"
-                                BackgroundColor="{Binding Hex}"
-                                StrokeThickness="3"
-                                Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}">
-                            <Border.Triggers>
-                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                    <Setter Property="Stroke" Value="{DynamicResource Accent}"/>
-                                </DataTrigger>
-                            </Border.Triggers>
-                            <Grid>
-                                <Button Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
-                                        Command="{Binding SelectColorCommand, Source={RelativeSource AncestorType={x:Type vm:AccountEditViewModel}}}"
-                                        CommandParameter="{Binding .}" SemanticProperties.Description="{Binding AccessibleName}"
-                                        SemanticProperties.Hint="Выбрать цвет счёта"/>
-                                <Border IsVisible="{Binding IsSelected}" WidthRequest="26" HeightRequest="26"
-                                        HorizontalOptions="Center" VerticalOptions="Center" StrokeThickness="0"
-                                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                                        InputTransparent="True">
-                                    <Label Text="✓" HorizontalOptions="Center" VerticalOptions="Center"
-                                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                                           FontFamily="InterBold" FontSize="17"/>
-                                </Border>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+            <Label Text="Цвет" FontSize="14" TextColor="{DynamicResource OnSurfaceVariant}"/>
+            <ctl:AppearancePicker IsColorPicker="True" ItemsSource="{Binding Colors}" SelectionCommand="{Binding SelectColorCommand}"/>
 
             <Grid ColumnDefinitions="*,Auto">
                 <Label Text="Учитывать в общем балансе" VerticalOptions="Center"/>
@@ -76,7 +44,7 @@
 
             <Button Text="Сохранить" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}"/>
 
-            <Button Text="Удалить счёт" TextColor="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}" BackgroundColor="Transparent"
+            <Button Text="Удалить счёт" TextColor="{DynamicResource Error}" BackgroundColor="Transparent"
                     IsVisible="{Binding IsExisting}" Command="{Binding DeleteCommand}"/>
 
         </VerticalStackLayout>

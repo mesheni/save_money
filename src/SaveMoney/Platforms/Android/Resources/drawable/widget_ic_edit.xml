@@ -4,7 +4,7 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24"
-    android:tint="#FFFFFF">
+    android:tint="@color/monet_widget_on_container">
     <!-- material symbols: edit -->
     <path
         android:fillColor="#FFFFFFFF"

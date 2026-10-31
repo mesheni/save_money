@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="MonetDialogTheme" parent="Theme.Material3.DayNight.Dialog.Alert">
+        <item name="colorPrimary">@color/monet_widget_primary</item>
+        <item name="colorSecondary">@color/monet_widget_primary</item>
+        <item name="colorSurface">@color/monet_widget_surface</item>
+        <item name="colorOnSurface">@color/monet_widget_text</item>
+    </style>
+    <attr name="monetCalendarHeader" format="color" />
+    <attr name="monetCalendarOnHeader" format="color" />
+    <style name="MonetCalendarYearText" parent="android:style/TextAppearance.Material.Subhead">
+        <item name="android:textColor">?attr/monetCalendarOnHeader</item>
+    </style>
+    <style name="MonetCalendarDateText" parent="android:style/TextAppearance.Material.Headline">
+        <item name="android:textColor">?attr/monetCalendarOnHeader</item>
+    </style>
+    <style name="MonetCalendarWidget" parent="android:style/Widget.Material.DatePicker">
+        <item name="android:headerBackground">?attr/monetCalendarHeader</item>
+        <item name="android:headerYearTextAppearance">@style/MonetCalendarYearText</item>
+        <item name="android:headerMonthTextAppearance">@style/MonetCalendarDateText</item>
+        <item name="android:headerDayOfMonthTextAppearance">@style/MonetCalendarDateText</item>
+        <item name="android:calendarTextColor">?android:attr/textColorPrimary</item>
+    </style>
+    <style name="MonetCalendarTheme" parent="android:style/Theme.Material.Dialog.Alert">
+        <item name="android:colorAccent">@color/monet_widget_primary</item>
+        <item name="monetCalendarHeader">@color/monet_widget_container</item>
+        <item name="monetCalendarOnHeader">@color/monet_widget_on_container</item>
+        <item name="android:datePickerStyle">@style/MonetCalendarWidget</item>
+        <item name="android:colorBackground">@color/monet_widget_surface</item>
+        <item name="android:textColorPrimary">@color/monet_widget_text</item>
+        <item name="android:textColorSecondary">@color/monet_widget_text</item>
+        <item name="android:windowMinWidthMajor">90%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
+    </style>
+    <style name="MonetNavigationLabel" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textSize">12sp</item>
+    </style>
+    <style name="MonetNavigationLabelLargeText" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textSize">10sp</item>
+    </style>
+    <style name="MonetCalendarApricotTheme" parent="MonetCalendarTheme">
+        <item name="android:colorAccent">@color/widget_apricot_primary</item>
+        <item name="android:colorControlActivated">@color/widget_apricot_primary</item>
+        <item name="android:textColorPrimaryInverse">@color/widget_apricot_on_primary</item>
+        <item name="android:textColorPrimary">@color/widget_apricot_text</item>
+        <item name="android:textColorSecondary">@color/widget_apricot_text</item>
+        <item name="monetCalendarHeader">@color/widget_apricot_container</item>
+        <item name="monetCalendarOnHeader">@color/widget_apricot_on_container</item>
+    </style>
+    <style name="MonetCalendarSageTheme" parent="MonetCalendarTheme">
+        <item name="android:colorAccent">@color/widget_sage_primary</item>
+        <item name="android:colorControlActivated">@color/widget_sage_primary</item>
+        <item name="android:textColorPrimaryInverse">@color/widget_sage_on_primary</item>
+        <item name="android:textColorPrimary">@color/widget_sage_text</item>
+        <item name="android:textColorSecondary">@color/widget_sage_text</item>
+        <item name="monetCalendarHeader">@color/widget_sage_container</item>
+        <item name="monetCalendarOnHeader">@color/widget_sage_on_container</item>
+    </style>
+    <style name="MonetCalendarBlueTheme" parent="MonetCalendarTheme">
+        <item name="android:colorAccent">@color/widget_blue_primary</item>
+        <item name="android:colorControlActivated">@color/widget_blue_primary</item>
+        <item name="android:textColorPrimaryInverse">@color/widget_blue_on_primary</item>
+        <item name="android:textColorPrimary">@color/widget_blue_text</item>
+        <item name="android:textColorSecondary">@color/widget_blue_text</item>
+        <item name="monetCalendarHeader">@color/widget_blue_container</item>
+        <item name="monetCalendarOnHeader">@color/widget_blue_on_container</item>
+    </style>
+    <style name="MonetCalendarLavenderTheme" parent="MonetCalendarTheme">
+        <item name="android:colorAccent">@color/widget_lavender_primary</item>
+        <item name="android:colorControlActivated">@color/widget_lavender_primary</item>
+        <item name="android:textColorPrimaryInverse">@color/widget_lavender_on_primary</item>
+        <item name="android:textColorPrimary">@color/widget_lavender_text</item>
+        <item name="android:textColorSecondary">@color/widget_lavender_text</item>
+        <item name="monetCalendarHeader">@color/widget_lavender_container</item>
+        <item name="monetCalendarOnHeader">@color/widget_lavender_on_container</item>
+    </style>
+    <style name="MonetCalendarRoseTheme" parent="MonetCalendarTheme">
+        <item name="android:colorAccent">@color/widget_rose_primary</item>
+        <item name="android:colorControlActivated">@color/widget_rose_primary</item>
+        <item name="android:textColorPrimaryInverse">@color/widget_rose_on_primary</item>
+        <item name="android:textColorPrimary">@color/widget_rose_text</item>
+        <item name="android:textColorSecondary">@color/widget_rose_text</item>
+        <item name="monetCalendarHeader">@color/widget_rose_container</item>
+        <item name="monetCalendarOnHeader">@color/widget_rose_on_container</item>
+    </style>
+</resources>

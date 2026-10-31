@@ -12,6 +12,9 @@ namespace SaveMoney.ViewModels;
 [QueryProperty(nameof(PresetKind), "kind")]
 public partial class AccountEditViewModel(AppDatabase db) : ObservableObject
 {
+    [ObservableProperty]
+    public partial string NameError { get; set; } = "";
+
     private readonly AppDatabase _db = db;
     private string? _id;
     private Account? _editing;
@@ -128,9 +131,11 @@ public partial class AccountEditViewModel(AppDatabase db) : ObservableObject
     [RelayCommand]
     private async Task SaveAsync()
     {
+        NameError = "";
+
         if (string.IsNullOrWhiteSpace(Name))
         {
-            await AlertAsync?.Invoke("Ошибка", "Введите название счёта")!;
+            NameError = "Введите название счёта";
             return;
         }
 
@@ -173,7 +178,7 @@ public partial class AccountEditViewModel(AppDatabase db) : ObservableObject
             return;
         }
 
-        var confirmed = await Shell.Current.DisplayAlertAsync(
+        var confirmed = await SaveMoney.Helpers.MonetDialogs.AlertAsync(
             "Удалить счёт?",
             $"«{_editing.Name}» исчезнет из списков. Транзакции по нему останутся в истории.",
             "Удалить", "Отмена");

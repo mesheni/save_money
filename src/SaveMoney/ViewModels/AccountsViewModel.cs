@@ -95,7 +95,7 @@ public partial class AccountsViewModel(AppDatabase db, BalanceService balance) :
             return false;
         }
 
-        var confirmed = await Shell.Current.DisplayAlertAsync(
+        var confirmed = await SaveMoney.Helpers.MonetDialogs.AlertAsync(
             "Удалить счёт?",
             $"«{row.Name}» исчезнет из списков. Транзакции по нему останутся в истории.",
             "Удалить", "Отмена");

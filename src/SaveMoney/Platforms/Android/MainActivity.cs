@@ -34,8 +34,16 @@ public class MainActivity : MauiAppCompatActivity
 	protected override void OnResume()
 	{
 		base.OnResume();
-		SaveMoney.Helpers.ThemePalette.RefreshPlatform();
+		SaveMoney.Helpers.ThemePalette.Apply(SaveMoney.Helpers.ThemePalette.SelectedKey,
+            Microsoft.Maui.Controls.Application.Current?.RequestedTheme ?? AppTheme.Light);
 	}
+
+    public override void OnConfigurationChanged(global::Android.Content.Res.Configuration newConfig)
+    {
+        base.OnConfigurationChanged(newConfig);
+        Helpers.ThemePalette.Apply(Helpers.ThemePalette.SelectedKey,
+            Microsoft.Maui.Controls.Application.Current?.RequestedTheme ?? AppTheme.Light);
+    }
 
 	public override void OnWindowFocusChanged(bool hasFocus)
 	{

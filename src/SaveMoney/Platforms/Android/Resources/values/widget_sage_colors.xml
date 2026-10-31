@@ -1,0 +1,8 @@
+<resources>
+<color name="widget_sage_surface">#E9EFE7</color>
+<color name="widget_sage_container">#BCECCE</color>
+<color name="widget_sage_primary">#32694D</color>
+<color name="widget_sage_on_primary">#FFFFFF</color>
+<color name="widget_sage_on_container">#002112</color>
+<color name="widget_sage_text">#171D18</color>
+</resources>

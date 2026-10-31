@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#AE6241</color>
-    <color name="colorPrimaryDark">#B34700</color>
-    <color name="colorAccent">#AE6241</color>
+    <color name="colorPrimary">@color/monet_widget_primary</color>
+    <color name="colorPrimaryDark">@color/monet_widget_surface</color>
+    <color name="colorAccent">@color/monet_widget_primary</color>
 </resources>

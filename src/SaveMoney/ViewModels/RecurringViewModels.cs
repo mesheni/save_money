@@ -73,7 +73,7 @@ public partial class RecurringViewModel(AppDatabase db) : ObservableObject
             return false;
         }
 
-        var confirmed = await Shell.Current.DisplayAlertAsync(
+        var confirmed = await SaveMoney.Helpers.MonetDialogs.AlertAsync(
             "Удалить регулярный платёж?", "Транзакции, созданные ранее, останутся.", "Удалить", "Отмена");
         if (!confirmed)
         {
@@ -94,6 +94,11 @@ public partial class RecurringViewModel(AppDatabase db) : ObservableObject
 [QueryProperty(nameof(RecurringId), "id")]
 public partial class RecurringEditViewModel(AppDatabase db) : ObservableObject
 {
+    [ObservableProperty]
+    public partial string AmountError { get; set; } = "";
+    [ObservableProperty]
+    public partial string AccountError { get; set; } = "";
+
     private readonly AppDatabase _db = db;
     private string? _id;
     private RecurringPayment? _editing;
@@ -249,22 +254,25 @@ public partial class RecurringEditViewModel(AppDatabase db) : ObservableObject
     [RelayCommand]
     private async Task SaveAsync()
     {
+        AmountError = "";
+        AccountError = "";
+
         if (_accountMissing && AccountIndex == AccountOptions.Count - 1)
         {
-            await AlertAsync?.Invoke("Ошибка", "Счёт этого платежа удалён — выберите другой счёт")!;
+            AccountError = "Счёт этого платежа удалён — выберите другой счёт";
             return;
         }
 
         if (AccountIndex < 0 || AccountIndex >= _accountIds.Count)
         {
-            await AlertAsync?.Invoke("Ошибка", "Выберите счёт (создайте его в разделе «Счета»)")!;
+            AccountError = "Выберите счёт (создайте его в разделе «Счета»)";
             return;
         }
 
         var amount = MoneyFormat.ParseInput(AmountText);
         if (amount <= 0)
         {
-            await AlertAsync?.Invoke("Ошибка", "Введите сумму больше нуля")!;
+            AmountError = "Введите сумму больше нуля";
             return;
         }
 

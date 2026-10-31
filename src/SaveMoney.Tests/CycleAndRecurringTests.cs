@@ -13,13 +13,16 @@ public class CycleAndRecurringTests : IDisposable
     // --- CycleService ---
 
     [Fact]
-    public void Cycle_DefaultAnchor_IsFirstOfMonth_With30DaySteps()
+    public void Cycle_DefaultAnchor_Uses30DayStepsFromFirstOfMonth()
     {
         var service = new CycleService(_test.Db);
         var cycle = service.GetCurrentCycle();
 
         var now = DateTime.Now.Date;
-        Assert.Equal(new DateTime(now.Year, now.Month, 1), cycle.Start);
+        var anchor = new DateTime(now.Year, now.Month, 1);
+        Assert.Equal(anchor, service.GetSettings().Anchor);
+        // On day 31 the first 30-day interval has ended; the next starts today.
+        Assert.Equal(anchor.AddDays((now - anchor).Days / 30 * 30), cycle.Start);
         Assert.Equal(30, cycle.TotalDays);
         Assert.True(cycle.End > now);
         Assert.True(cycle.Start <= now);

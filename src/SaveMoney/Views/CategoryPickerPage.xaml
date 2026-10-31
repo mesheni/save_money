@@ -15,7 +15,7 @@
                         <!-- Строка: отступ 20 у подкатегорий, иконка, имя. Тап — выбор. -->
                         <Grid Grid.Row="0" MinimumHeightRequest="52" Padding="10,4" ColumnSpacing="12"
                               ColumnDefinitions="Auto,24,*,Auto"
-                              BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}"
+                              BackgroundColor="{DynamicResource SurfaceContainer}"
                               SemanticProperties.Description="{Binding AccessibleName}"
                               SemanticProperties.Hint="Выбрать категорию">
                             <BoxView Grid.Column="0" Color="Transparent" WidthRequest="0" HorizontalOptions="Start">
@@ -35,28 +35,28 @@
                                 </BoxView.Triggers>
                             </BoxView>
                             <Label Grid.Column="1" Text="{Binding Icon, Converter={StaticResource IconGlyph}}"
-                                   FontFamily="MaterialSymbolsRounded" FontSize="20"
-                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                   FontFamily="MaterialSymbolsRounded" FontAutoScalingEnabled="False" FontSize="20"
+                                   TextColor="{DynamicResource OnSurfaceVariant}"
                                    VerticalOptions="Center"/>
-                            <Label Grid.Column="2" Text="{Binding Name}" FontSize="15" VerticalOptions="Center">
+                            <Label Grid.Column="2" Text="{Binding Name}" FontSize="16" VerticalOptions="Center">
                                 <Label.Triggers>
                                     <DataTrigger TargetType="Label" Binding="{Binding Depth}" Value="0">
                                         <Setter Property="FontFamily" Value="InterSemiBold"/>
                                     </DataTrigger>
                                     <DataTrigger TargetType="Label" Binding="{Binding Depth}" Value="1">
-                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                                        <Setter Property="TextColor" Value="{DynamicResource OnSurfaceVariant}"/>
                                     </DataTrigger>
                                 </Label.Triggers>
                             </Label>
-                            <Label Grid.Column="3" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18" VerticalOptions="Center"
-                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                            <Label Grid.Column="3" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontAutoScalingEnabled="False" FontSize="18" VerticalOptions="Center"
+                                   TextColor="{DynamicResource OnSurfaceVariant}"/>
                             <Button Grid.ColumnSpan="4" Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
                                     Command="{Binding PickCommand, Source={RelativeSource AncestorType={x:Type vm:CategoryPickerViewModel}}}"
                                     CommandParameter="{Binding .}" SemanticProperties.Description="{Binding AccessibleName}"
                                     SemanticProperties.Hint="Выбрать категорию"/>
                         </Grid>
                         <BoxView Grid.Row="1" HeightRequest="1"
-                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+                                 Color="{DynamicResource OutlineVariant}"/>
                     </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>

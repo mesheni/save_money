@@ -258,7 +258,7 @@ public partial class HistoryViewModel(AppDatabase db, HistoryService history) : 
         }
 
         // Свайп легко зацепить случайно, а удаление убивает транзакцию безвозвратно.
-        var confirmed = await Shell.Current.DisplayAlertAsync(
+        var confirmed = await SaveMoney.Helpers.MonetDialogs.AlertAsync(
             "Удалить операцию?", $"«{item.Title}» на {item.AmountText} будет удалена.", "Удалить", "Отмена");
         if (!confirmed)
         {

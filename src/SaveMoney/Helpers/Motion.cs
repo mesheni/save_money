@@ -98,8 +98,8 @@ public static class MotionExtensions
         view.Opacity = 0;
         view.TranslationY = 14;
         await Task.WhenAll(
-            view.FadeTo(1, ms, Motion.Vibrant),
-            view.TranslateTo(0, 0, ms, Motion.Vibrant));
+            view.FadeToAsync(1, ms, Motion.Vibrant),
+            view.TranslateToAsync(0, 0, ms, Motion.Vibrant));
     }
 
     /// <summary>Каскадное появление: соседние элементы стартуют с шагом staggerMs.</summary>

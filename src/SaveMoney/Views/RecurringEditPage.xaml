@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:ctl="clr-namespace:SaveMoney.Controls"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:SaveMoney.ViewModels"
              x:Class="SaveMoney.Views.RecurringEditPage"
@@ -9,27 +10,29 @@
     <ScrollView>
         <VerticalStackLayout Padding="16,10" Spacing="12">
 
-            <Label Text="Название (магазин/что это)" FontSize="12" Opacity="0.6"/>
+            <Label Text="Название (магазин/что это)" FontSize="14" TextColor="{DynamicResource OnSurfaceVariant}"/>
             <Border Padding="12,0" MinimumHeightRequest="48"><Entry Text="{Binding NameText}" Placeholder="Например, Интернет" BackgroundColor="Transparent"/></Border>
 
-            <Label Text="Тип" FontSize="12" Opacity="0.6"/>
-            <Border Padding="12,0" MinimumHeightRequest="48"><Picker ItemsSource="{Binding KindOptions}" SelectedIndex="{Binding KindIndex}" BackgroundColor="Transparent"/></Border>
+            <Label Text="Тип" FontSize="14" TextColor="{DynamicResource OnSurfaceVariant}"/>
+            <Border Padding="12,0" MinimumHeightRequest="48"><ctl:MonetPicker ItemsSource="{Binding KindOptions}" SelectedIndex="{Binding KindIndex}" BackgroundColor="Transparent"/></Border>
 
-            <Label Text="Счёт" FontSize="12" Opacity="0.6"/>
-            <Border Padding="12,0" MinimumHeightRequest="48"><Picker ItemsSource="{Binding AccountOptions}" SelectedIndex="{Binding AccountIndex}" BackgroundColor="Transparent"/></Border>
+            <Label Text="Счёт" FontSize="14" TextColor="{DynamicResource OnSurfaceVariant}"/>
+            <Border Padding="12,0" MinimumHeightRequest="48"><ctl:MonetPicker ItemsSource="{Binding AccountOptions}" SelectedIndex="{Binding AccountIndex}" BackgroundColor="Transparent"/></Border>
+            <ctl:ValidationMessage Text="{Binding AccountError}"/>
 
-            <Label Text="Категория" FontSize="12" Opacity="0.6"/>
-            <Border Padding="12,0" MinimumHeightRequest="48"><Picker ItemsSource="{Binding CategoryOptions}" SelectedIndex="{Binding CategoryIndex}" BackgroundColor="Transparent"/></Border>
+            <Label Text="Категория" FontSize="14" TextColor="{DynamicResource OnSurfaceVariant}"/>
+            <Border Padding="12,0" MinimumHeightRequest="48"><ctl:MonetPicker ItemsSource="{Binding CategoryOptions}" SelectedIndex="{Binding CategoryIndex}" BackgroundColor="Transparent"/></Border>
 
-            <Label Text="Сумма, ₽" FontSize="12" Opacity="0.6"/>
+            <Label Text="Сумма, ₽" FontSize="14" TextColor="{DynamicResource OnSurfaceVariant}"/>
             <Border Padding="12,0" MinimumHeightRequest="48"><Entry Text="{Binding AmountText}" Placeholder="0" Keyboard="Numeric" BackgroundColor="Transparent"/></Border>
+            <ctl:ValidationMessage Text="{Binding AmountError}"/>
 
-            <Label Text="Периодичность" FontSize="12" Opacity="0.6" Margin="0,8,0,0"/>
-            <Border Padding="12,0" MinimumHeightRequest="48"><Picker ItemsSource="{Binding RecurrenceOptions}" SelectedIndex="{Binding RecurrenceIndex}" BackgroundColor="Transparent"/></Border>
+            <Label Text="Периодичность" FontSize="14" TextColor="{DynamicResource OnSurfaceVariant}" Margin="0,8,0,0"/>
+            <Border Padding="12,0" MinimumHeightRequest="48"><ctl:MonetPicker ItemsSource="{Binding RecurrenceOptions}" SelectedIndex="{Binding RecurrenceIndex}" BackgroundColor="Transparent"/></Border>
 
             <VerticalStackLayout Spacing="4" IsVisible="{Binding IsMonthly}" VerticalOptions="Center">
                 <Label Text="День месяца" VerticalOptions="Center"/>
-                <Border Padding="12,0" MinimumHeightRequest="48"><Picker ItemsSource="{Binding DayOfMonthOptions}" SelectedIndex="{Binding DayOfMonthIndex}" BackgroundColor="Transparent"/></Border>
+                <Border Padding="12,0" MinimumHeightRequest="48"><ctl:MonetPicker ItemsSource="{Binding DayOfMonthOptions}" SelectedIndex="{Binding DayOfMonthIndex}" BackgroundColor="Transparent"/></Border>
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="4" IsVisible="{Binding IsEveryN}" VerticalOptions="Center">

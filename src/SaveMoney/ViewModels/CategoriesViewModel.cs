@@ -110,7 +110,7 @@ public partial class CategoriesViewModel(AppDatabase db, CategoryService categor
             ? $"«{row.Name}» и её подкатегории будут удалены."
             : $"Подкатегория «{row.Name}» будет удалена.";
 
-        var confirmed = await Shell.Current.DisplayAlertAsync("Удалить категорию?", message, "Удалить", "Отмена");
+        var confirmed = await SaveMoney.Helpers.MonetDialogs.AlertAsync("Удалить категорию?", message, "Удалить", "Отмена");
         if (!confirmed)
         {
             return false;
@@ -126,6 +126,9 @@ public partial class CategoriesViewModel(AppDatabase db, CategoryService categor
 [QueryProperty(nameof(Kind), "kind")]
 public partial class CategoryEditViewModel(AppDatabase db, CategoryService categories) : ObservableObject
 {
+    [ObservableProperty]
+    public partial string NameError { get; set; } = "";
+
     private readonly AppDatabase _db = db;
     private readonly CategoryService _categories = categories;
     private string? _parentId;
@@ -203,9 +206,11 @@ public partial class CategoryEditViewModel(AppDatabase db, CategoryService categ
     [RelayCommand]
     private async Task SaveAsync()
     {
+        NameError = "";
+
         if (string.IsNullOrWhiteSpace(Name))
         {
-            await AlertAsync?.Invoke("Ошибка", "Введите название")!;
+            NameError = "Введите название";
             return;
         }
 

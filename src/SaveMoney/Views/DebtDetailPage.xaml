@@ -13,11 +13,11 @@
             <Border Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="4">
                     <Label Text="{Binding PersonTitle}" FontSize="24" FontFamily="InterSemiBold"/>
-                    <Label Text="{Binding DirectionText}" FontSize="13" Opacity="0.6"/>
+                    <Label Text="{Binding DirectionText}" FontSize="14" Opacity="0.6"/>
                     <Label Text="{Binding RemainingText}" FontSize="30" FontFamily="InterBold"/>
-                    <Label Text="{Binding TotalText, StringFormat='из {0}'}" FontSize="13" Opacity="0.6"/>
-                    <Label Text="{Binding DueText}" FontSize="13" Opacity="0.6"/>
-                    <Label Text="Долг закрыт" TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}" FontFamily="InterSemiBold"
+                    <Label Text="{Binding TotalText, StringFormat='из {0}'}" FontSize="14" Opacity="0.6"/>
+                    <Label Text="{Binding DueText}" FontSize="14" Opacity="0.6"/>
+                    <Label Text="Долг закрыт" TextColor="{DynamicResource Income}" FontFamily="InterSemiBold"
                            IsVisible="{Binding IsSettled}"/>
                 </VerticalStackLayout>
             </Border>
@@ -30,12 +30,12 @@
             <DataTemplate x:DataType="vm:PaymentRowVM">
                 <Grid RowDefinitions="Auto,1" Padding="16,0">
                     <Grid Grid.Row="0" MinimumHeightRequest="48" Padding="0,4" ColumnDefinitions="*,Auto">
-                        <Label Text="{Binding DateText}" FontSize="15" VerticalOptions="Center"
-                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                        <Label Grid.Column="1" Text="{Binding AmountText}" FontSize="15" FontFamily="InterSemiBold" VerticalOptions="Center"/>
+                        <Label Text="{Binding DateText}" FontSize="16" VerticalOptions="Center"
+                               TextColor="{DynamicResource OnSurfaceVariant}"/>
+                        <Label Grid.Column="1" Text="{Binding AmountText}" FontSize="16" FontFamily="InterSemiBold" VerticalOptions="Center"/>
                     </Grid>
                     <BoxView Grid.Row="1" HeightRequest="1"
-                             Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+                             Color="{DynamicResource OutlineVariant}"/>
                 </Grid>
             </DataTemplate>
         </CollectionView.ItemTemplate>

@@ -16,35 +16,54 @@
                         <Label Text="Тема" Style="{StaticResource MutedText}"/>
                         <Border Padding="12,0" MinimumHeightRequest="48">
                             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                                <Picker ItemsSource="{Binding ThemeOptions}" SelectedIndex="{Binding ThemeIndex}"
+                                <ctl:MonetPicker ItemsSource="{Binding ThemeOptions}" SelectedIndex="{Binding ThemeIndex}"
                                         BackgroundColor="Transparent" SemanticProperties.Description="Тема приложения"/>
-                                <Label Grid.Column="1" Text="{x:Static ctl:Glyphs.ChevronDown}" FontFamily="MaterialSymbolsRounded"
+                                <Label Grid.Column="1" Text="{x:Static ctl:Glyphs.ChevronDown}" FontFamily="MaterialSymbolsRounded" FontAutoScalingEnabled="False"
                                        FontSize="18" VerticalOptions="Center" InputTransparent="True"/>
                             </Grid>
                         </Border>
                     </VerticalStackLayout>
 
-                    <VerticalStackLayout Spacing="6">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Цветовая палитра" Style="{StaticResource CardTitle}"/>
+                        <Border Padding="12,0" MinimumHeightRequest="48">
+                            <ctl:MonetPicker ItemsSource="{Binding ColorSourceOptions}" SelectedIndex="{Binding ColorSourceIndex}"
+                                    SemanticProperties.Description="Источник цветов приложения" BackgroundColor="Transparent"/>
+                        </Border>
+                        <Label Text="{Binding PaletteHint}" Style="{StaticResource MutedText}"/>
+                        <Border Style="{StaticResource HeroCard}">
+                            <VerticalStackLayout Spacing="12">
+                                <Label Text="Ваша палитра" FontSize="20" FontFamily="InterSemiBold" TextColor="{DynamicResource OnPrimaryContainer}"/>
+                                <HorizontalStackLayout Spacing="12">
+                                    <BoxView WidthRequest="32" HeightRequest="32" Color="{DynamicResource Primary}" CornerRadius="16"/>
+                                    <BoxView WidthRequest="32" HeightRequest="32" Color="{DynamicResource Secondary}" CornerRadius="16"/>
+                                    <BoxView WidthRequest="32" HeightRequest="32" Color="{DynamicResource Tertiary}" CornerRadius="16"/>
+                                </HorizontalStackLayout>
+                                <Button Text="Пример кнопки" Style="{StaticResource PrimaryButton}" InputTransparent="True"/>
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Spacing="6" IsVisible="{Binding IsManualPalette}">
                         <Label Text="Цвет приложения" Style="{StaticResource MutedText}"/>
                         <Border Padding="12,0" MinimumHeightRequest="48">
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                 <Border WidthRequest="24" HeightRequest="24" VerticalOptions="Center"
                                         BackgroundColor="{Binding SelectedAccentPreview}" StrokeThickness="1" InputTransparent="True"/>
-                                <Picker Grid.Column="1" ItemsSource="{Binding AccentOptions}" SelectedIndex="{Binding AccentIndex}"
+                                <ctl:MonetPicker Grid.Column="1" ItemsSource="{Binding AccentOptions}" SelectedIndex="{Binding AccentIndex}"
                                         BackgroundColor="Transparent" SemanticProperties.Description="Выбрать цвет приложения"/>
-                                <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronDown}" FontFamily="MaterialSymbolsRounded"
+                                <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronDown}" FontFamily="MaterialSymbolsRounded" FontAutoScalingEnabled="False"
                                        FontSize="18" VerticalOptions="Center" InputTransparent="True"/>
                             </Grid>
                         </Border>
                     </VerticalStackLayout>
 
                     <BoxView HeightRequest="1" HorizontalOptions="Fill"
-                             Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+                             Color="{DynamicResource OutlineVariant}"/>
 
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                         <VerticalStackLayout Spacing="1" VerticalOptions="Center">
                             <Label Text="Сохранять сразу при выборе категории" VerticalOptions="Center"/>
-                            <Label Text="Ввод за 2 касания: сумма + категория" FontSize="12" Opacity="0.6"/>
+                            <Label Text="Ввод за 2 касания: сумма + категория" FontSize="14" Opacity="0.6"/>
                         </VerticalStackLayout>
                         <Switch Grid.Column="1" IsToggled="{Binding QuickSaveOnCategory}" VerticalOptions="Center"/>
                     </Grid>
@@ -58,9 +77,9 @@
                     Command="{Binding BackupDatabaseAsyncCommand}"/>
 
             <Label Text="День зарплаты и цикл настраиваются на экране «Ещё → До зарплаты»."
-                   FontSize="13" Opacity="0.6"/>
+                   FontSize="14" Opacity="0.6"/>
 
-            <Label Text="{Binding AboutText}" FontSize="13" Opacity="0.7" Margin="0,4,0,10"/>
+            <Label Text="{Binding AboutText}" FontSize="14" Opacity="0.7" Margin="0,4,0,10"/>
 
         </VerticalStackLayout>
     </ScrollView>

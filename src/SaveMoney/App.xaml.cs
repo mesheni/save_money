@@ -20,7 +20,7 @@ public partial class App : Application
             "dark" => AppTheme.Dark,
             _ => AppTheme.Unspecified,
         };
-        ThemePalette.Apply(settings.Get(SaveMoney.Core.Models.SettingKeys.Accent), RequestedTheme);
+        ThemePalette.Initialize(MauiProgram.Services.GetRequiredService<AppDatabase>());
         RequestedThemeChanged += (_, args) => ThemePalette.Apply(ThemePalette.SelectedKey, args.RequestedTheme);
     }
 
@@ -36,6 +36,7 @@ public partial class App : Application
 
     protected override void OnResume()
     {
+        ThemePalette.Apply(ThemePalette.SelectedKey, RequestedTheme);
         // Android держит приложение в фоне днями: если догонять платежи только
         // при холодном старте, балансы и бюджеты молча устаревают.
         MaterializeRecurring();

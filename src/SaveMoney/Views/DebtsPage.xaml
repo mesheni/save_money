@@ -11,14 +11,14 @@
         <ToolbarItem Text="Добавить долг" Command="{Binding AddCommand}">
             <ToolbarItem.IconImageSource>
                 <FontImageSource Glyph="{x:Static ctl:Glyphs.Add}" FontFamily="MaterialSymbolsRounded" Size="20"
-                                 Color="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                                 Color="{DynamicResource OnSurface}" />
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
     </ContentPage.ToolbarItems>
 
-    <Grid RowDefinitions="Auto,Auto,*" Padding="12,6">
+    <Grid RowDefinitions="Auto,Auto,*" Padding="16,12">
 
-        <Picker Grid.Row="0" ItemsSource="{Binding DirectionOptions}" SelectedIndex="{Binding DirectionIndex}"
+        <ctl:MonetPicker Grid.Row="0" ItemsSource="{Binding DirectionOptions}" SelectedIndex="{Binding DirectionIndex}"
                 WidthRequest="160" HorizontalOptions="Start"/>
 
         <Label Grid.Row="1" Text="{Binding SummaryText}" FontFamily="InterSemiBold" Padding="4,8,0,4"/>
@@ -30,42 +30,44 @@
                         <SwipeView Grid.Row="0">
                             <SwipeView.RightItems>
                                 <SwipeItems>
-                                    <SwipeItem IsVisible="{Binding IsPersonalDebt}" Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
+                                    <SwipeItem IsVisible="{Binding IsPersonalDebt}" Text="Удалить" BackgroundColor="{DynamicResource Error}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                                 </SwipeItems>
                             </SwipeView.RightItems>
-                            <Grid MinimumHeightRequest="64" Padding="10,6" ColumnDefinitions="24,*,Auto,Auto" ColumnSpacing="10"
-                                  BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}"
+                            <Border Style="{StaticResource Card}" Padding="0" Margin="0,0,0,8">
+<Grid MinimumHeightRequest="64" Padding="16,12" ColumnDefinitions="24,*,Auto" ColumnSpacing="10"
+                                  BackgroundColor="Transparent"
                                   SemanticProperties.Hint="Открыть долг">
-                                <Label Grid.Column="0" Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="24"
-                                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                <Label Grid.Column="0" Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontAutoScalingEnabled="False" FontSize="24"
+                                       TextColor="{DynamicResource OnSurface}"
                                        VerticalOptions="Center"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                     <Label Text="{Binding PersonName}" FontSize="16"/>
-                                    <Label Text="{Binding Subtitle}" FontSize="13"
-                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}">
+                                    <Label Text="{Binding Subtitle}" FontSize="14"
+                                           TextColor="{DynamicResource OnSurfaceVariant}">
                                         <Label.Triggers>
                                             <DataTrigger TargetType="Label" Binding="{Binding IsOverdue}" Value="True">
-                                                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}"/>
+                                                <Setter Property="TextColor" Value="{DynamicResource Error}"/>
                                             </DataTrigger>
                                         </Label.Triggers>
                                     </Label>
-                                    <ctl:AnimatedProgressBar IsVisible="{Binding IsPersonalDebt}" Progress="{Binding Progress}" HeightRequest="4" WidthRequest="160"
-                                                 HorizontalOptions="Start" VerticalOptions="Center"/>
+                                    <ctl:AnimatedProgressBar IsVisible="{Binding IsPersonalDebt}" Progress="{Binding Progress}" HeightRequest="4"
+                                                 HorizontalOptions="Fill" VerticalOptions="Center"/>
+                                <VerticalStackLayout HorizontalOptions="End" VerticalOptions="Center">
+                                    <Label Text="{Binding RemainingText}" FontSize="16" FontFamily="InterSemiBold"/>
+                                    <Label IsVisible="{Binding IsPersonalDebt}" Text="{Binding TotalText}" FontSize="14"
+                                           TextColor="{DynamicResource OnSurfaceVariant}"/>
                                 </VerticalStackLayout>
-                                <VerticalStackLayout Grid.Column="2" HorizontalOptions="End" VerticalOptions="Center">
-                                    <Label Text="{Binding RemainingText}" FontSize="15" FontFamily="InterSemiBold"/>
-                                    <Label IsVisible="{Binding IsPersonalDebt}" Text="{Binding TotalText}" FontSize="12"
-                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                                </VerticalStackLayout>
-                                <Label Grid.Column="3" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18" VerticalOptions="Center"
-                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+</VerticalStackLayout>
+
+                                <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontAutoScalingEnabled="False" FontSize="18" VerticalOptions="Center"
+                                       TextColor="{DynamicResource OnSurfaceVariant}"/>
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding OpenCommand, Source={RelativeSource AncestorType={x:Type vm:DebtsViewModel}}}" CommandParameter="{Binding .}"/>
                                 </Grid.GestureRecognizers>
                             </Grid>
+</Border>
                         </SwipeView>
-                        <BoxView Grid.Row="1" HeightRequest="1"
-                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+
                     </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
@@ -73,7 +75,7 @@
 
         <Label Grid.Row="2" Text="Долгов нет — добавьте первый кнопкой сверху"
                IsVisible="{Binding HasNoRows}" VerticalOptions="Center" HorizontalOptions="Center"
-               TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
+               TextColor="{DynamicResource OnSurfaceVariant}"/>
 
     </Grid>
 

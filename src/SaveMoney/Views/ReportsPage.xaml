@@ -18,13 +18,13 @@
                 <Label Grid.Column="0" Text="Отчёты" Style="{StaticResource ScreenTitle}" VerticalOptions="Center"/>
                 <Button Grid.Column="1" Text="{Binding PeriodPillText}" Command="{Binding PickPeriodCommand}"
                         Style="{StaticResource GhostButton}" CornerRadius="24" Padding="14,8" BorderWidth="1"
-                        BorderColor="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                        BorderColor="{DynamicResource OutlineVariant}"
+                        BackgroundColor="{DynamicResource SurfaceContainerLow}"
                         SemanticProperties.Hint="Выбрать период отчёта" VerticalOptions="Center">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding PeriodPillActive}" Value="True">
-                            <Setter Property="BackgroundColor" Value="{DynamicResource AccentSoft}"/>
-                            <Setter Property="BorderColor" Value="{DynamicResource Accent}"/>
+                            <Setter Property="BackgroundColor" Value="{DynamicResource PrimaryContainer}"/>
+                            <Setter Property="BorderColor" Value="{DynamicResource Primary}"/>
                         </DataTrigger>
                     </Button.Triggers>
                 </Button>
@@ -37,7 +37,7 @@
                                 BackgroundColor="Transparent" VerticalOptions="Center"/>
                 </Border>
                 <Label Grid.Column="1" Text="—" VerticalOptions="Center"
-                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                       TextColor="{DynamicResource OnSurfaceVariant}"/>
                 <Border Grid.Column="2" StrokeShape="RoundRectangle 12" Padding="10,0" MinimumHeightRequest="48">
                     <DatePicker Date="{Binding ToDate}" Format="d MMM yy" FontSize="14" SemanticProperties.Description="Конец периода отчёта"
                                 BackgroundColor="Transparent" VerticalOptions="Center"/>
@@ -51,9 +51,9 @@
                             Command="{Binding ShowExpensesCommand}">
                         <Button.Triggers>
                             <DataTrigger TargetType="Button" Binding="{Binding IsExpenses}" Value="True">
-                                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"/>
-                                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
-                                <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+                                <Setter Property="BackgroundColor" Value="{DynamicResource SecondaryContainer}"/>
+                                <Setter Property="TextColor" Value="{DynamicResource OnSecondaryContainer}"/>
+                                <Setter Property="BorderColor" Value="{DynamicResource OutlineVariant}"/>
                                 <Setter Property="BorderWidth" Value="1"/>
                             </DataTrigger>
                         </Button.Triggers>
@@ -62,9 +62,9 @@
                             Command="{Binding ShowIncomesCommand}">
                         <Button.Triggers>
                             <DataTrigger TargetType="Button" Binding="{Binding IsIncomes}" Value="True">
-                                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"/>
-                                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
-                                <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+                                <Setter Property="BackgroundColor" Value="{DynamicResource SecondaryContainer}"/>
+                                <Setter Property="TextColor" Value="{DynamicResource OnSecondaryContainer}"/>
+                                <Setter Property="BorderColor" Value="{DynamicResource OutlineVariant}"/>
                                 <Setter Property="BorderWidth" Value="1"/>
                             </DataTrigger>
                         </Button.Triggers>
@@ -73,36 +73,38 @@
             </Border>
 
             <!-- Кольцо + итог с дельтой и средним. -->
-            <VerticalStackLayout Spacing="10" IsVisible="{Binding HasData}">
+            <Border Style="{StaticResource Card}" IsVisible="{Binding HasData}">
+<VerticalStackLayout Spacing="10" IsVisible="{Binding HasData}">
                 <lvc:PieChart x:Name="DonutChart" Series="{Binding PieSeries}"
                               WidthRequest="104" HeightRequest="104" HorizontalOptions="Center"
                               SemanticProperties.Description="Диаграмма распределения операций по категориям"/>
                 <VerticalStackLayout Spacing="2">
-                    <Label Text="{Binding PeriodTotalCaption}" FontSize="13"
-                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                    <Label Text="{Binding PeriodTotalCaption}" FontSize="14"
+                           TextColor="{DynamicResource OnSurfaceVariant}"/>
                     <Label Text="{Binding PeriodTotalText}" FontSize="30" FontFamily="InterBold"/>
                     <HorizontalStackLayout Spacing="4" Margin="0,4,0,0" IsVisible="{Binding HasDelta}">
-                        <Label Text="{Binding DeltaText}" FontSize="13" FontFamily="InterSemiBold"
-                               TextColor="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}">
+                        <Label Text="{Binding DeltaText}" FontSize="14" FontFamily="InterSemiBold"
+                               TextColor="{DynamicResource Error}">
                             <Label.Triggers>
                                 <DataTrigger TargetType="Label" Binding="{Binding DeltaGood}" Value="True">
-                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}"/>
+                                    <Setter Property="TextColor" Value="{DynamicResource Income}"/>
                                 </DataTrigger>
                             </Label.Triggers>
                         </Label>
                     </HorizontalStackLayout>
-                    <Label Text="{Binding AvgPerDayText}" FontSize="13" Margin="0,4,0,0"
-                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                    <Label Text="{Binding AvgPerDayText}" FontSize="14" Margin="0,4,0,0"
+                           TextColor="{DynamicResource OnSurfaceVariant}"/>
                 </VerticalStackLayout>
             </VerticalStackLayout>
+</Border>
 
             <Label Text="Нет операций за период" IsVisible="{Binding HasNoData}" HorizontalOptions="Center"
-                   TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
+                   TextColor="{DynamicResource OnSurfaceVariant}"/>
 
             <!-- Топ категорий: цветной квадрат, сумма с процентом, полоска. -->
             <VerticalStackLayout Spacing="0" IsVisible="{Binding HasData}">
-                <Label Text="Топ категорий" FontSize="13"
-                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                <Label Text="Топ категорий" FontSize="14"
+                       TextColor="{DynamicResource OnSurfaceVariant}"
                        Margin="0,0,0,4"/>
                 <VerticalStackLayout BindableLayout.ItemsSource="{Binding TopRows}">
                     <BindableLayout.ItemTemplate>
@@ -110,14 +112,14 @@
                             <Grid MinimumHeightRequest="52" Padding="0,4" ColumnSpacing="10" ColumnDefinitions="12,*" RowDefinitions="Auto,Auto,Auto">
                                 <BoxView Grid.RowSpan="3" Grid.Column="0" WidthRequest="12" HeightRequest="12" VerticalOptions="Start" Margin="0,7,0,0"
                                          Color="{Binding BarColor}"/>
-                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding Name}" FontSize="15" LineBreakMode="WordWrap"/>
+                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding Name}" FontSize="16" LineBreakMode="WordWrap"/>
                                 <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                                    <Label Text="{Binding AmountText}" FontSize="15" FontFamily="InterSemiBold" LineBreakMode="NoWrap"/>
-                                    <Label Grid.Column="1" Text="{Binding PercentText}" FontSize="13"
-                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                                    <Label Text="{Binding AmountText}" FontSize="16" FontFamily="InterSemiBold" LineBreakMode="NoWrap"/>
+                                    <Label Grid.Column="1" Text="{Binding PercentText}" FontSize="14"
+                                           TextColor="{DynamicResource OnSurfaceVariant}"/>
                                 </Grid>
                                 <Border Grid.Row="2" Grid.Column="1" StrokeThickness="0" StrokeShape="RoundRectangle 3"
-                                            BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}"
+                                            BackgroundColor="{DynamicResource SurfaceContainer}"
                                             HeightRequest="6" Padding="0" HorizontalOptions="Fill">
                                         <ctl:AnimatedProgressBar Progress="{Binding Progress}" HeightRequest="6"
                                                                  ProgressColor="{Binding BarColor}"/>
@@ -131,9 +133,9 @@
             <!-- По дням: мини-диаграмма без осей; последний день — акцентный. -->
             <VerticalStackLayout Spacing="8" IsVisible="{Binding HasData}">
                 <Grid ColumnDefinitions="*,Auto">
-                    <Label Grid.Column="0" Text="{Binding DaysCaption}" FontSize="13" VerticalOptions="Center"
-                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                    <Button Grid.Column="1" Text="Скачать CSV" Style="{StaticResource GhostButton}" FontSize="13"
+                    <Label Grid.Column="0" Text="{Binding DaysCaption}" FontSize="14" VerticalOptions="Center"
+                           TextColor="{DynamicResource OnSurfaceVariant}"/>
+                    <Button Grid.Column="1" Text="Скачать CSV" Style="{StaticResource GhostButton}" FontSize="14"
                             Command="{Binding ExportCsvCommand}"/>
                 </Grid>
                 <Label Text="{Binding DayChartHint}" Style="{StaticResource MutedText}"/>

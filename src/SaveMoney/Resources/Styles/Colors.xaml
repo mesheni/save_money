@@ -3,9 +3,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- Дизайн-система «Clean» (минимализм): нейтральная база + оранжевый акцент.
-         Пары значений светлая/тёмная; подстановка через
-         {AppThemeBinding Light={StaticResource X_Light}, Dark={StaticResource X_Dark}}. -->
+    <!-- Monet: live semantic roles; legacy keys retained for compatibility. -->
 
     <Color x:Key="PageBgLight">#FAF9F7</Color>
     <Color x:Key="PageBgDark">#17191D</Color>
@@ -48,4 +46,36 @@
     <Color x:Key="WarnSoftLight">#F5EFDF</Color>
     <Color x:Key="WarnSoftDark">#423B2E</Color>
 
+    <Color x:Key="Primary">#8B4F35</Color>
+    <Color x:Key="OnPrimary">#FFFFFF</Color>
+    <Color x:Key="PrimaryContainer">#FFDBCA</Color>
+    <Color x:Key="OnPrimaryContainer">#351000</Color>
+    <Color x:Key="Secondary">#77574A</Color>
+    <Color x:Key="OnSecondary">#FFFFFF</Color>
+    <Color x:Key="SecondaryContainer">#FFDBCA</Color>
+    <Color x:Key="OnSecondaryContainer">#2C160C</Color>
+    <Color x:Key="Tertiary">#685E30</Color>
+    <Color x:Key="OnTertiary">#FFFFFF</Color>
+    <Color x:Key="TertiaryContainer">#F0E2A8</Color>
+    <Color x:Key="OnTertiaryContainer">#211B00</Color>
+    <Color x:Key="Surface">#FFF8F5</Color>
+    <Color x:Key="OnSurface">#211A17</Color>
+    <Color x:Key="OnSurfaceVariant">#53433C</Color>
+    <Color x:Key="SurfaceContainerLowest">#FFFFFF</Color>
+    <Color x:Key="SurfaceContainerLow">#FFF1EB</Color>
+    <Color x:Key="SurfaceContainer">#FCEBE3</Color>
+    <Color x:Key="SurfaceContainerHigh">#F6E5DD</Color>
+    <Color x:Key="SurfaceContainerHighest">#F0DFD8</Color>
+    <Color x:Key="Outline">#85736A</Color>
+    <Color x:Key="OutlineVariant">#D8C2B8</Color>
+    <Color x:Key="Error">#BA1A1A</Color>
+    <Color x:Key="OnError">#FFFFFF</Color>
+    <Color x:Key="ErrorContainer">#FFDAD6</Color>
+    <Color x:Key="OnErrorContainer">#410002</Color>
+    <Color x:Key="Income">#216A3B</Color>
+    <Color x:Key="IncomeContainer">#B9F2C6</Color>
+    <Color x:Key="OnIncomeContainer">#00210A</Color>
+    <Color x:Key="Warning">#735B08</Color>
+    <Color x:Key="WarningContainer">#FFE08B</Color>
+    <Color x:Key="OnWarningContainer">#241A00</Color>
 </ResourceDictionary>

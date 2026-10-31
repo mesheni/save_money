@@ -11,12 +11,12 @@
         <ToolbarItem Text="Добавить счёт" Command="{Binding AddCommand}">
             <ToolbarItem.IconImageSource>
                 <FontImageSource Glyph="{x:Static ctl:Glyphs.Add}" FontFamily="MaterialSymbolsRounded" Size="20"
-                                 Color="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                                 Color="{DynamicResource OnSurface}" />
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
     </ContentPage.ToolbarItems>
 
-    <Grid RowDefinitions="Auto,*" Padding="12,6">
+    <Grid RowDefinitions="Auto,*" Padding="16,12">
 
         <Label Grid.Row="0" Text="{Binding TotalText}" FontFamily="InterSemiBold" Padding="4,6,0,8"/>
 
@@ -26,15 +26,16 @@
                     <SwipeView>
                         <SwipeView.RightItems>
                             <SwipeItems>
-                                <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
+                                <SwipeItem Text="Удалить" BackgroundColor="{DynamicResource Error}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                             </SwipeItems>
                         </SwipeView.RightItems>
                         <Grid RowDefinitions="Auto,1">
-                            <Grid Grid.Row="0" MinimumHeightRequest="60" Padding="10,6" ColumnDefinitions="24,*,Auto,Auto" ColumnSpacing="10"
-                                  BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}"
+                            <Border Grid.Row="0" Style="{StaticResource Card}" Padding="0" Margin="0,0,0,8">
+<Grid  MinimumHeightRequest="60" Padding="16,12" ColumnDefinitions="24,*,Auto" ColumnSpacing="10"
+                                  BackgroundColor="Transparent"
                                   SemanticProperties.Hint="Открыть счёт для изменения">
-                                <Label Grid.Column="0" Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="24"
-                                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                <Label Grid.Column="0" Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontAutoScalingEnabled="False" FontSize="24"
+                                       TextColor="{DynamicResource OnSurface}"
                                        VerticalOptions="Center"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                     <HorizontalStackLayout Spacing="6">
@@ -42,18 +43,19 @@
                                                 BackgroundColor="{Binding ColorHex}" StrokeThickness="0" VerticalOptions="Center"/>
                                         <Label Text="{Binding Name}" FontSize="16" VerticalOptions="Center"/>
                                     </HorizontalStackLayout>
-                                    <Label Text="{Binding Subtitle}" FontSize="13"
-                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
-                                </VerticalStackLayout>
-                                <Label Grid.Column="2" Text="{Binding BalanceText}" FontSize="15" FontFamily="InterSemiBold" VerticalOptions="Center"/>
-                                <Label Grid.Column="3" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontSize="18" VerticalOptions="Center"
-                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"/>
+                                    <Label Text="{Binding Subtitle}" FontSize="14"
+                                           TextColor="{DynamicResource OnSurfaceVariant}"/>
+                                <Label Text="{Binding BalanceText}" FontSize="16" FontFamily="InterSemiBold" VerticalOptions="Center" HorizontalOptions="End"/>
+</VerticalStackLayout>
+
+                                <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontAutoScalingEnabled="False" FontSize="18" VerticalOptions="Center"
+                                       TextColor="{DynamicResource OnSurfaceVariant}"/>
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:AccountsViewModel}}}" CommandParameter="{Binding .}"/>
                                 </Grid.GestureRecognizers>
                             </Grid>
-                            <BoxView Grid.Row="1" HeightRequest="1"
-                                     Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+</Border>
+
                         </Grid>
                     </SwipeView>
                 </DataTemplate>
@@ -62,7 +64,7 @@
 
         <Label Grid.Row="1" Text="Счетов пока нет — добавьте первый кнопкой сверху"
                IsVisible="{Binding HasNoRows}" VerticalOptions="Center" HorizontalOptions="Center"
-               TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
+               TextColor="{DynamicResource OnSurfaceVariant}"/>
 
     </Grid>
 

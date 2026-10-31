@@ -124,7 +124,7 @@ public partial class DebtsViewModel(AppDatabase db) : ObservableObject
             return false;
         }
 
-        var confirmed = await Shell.Current.DisplayAlertAsync(
+        var confirmed = await SaveMoney.Helpers.MonetDialogs.AlertAsync(
             "Удалить долг?", $"Долг «{row.PersonName}» и его платежи будут удалены.", "Удалить", "Отмена");
         if (!confirmed)
         {
@@ -153,6 +153,13 @@ public partial class DebtsViewModel(AppDatabase db) : ObservableObject
 [QueryProperty(nameof(DebtId), "id")]
 public partial class DebtEditViewModel(AppDatabase db) : ObservableObject
 {
+    [ObservableProperty]
+    public partial string NameError { get; set; } = "";
+    [ObservableProperty]
+    public partial string AmountError { get; set; } = "";
+    [ObservableProperty]
+    public partial string AccountError { get; set; } = "";
+
     public IReadOnlyList<string> KindOptions { get; } = ["Личный долг", "Потребительский кредит"];
     [ObservableProperty] public partial int KindIndex { get; set; }
     public bool IsPersonalDebt => KindIndex == 0;
@@ -278,22 +285,26 @@ public partial class DebtEditViewModel(AppDatabase db) : ObservableObject
     [RelayCommand]
     private async Task SaveAsync()
     {
+        NameError = "";
+        AmountError = "";
+        AccountError = "";
+
         if (string.IsNullOrWhiteSpace(PersonName))
         {
-            await AlertAsync?.Invoke("Ошибка", "Введите имя человека")!;
+            NameError = "Введите имя человека";
             return;
         }
 
         var amount = MoneyFormat.ParseInput(AmountText);
         if (amount <= 0)
         {
-            await AlertAsync?.Invoke("Ошибка", "Введите сумму больше нуля")!;
+            AmountError = "Введите сумму больше нуля";
             return;
         }
 
         if (_accountMissing && AccountIndex == AccountOptions.Count - 1)
         {
-            await AlertAsync?.Invoke("Ошибка", "Счёт этого долга удалён — выберите другой счёт или «без счёта»")!;
+            AccountError = "Счёт этого долга удалён — выберите другой счёт или «без счёта»";
             return;
         }
 
@@ -511,7 +522,7 @@ public partial class DebtDetailViewModel(AppDatabase db, DebtService debts) : Ob
             return;
         }
 
-        var confirmed = await Shell.Current.DisplayAlertAsync(
+        var confirmed = await SaveMoney.Helpers.MonetDialogs.AlertAsync(
             "Удалить долг?", $"Долг «{_debt.PersonName}» и его платежи будут удалены.", "Удалить", "Отмена");
         if (!confirmed)
         {

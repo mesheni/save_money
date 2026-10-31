@@ -14,7 +14,7 @@ public partial class HistoryPage : ContentPage
         BindingContext = viewModel;
         viewModel.PickAsync = async (title, options) =>
         {
-            var picked = await DisplayActionSheetAsync(title, "Отмена", null, options);
+            var picked = await SaveMoney.Helpers.MonetDialogs.ChooseAsync(title, "Отмена", null, options);
             return picked == "Отмена" ? null : picked;
         };
     }

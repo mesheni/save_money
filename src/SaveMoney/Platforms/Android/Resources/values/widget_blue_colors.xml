@@ -1,0 +1,8 @@
+<resources>
+<color name="widget_blue_surface">#EAEFF6</color>
+<color name="widget_blue_container">#CBE6FF</color>
+<color name="widget_blue_primary">#28638A</color>
+<color name="widget_blue_on_primary">#FFFFFF</color>
+<color name="widget_blue_on_container">#001E30</color>
+<color name="widget_blue_text">#191C20</color>
+</resources>

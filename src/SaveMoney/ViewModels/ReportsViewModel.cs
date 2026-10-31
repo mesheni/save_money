@@ -42,55 +42,14 @@ public partial class ReportsViewModel(
     private readonly CycleService _cycle = cycle;
     private readonly CsvExportService _csv = csv;
 
-    // Палитра секторов кольца — акцент + нейтральная шкала (как в макете).
-    // Тёмная тема — свои ступени: тёмно-графитовые срезы на тёмном фоне не видны.
-    private static readonly SKColor[] PaletteLight =
-    [
-        new(0xC3, 0xA4, 0x90),
-        new(0x17, 0x17, 0x1C),
-        new(0x6B, 0x6B, 0x7A),
-        new(0xA9, 0xA9, 0xB6),
-        new(0xDA, 0xDA, 0xE1),
-        new(0xC7, 0xC7, 0xCF),
-        new(0x8C, 0x8C, 0x99),
-        new(0xB5, 0xB5, 0xBE),
-    ];
+    private static SKColor Paint(string role) => SKColor.Parse(ThemePalette.Get(role).ToArgbHex());
+    private static SKColor[] Palette => [Paint("Primary"), Paint("Secondary"), Paint("Tertiary"),
+        Paint("OnPrimaryContainer"), Paint("OnSecondaryContainer"), Paint("OnTertiaryContainer"),
+        Paint("Outline"), Paint("OnSurfaceVariant")];
+    private static SKColor BarsAccent => Paint("Primary");
+    private static SKColor BarsGray => Paint("OutlineVariant");
 
-    private static readonly SKColor[] PaletteDark =
-    [
-        new(0xC3, 0xA4, 0x90),
-        new(0xF2, 0xF2, 0xF4),
-        new(0xB9, 0xB9, 0xC2),
-        new(0x8E, 0x8E, 0x98),
-        new(0x6B, 0x6B, 0x7A),
-        new(0x54, 0x54, 0x60),
-        new(0x45, 0x45, 0x50),
-        new(0x7C, 0x7C, 0x86),
-    ];
-
-    private static SKColor[] Palette
-    {
-        get
-        {
-            var colors = (SKColor[])(Application.Current?.RequestedTheme == AppTheme.Dark ? PaletteDark : PaletteLight).Clone();
-            colors[0] = BarsAccent;
-            return colors;
-        }
-    }
-
-    private static SKColor BarsGray =>
-        Application.Current?.RequestedTheme == AppTheme.Dark
-            ? new SKColor(0x45, 0x45, 0x50)
-            : new SKColor(0xDA, 0xDA, 0xE1);
-
-    private static SKColor BarsAccent
-    {
-        get
-        {
-            var color = ThemePalette.AccentColor;
-            return new SKColor((byte)(color.Red * 255), (byte)(color.Green * 255), (byte)(color.Blue * 255));
-        }
-    }
+    public void RefreshPalette() => Recompute();
 
     private static readonly string[] PeriodList = ["Неделя", "Месяц", "3 месяца", "Текущий цикл", "Всё", "Свой период"];
 
@@ -178,7 +137,7 @@ public partial class ReportsViewModel(
 
     public Task InitializeAsync()
     {
-        var appearance = $"{Application.Current?.RequestedTheme}:{ThemePalette.AccentColor}:{DateTime.Today:yyyyMMdd}";
+        var appearance = $"{Application.Current?.RequestedTheme}:{ThemePalette.Revision}:{DateTime.Today:yyyyMMdd}";
         if (!_registered)
         {
             CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Register<ReportsViewModel, SaveMoney.Messaging.TransactionsChangedMessage>(
@@ -391,7 +350,7 @@ public partial class ReportsViewModel(
         ];
 
         var dark = Application.Current?.RequestedTheme == AppTheme.Dark;
-        var labelPaint = new SolidColorPaint(SKColor.Parse(dark ? "#B9C3C5" : "#58646A"));
+        var labelPaint = new SolidColorPaint(Paint("OnSurfaceVariant"));
         DayXAxes = [new Axis
         {
             Labels = points.Select(p => p.Label).ToArray(),
@@ -404,7 +363,7 @@ public partial class ReportsViewModel(
             MinLimit = 0, LabelsPaint = labelPaint, TextSize = 11,
             Labeler = value => value >= 1000000 ? $"{value / 1000000:0.#} млн ₽"
                 : value >= 1000 ? $"{value / 1000:0.#} тыс ₽" : $"{value:0} ₽",
-            SeparatorsPaint = new SolidColorPaint(SKColor.Parse(dark ? "#3A4146" : "#E1E5E2")) { StrokeThickness = 1 },
+            SeparatorsPaint = new SolidColorPaint(Paint("OutlineVariant")) { StrokeThickness = 1 },
         }];
     }
 

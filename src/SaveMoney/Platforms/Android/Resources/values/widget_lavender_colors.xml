@@ -1,0 +1,8 @@
+<resources>
+<color name="widget_lavender_surface">#F1EBF4</color>
+<color name="widget_lavender_container">#E9DDFF</color>
+<color name="widget_lavender_primary">#67548E</color>
+<color name="widget_lavender_on_primary">#FFFFFF</color>
+<color name="widget_lavender_on_container">#220F46</color>
+<color name="widget_lavender_text">#1D1B20</color>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="monet_widget_surface">#FCEBE3</color>
+    <color name="monet_widget_primary">#8B4F35</color>
+    <color name="monet_widget_container">#FFDBCA</color>
+    <color name="monet_widget_text">#211A17</color>
+    <color name="monet_widget_on_container">#351000</color>
+</resources>

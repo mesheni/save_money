@@ -13,7 +13,7 @@
             <ShellContent.Icon>
                 <FontImageSource Glyph="{x:Static ctl:Glyphs.EditSquare}"
                                  FontFamily="MaterialSymbolsRounded" Size="22"
-                                 Color="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                                 Color="{DynamicResource OnSurfaceVariant}" />
             </ShellContent.Icon>
         </ShellContent>
         <ShellContent Title="История"
@@ -22,7 +22,7 @@
             <ShellContent.Icon>
                 <FontImageSource Glyph="{x:Static ctl:Glyphs.ReceiptLong}"
                                  FontFamily="MaterialSymbolsRounded" Size="22"
-                                 Color="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                                 Color="{DynamicResource OnSurfaceVariant}" />
             </ShellContent.Icon>
         </ShellContent>
         <ShellContent Title="Отчёты"
@@ -31,7 +31,7 @@
             <ShellContent.Icon>
                 <FontImageSource Glyph="{x:Static ctl:Glyphs.DonutSmall}"
                                  FontFamily="MaterialSymbolsRounded" Size="22"
-                                 Color="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                                 Color="{DynamicResource OnSurfaceVariant}" />
             </ShellContent.Icon>
         </ShellContent>
         <ShellContent Title="Ещё"
@@ -40,7 +40,7 @@
             <ShellContent.Icon>
                 <FontImageSource Glyph="{x:Static ctl:Glyphs.Apps}"
                                  FontFamily="MaterialSymbolsRounded" Size="22"
-                                 Color="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                                 Color="{DynamicResource OnSurfaceVariant}" />
             </ShellContent.Icon>
         </ShellContent>
     </TabBar>

@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SaveMoney.Core\SaveMoney.Core.csproj" />
+    <Compile Include="..\SaveMoney\Helpers\MonetScheme.cs" Link="Presentation\MonetScheme.cs" />
   </ItemGroup>
 
 </Project>

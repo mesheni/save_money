@@ -83,7 +83,7 @@ public partial class BudgetsViewModel(AppDatabase db, BudgetService budgets, Cyc
             return false;
         }
 
-        var confirmed = await Shell.Current.DisplayAlertAsync(
+        var confirmed = await SaveMoney.Helpers.MonetDialogs.AlertAsync(
             "Удалить бюджет?", $"Лимит «{row.Name}» будет удалён.", "Удалить", "Отмена");
         if (!confirmed)
         {
@@ -107,6 +107,11 @@ public partial class BudgetsViewModel(AppDatabase db, BudgetService budgets, Cyc
 [QueryProperty(nameof(BudgetId), "id")]
 public partial class BudgetEditViewModel(AppDatabase db) : ObservableObject
 {
+    [ObservableProperty]
+    public partial string AmountError { get; set; } = "";
+    [ObservableProperty]
+    public partial string CategoryError { get; set; } = "";
+
     private readonly AppDatabase _db = db;
     private string? _id;
     private Budget? _editing;
@@ -188,15 +193,18 @@ public partial class BudgetEditViewModel(AppDatabase db) : ObservableObject
     [RelayCommand]
     private async Task SaveAsync()
     {
+        AmountError = "";
+        CategoryError = "";
+
         if (_categoryMissing && CategoryIndex == CategoryOptions.Count - 1)
         {
-            await AlertAsync!.Invoke("Ошибка", "Выберите другую категорию бюджета");
+            CategoryError = "Выберите другую категорию бюджета";
             return;
         }
         var amount = MoneyFormat.ParseInput(AmountText);
         if (amount <= 0)
         {
-            await AlertAsync?.Invoke("Ошибка", "Введите лимит больше нуля")!;
+            AmountError = "Введите лимит больше нуля";
             return;
         }
 

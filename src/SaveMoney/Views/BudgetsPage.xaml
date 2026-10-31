@@ -11,12 +11,12 @@
         <ToolbarItem Text="Добавить лимит" Command="{Binding AddCommand}">
             <ToolbarItem.IconImageSource>
                 <FontImageSource Glyph="{x:Static ctl:Glyphs.Add}" FontFamily="MaterialSymbolsRounded" Size="20"
-                                 Color="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                                 Color="{DynamicResource OnSurface}" />
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
     </ContentPage.ToolbarItems>
 
-    <Grid RowDefinitions="Auto,*" Padding="12,6">
+    <Grid RowDefinitions="Auto,*" Padding="16,12">
 
         <Label Grid.Row="0" Text="{Binding CycleText}" FontFamily="InterSemiBold" Padding="4,6,0,8"/>
 
@@ -27,39 +27,40 @@
                         <SwipeView Grid.Row="0">
                             <SwipeView.RightItems>
                                 <SwipeItems>
-                                    <SwipeItem Text="Удалить" BackgroundColor="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
+                                    <SwipeItem Text="Удалить" BackgroundColor="{DynamicResource Error}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                                 </SwipeItems>
                             </SwipeView.RightItems>
-                            <VerticalStackLayout Padding="10" Spacing="7" MinimumHeightRequest="64"
-                                                 BackgroundColor="{AppThemeBinding Light={StaticResource SoftBgLight}, Dark={StaticResource SoftBgDark}}"
+                            <Border Style="{StaticResource Card}" Padding="0" Margin="0,0,0,8">
+<VerticalStackLayout Padding="16" Spacing="7" MinimumHeightRequest="64"
+                                                 BackgroundColor="Transparent"
                                                  SemanticProperties.Hint="Открыть лимит для изменения">
-                                <Grid ColumnDefinitions="*,Auto,Auto">
-                                    <Label FontSize="16">
+                                <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto,Auto">
+                                    <Label Grid.ColumnSpan="3" FontSize="16">
                                         <Label.FormattedText>
                                             <FormattedString>
-                                                <Span Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="18"/>
+                                                <Span Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontAutoScalingEnabled="False" FontSize="18"/>
                                                 <Span Text="  "/>
                                                 <Span Text="{Binding Name}"/>
                                             </FormattedString>
                                         </Label.FormattedText>
                                     </Label>
-                                    <Label Grid.Column="1" Text="{Binding PercentText}" FontSize="12"
-                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" Margin="8,0" VerticalOptions="Center"/>
-                                    <Label Grid.Column="2" Text="{Binding FactText}" FontSize="15" FontFamily="InterSemiBold"/>
+                                    <Label Grid.Row="1" Grid.Column="0" Text="{Binding PercentText}" FontSize="14"
+                                           TextColor="{DynamicResource OnSurfaceVariant}" Margin="8,0" VerticalOptions="Center"/>
+                                    <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalOptions="End" Text="{Binding FactText}" FontSize="16" FontFamily="InterSemiBold"/>
                                 </Grid>
                                 <ctl:AnimatedProgressBar Progress="{Binding Progress}" HeightRequest="6"
-                                             ProgressColor="{AppThemeBinding Light={StaticResource IncomeLight}, Dark={StaticResource IncomeDark}}">
+                                             ProgressColor="{DynamicResource Income}">
                                     <ProgressBar.Triggers>
                                         <DataTrigger TargetType="ProgressBar" Binding="{Binding IsOver}" Value="True">
-                                            <Setter Property="ProgressColor" Value="{AppThemeBinding Light={StaticResource ExpenseLight}, Dark={StaticResource ExpenseDark}}"/>
+                                            <Setter Property="ProgressColor" Value="{DynamicResource Error}"/>
                                         </DataTrigger>
                                     </ProgressBar.Triggers>
                                 </ctl:AnimatedProgressBar>
-                                <Label Text="{Binding PlanText}" FontSize="12"
-                                       TextColor="{AppThemeBinding Light={StaticResource IncomeTextLight}, Dark={StaticResource IncomeTextDark}}">
+                                <Label Text="{Binding PlanText}" FontSize="14"
+                                       TextColor="{DynamicResource Income}">
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label" Binding="{Binding IsOver}" Value="True">
-                                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource ExpenseTextLight}, Dark={StaticResource ExpenseTextDark}}"/>
+                                            <Setter Property="TextColor" Value="{DynamicResource Error}"/>
                                         </DataTrigger>
                                     </Label.Triggers>
                                 </Label>
@@ -67,9 +68,9 @@
                                     <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:BudgetsViewModel}}}" CommandParameter="{Binding .}"/>
                                 </Grid.GestureRecognizers>
                             </VerticalStackLayout>
+</Border>
                         </SwipeView>
-                        <BoxView Grid.Row="1" HeightRequest="1"
-                                 Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"/>
+
                     </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
@@ -77,7 +78,7 @@
 
         <Label Grid.Row="1" Text="Бюджетов пока нет — задайте первый лимит кнопкой сверху"
                IsVisible="{Binding HasNoBudgets}" VerticalOptions="Center" HorizontalOptions="Center"
-               TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
+               TextColor="{DynamicResource OnSurfaceVariant}"/>
 
     </Grid>
 

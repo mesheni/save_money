@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:ctl="clr-namespace:SaveMoney.Controls"
              xmlns:vm="clr-namespace:SaveMoney.ViewModels"
              x:Class="SaveMoney.Views.CategoryEditPage"
              Title="{Binding Title}"
@@ -9,37 +10,14 @@
     <ScrollView>
         <VerticalStackLayout Padding="16,10" Spacing="12">
 
-            <Label Text="Название" FontSize="12" Opacity="0.6"/>
+            <Label Text="Название" FontSize="14" TextColor="{DynamicResource OnSurfaceVariant}"/>
             <Border Padding="12,0" MinimumHeightRequest="48">
                 <Entry Text="{Binding Name}" Placeholder="Например, Хобби" BackgroundColor="Transparent"/>
             </Border>
+            <ctl:ValidationMessage Text="{Binding NameError}"/>
 
-            <Label Text="Иконка" FontSize="12" Opacity="0.6"/>
-            <CollectionView ItemsSource="{Binding Icons}" ItemsLayout="HorizontalList" HeightRequest="52">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="vm:IconChip">
-                        <Border MinimumWidthRequest="48" MinimumHeightRequest="48" Margin="0,0,8,0"
-                                SemanticProperties.Description="{Binding AccessibleName}" SemanticProperties.Hint="Выбрать значок категории"
-                                StrokeShape="RoundRectangle 23"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
-                            <Border.Triggers>
-                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                    <Setter Property="BackgroundColor" Value="{DynamicResource AccentSoft}"/>
-                                </DataTrigger>
-                            </Border.Triggers>
-                        <Grid>
-                            <Label Text="{Binding Key, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontSize="22"
-                                   HorizontalOptions="Center" VerticalOptions="Center" InputTransparent="True"
-                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
-                            <Button Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
-                                    Command="{Binding SelectIconCommand, Source={RelativeSource AncestorType={x:Type vm:CategoryEditViewModel}}}"
-                                    CommandParameter="{Binding .}" SemanticProperties.Description="{Binding AccessibleName}"
-                                    SemanticProperties.Hint="Выбрать значок категории"/>
-                        </Grid>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+            <Label Text="Иконка" FontSize="14" TextColor="{DynamicResource OnSurfaceVariant}"/>
+            <ctl:AppearancePicker IsColorPicker="False" ItemsSource="{Binding Icons}" SelectionCommand="{Binding SelectIconCommand}"/>
 
             <Button Text="Сохранить" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}"/>
 

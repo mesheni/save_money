@@ -1,0 +1,8 @@
+<resources>
+<color name="widget_rose_surface">#FCE9EE</color>
+<color name="widget_rose_container">#FFD9E4</color>
+<color name="widget_rose_primary">#8E4964</color>
+<color name="widget_rose_on_primary">#FFFFFF</color>
+<color name="widget_rose_on_container">#3A071F</color>
+<color name="widget_rose_text">#22191D</color>
+</resources>

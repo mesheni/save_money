@@ -12,7 +12,7 @@ public partial class AccountEditPage : ContentPage
         InitializeComponent();
         _viewModel = viewModel;
         BindingContext = viewModel;
-        viewModel.AlertAsync = async (title, message) => await DisplayAlertAsync(title, message, "ОК");
+        viewModel.AlertAsync = async (title, message) => await SaveMoney.Helpers.MonetDialogs.AlertAsync(title, message, "ОК");
     }
 
     private async void OnAppearing(object? sender, EventArgs e)
