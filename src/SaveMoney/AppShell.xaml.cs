@@ -31,6 +31,14 @@ public partial class AppShell : Shell
 		Routing.RegisterRoute("settings", typeof(SettingsPage));
 	}
 
+    protected override void OnNavigating(ShellNavigatingEventArgs args)
+    {
+        base.OnNavigating(args);
+#if ANDROID
+        if (!args.Cancelled) Platforms.Android.ScreenMotion.Navigating(this, args);
+#endif
+    }
+
 	// Вкладка при переключении всегда открывается в корне: Shell хранит навстек
 	// каждой вкладки, из-за чего «Ещё» показывало последний открытый раздел
 	// (Счета и т.п.). Сброс — только при смене вкладки/секции (не при push/pop).
@@ -38,7 +46,10 @@ public partial class AppShell : Shell
 	{
 		base.OnNavigated(args);
 
-		Helpers.ThemePalette.RefreshPlatform();
+        Helpers.ThemePalette.RefreshPlatform();
+#if ANDROID
+        Platforms.Android.ScreenMotion.Navigated(this);
+#endif
 
 		// Открытие раздела из «Ещё» — это НЕ push-стек, а Shell URI-состояние
 		// («//more/accounts»): Shell восстанавливает его при каждом возврате на

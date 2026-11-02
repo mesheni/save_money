@@ -12,8 +12,16 @@ public class MainActivity : MauiAppCompatActivity
 
     public override bool DispatchTouchEvent(global::Android.Views.MotionEvent? ev)
     {
-        if (ev is not null)
-            _tabSwipe.Observe(ev, Window?.DecorView, Resources?.DisplayMetrics?.Density ?? 1);
+        if (ev is not null && _tabSwipe.Handle(ev, Window?.DecorView, Resources?.DisplayMetrics?.Density ?? 1))
+        {
+            if (_tabSwipe.TookOver)
+            {
+                using var cancel = global::Android.Views.MotionEvent.Obtain(ev);
+                cancel!.Action = global::Android.Views.MotionEventActions.Cancel;
+                base.DispatchTouchEvent(cancel);
+            }
+            return true;
+        }
         return base.DispatchTouchEvent(ev);
     }
 	/// <summary>Ключ extra с суммой, переданной из виджета быстрого ввода.</summary>
@@ -31,6 +39,12 @@ public class MainActivity : MauiAppCompatActivity
 		HandleWidgetIntent(intent);
 	}
 
+    protected override void OnPause()
+    {
+        _tabSwipe.Cancel();
+        base.OnPause();
+    }
+
 	protected override void OnResume()
 	{
 		base.OnResume();
@@ -40,6 +54,7 @@ public class MainActivity : MauiAppCompatActivity
 
     public override void OnConfigurationChanged(global::Android.Content.Res.Configuration newConfig)
     {
+        _tabSwipe.Cancel();
         base.OnConfigurationChanged(newConfig);
         Helpers.ThemePalette.Apply(Helpers.ThemePalette.SelectedKey,
             Microsoft.Maui.Controls.Application.Current?.RequestedTheme ?? AppTheme.Light);

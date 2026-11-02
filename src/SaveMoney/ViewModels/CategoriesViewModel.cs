@@ -79,14 +79,14 @@ public partial class CategoriesViewModel(AppDatabase db, CategoryService categor
     partial void OnKindIndexChanged(int value) => Reload();
 
     [RelayCommand]
-    private void AddRoot() => Shell.Current.GoToAsync($"category?kind={Kind}");
+    private void AddRoot() => SaveMoney.Helpers.PageNavigation.GoToAsync($"category?kind={Kind}");
 
     [RelayCommand]
     private void AddChild(CategoryRowVM? row)
     {
         if (row?.IsRoot == true)
         {
-            Shell.Current.GoToAsync($"category?kind={Kind}&parent={row.Id}");
+            SaveMoney.Helpers.PageNavigation.GoToAsync($"category?kind={Kind}&parent={row.Id}");
         }
     }
 
@@ -233,6 +233,6 @@ public partial class CategoryEditViewModel(AppDatabase db, CategoryService categ
             return;
         }
 
-        await Shell.Current.Navigation.PopAsync();
+        await Shell.Current.Navigation.PopAsync(false);
     }
 }

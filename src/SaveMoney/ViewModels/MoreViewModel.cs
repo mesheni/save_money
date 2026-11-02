@@ -170,7 +170,7 @@ public partial class MoreViewModel : ObservableObject
     {
         if (item is { IsEnabled: true })
         {
-            Shell.Current.GoToAsync(item.Route);
+            SaveMoney.Helpers.PageNavigation.GoToAsync(item.Route);
         }
     }
 }

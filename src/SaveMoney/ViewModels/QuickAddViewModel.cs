@@ -55,13 +55,6 @@ public partial class QuickAddViewModel : ObservableObject,
 
     }
 
-    private void OnCategoryPicked(string categoryId)
-    {
-        CategoryPickedMessage.Unregister(OnCategoryPicked);
-        SelectCategoryById(categoryId);
-        TryQuickSave();
-    }
-
     /// <summary>Что-то изменило операции/счета — перечитываем баланс, пилюлю «в день»,
     /// долги, счета и категории (в т.ч. добавленные на других экранах).</summary>
     public void Receive(TransactionsChangedMessage message)
@@ -198,9 +191,9 @@ public partial class QuickAddViewModel : ObservableObject,
         OnPropertyChanged(nameof(RepaymentRemainingText));
     }
 
-    [RelayCommand] private Task AddPersonalDebtAsync() => Shell.Current.GoToAsync("debtnew?dir=i_owe");
-    [RelayCommand] private Task AddConsumerLoanAsync() => Shell.Current.GoToAsync("debtnew?dir=i_owe&kind=consumer_loan");
-    [RelayCommand] private Task AddCreditAccountAsync() => Shell.Current.GoToAsync("account?kind=credit");
+    [RelayCommand] private Task AddPersonalDebtAsync() => SaveMoney.Helpers.PageNavigation.GoToAsync("debtnew?dir=i_owe");
+    [RelayCommand] private Task AddConsumerLoanAsync() => SaveMoney.Helpers.PageNavigation.GoToAsync("debtnew?dir=i_owe&kind=consumer_loan");
+    [RelayCommand] private Task AddCreditAccountAsync() => SaveMoney.Helpers.PageNavigation.GoToAsync("account?kind=credit");
 
     /// <summary>Страница подставляет показ ошибок (DisplayAlert).</summary>
     public Func<string, string, Task>? AlertAsync { get; set; }
@@ -213,6 +206,26 @@ public partial class QuickAddViewModel : ObservableObject,
 
     /// <summary>Страница подставляет тост «Сохранено» после успешной записи.</summary>
     public Func<Task>? SavedAsync { get; set; }
+    public Func<string, string?, Task<string?>>? PickCategoryAsync { get; set; }
+    public string? SelectedCategoryId => SubCategories.FirstOrDefault(c => c.IsSelected)?.Id ?? RootCategories.FirstOrDefault(c => c.IsSelected)?.Id;
+    public string SelectedCategoryText
+    {
+        get
+        {
+            var root = RootCategories.FirstOrDefault(c => c.IsSelected);
+            var child = SubCategories.FirstOrDefault(c => c.IsSelected);
+            return child is null ? root?.Name ?? "Выбрать категорию" : $"{root?.Name} → {child.Name}";
+        }
+    }
+    public string SelectedCategoryIcon => SubCategories.FirstOrDefault(c => c.IsSelected)?.Icon
+        ?? RootCategories.FirstOrDefault(c => c.IsSelected)?.Icon ?? IconKeys.Other;
+
+    private void NotifyCategorySelection()
+    {
+        OnPropertyChanged(nameof(SelectedCategoryId));
+        OnPropertyChanged(nameof(SelectedCategoryText));
+        OnPropertyChanged(nameof(SelectedCategoryIcon));
+    }
 
     public string? EditId
     {
@@ -228,7 +241,6 @@ public partial class QuickAddViewModel : ObservableObject,
 
     public async Task InitializeAsync()
     {
-        CategoryPickedMessage.Unregister(OnCategoryPicked);
         // При возврате обновляем категории, сохраняя текущий выбор.
         if (_initialized)
         {
@@ -379,6 +391,7 @@ public partial class QuickAddViewModel : ObservableObject,
         var selectedChild = trySelectChildId is null ? null : SubCategories.FirstOrDefault(c => c.Id == trySelectChildId);
         SelectChip(SubCategories, selectedChild);
         BuildTopCategories(root.Id);
+        NotifyCategorySelection();
     }
 
     /// <summary>Сетка — первые 8 корневых; выбранная вне топа выталкивается в начало, чтобы оставаться видимой.</summary>
@@ -704,21 +717,25 @@ public partial class QuickAddViewModel : ObservableObject,
         }
 
         SelectChip(SubCategories, chip);
+        NotifyCategorySelection();
         TryQuickSave();
     }
 
     [RelayCommand]
     private async Task OpenPaydayAsync()
     {
-        await Shell.Current.GoToAsync("payday");
+        await SaveMoney.Helpers.PageNavigation.GoToAsync("payday");
     }
 
     [RelayCommand]
     private async Task OpenAllCategoriesAsync()
     {
         var kind = IsIncome ? "income" : "expense";
-        CategoryPickedMessage.Register(OnCategoryPicked);
-        await Shell.Current.GoToAsync($"categorypicker?kind={kind}");
+        if (PickCategoryAsync is null) return;
+        var selected = await PickCategoryAsync(kind, SelectedCategoryId);
+        if (selected is null) return;
+        SelectCategoryById(selected);
+        TryQuickSave();
     }
 
     /// <summary>
@@ -859,7 +876,7 @@ public partial class QuickAddViewModel : ObservableObject,
         if (WidgetSource == "widget")
         {
             // Экран с виджета открыт поверх вкладки «Ввод» — после сохранения возвращаемся на вкладку.
-            await Shell.Current.Navigation.PopAsync();
+            await Shell.Current.Navigation.PopAsync(false);
         }
         else
         {

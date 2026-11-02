@@ -185,14 +185,14 @@ public partial class PaydayViewModel(
     {
         if (row is not null)
         {
-            Shell.Current.GoToAsync($"budget?id={row.BudgetId}");
+            SaveMoney.Helpers.PageNavigation.GoToAsync($"budget?id={row.BudgetId}");
         }
     }
 
     [RelayCommand]
     private async Task AddBudgetAsync()
     {
-        await Shell.Current.GoToAsync("budget");
+        await SaveMoney.Helpers.PageNavigation.GoToAsync("budget");
     }
 
     [RelayCommand]

@@ -65,14 +65,14 @@ public partial class BudgetsViewModel(AppDatabase db, BudgetService budgets, Cyc
     }
 
     [RelayCommand]
-    private void Add() => Shell.Current.GoToAsync("budget");
+    private void Add() => SaveMoney.Helpers.PageNavigation.GoToAsync("budget");
 
     [RelayCommand]
     private void Edit(BudgetRowVM? row)
     {
         if (row is not null)
         {
-            Shell.Current.GoToAsync($"budget?id={row.BudgetId}");
+            SaveMoney.Helpers.PageNavigation.GoToAsync($"budget?id={row.BudgetId}");
         }
     }
 
@@ -222,6 +222,6 @@ public partial class BudgetEditViewModel(AppDatabase db) : ObservableObject
             return;
         }
 
-        await Shell.Current.Navigation.PopAsync();
+        await Shell.Current.Navigation.PopAsync(false);
     }
 }

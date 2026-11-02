@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui.Controls;
 using SaveMoney.Core.Services;
 using SaveMoney.Helpers;
@@ -8,7 +9,6 @@ namespace SaveMoney.Views;
 public partial class QuickAddPage : ContentPage
 {
     private readonly QuickAddViewModel _viewModel;
-    private bool _balanceAnimated;
     private bool _toastVisible;
 
     public QuickAddPage(QuickAddViewModel viewModel)
@@ -22,23 +22,14 @@ public partial class QuickAddPage : ContentPage
             var picked = await SaveMoney.Helpers.MonetDialogs.ChooseAsync(title, "Отмена", null, options);
             return picked == "Отмена" ? null : picked;
         };
-        viewModel.CloseAsync = async () => await Navigation.PopAsync();
+        viewModel.CloseAsync = async () => await Navigation.PopAsync(false);
         viewModel.SavedAsync = ShowSavedToastAsync;
 
-        // Отклик на нажатие клавиш и сегментов — пульс по моушн-токенам Vibrant.
-        // SaveButton лежит внутри грида Keypad и подписан ниже: двойная подписка
-        // давала бы два конкурирующих ScaleTo на каждое сохранение.
-        foreach (var key in Keypad.Children.OfType<Button>().Where(b => !ReferenceEquals(b, SaveButton)))
+        viewModel.PickCategoryAsync = async (kind, selected) =>
         {
-            key.Clicked += async (sender, _) => await PulseAsync(sender);
-        }
-
-        foreach (var button in SegGrid.Children.OfType<Button>())
-        {
-            button.Clicked += async (sender, _) => await PulseAsync(sender);
-        }
-
-        SaveButton.Clicked += async (sender, _) => await PulseAsync(sender);
+            var picker = MauiProgram.Services.GetRequiredService<CategoryPickerPage>();
+            return await picker.ShowAsync(Navigation, kind, selected);
+        };
     }
 
     private bool? _landscape;
@@ -69,14 +60,6 @@ public partial class QuickAddPage : ContentPage
         Grid.SetColumnSpan(SavedToast, landscape ? 2 : 1);
     }
 
-    private static async Task PulseAsync(object? sender)
-    {
-        if (sender is View view)
-        {
-            await view.PulseAsync();
-        }
-    }
-
     private async void OnAppearing(object? sender, EventArgs e)
     {
         await _viewModel.InitializeAsync();
@@ -85,21 +68,6 @@ public partial class QuickAddPage : ContentPage
         // но при правке транзакции нужен back — включаем только там.
         Shell.SetNavBarIsVisible(this, _viewModel.IsEditing || _viewModel.IsStandaloneRepayment);
 
-        // Count-up баланса только при первом показе экрана за сессию страницы.
-        // Кадры пишем в свойство VM: прямой set Label.Text стирает one-way binding,
-        // и баланс потом «замерзает» до перезапуска приложения.
-        if (!_balanceAnimated && Math.Abs(_viewModel.BalanceValue) > 0.001)
-        {
-            _balanceAnimated = true;
-            await BalanceLabel.CountUpAsync(
-                0,
-                _viewModel.BalanceValue,
-                value => _viewModel.BalanceText = MoneyFormat.Rubles((long)Math.Round(value * 100)));
-
-            // Пока шла анимация, баланс мог обновиться (мессенджер/MaterializeDue):
-            // финальный кадр — всегда актуальное значение из VM.
-            _viewModel.BalanceText = MoneyFormat.Rubles((long)Math.Round(_viewModel.BalanceValue * 100));
-        }
     }
 
     private async void OnPickDateClicked(object? sender, EventArgs e)
@@ -121,23 +89,8 @@ public partial class QuickAddPage : ContentPage
 
         _toastVisible = true;
         SavedToast.IsVisible = true;
-        if (!Motion.AnimationsEnabled)
-        {
-            SavedToast.Opacity = 1;
-            SavedToast.TranslationY = 0;
-            await Task.Delay(1400);
-            SavedToast.IsVisible = false;
-            _toastVisible = false;
-            return;
-        }
-        SavedToast.Opacity = 0;
-        SavedToast.TranslationY = 10;
-
-        await Task.WhenAll(
-            SavedToast.FadeToAsync(1, Motion.Micro, Motion.Vibrant),
-            SavedToast.TranslateToAsync(0, 0, Motion.Normal, Motion.Vibrant));
+        SavedToast.Opacity = 1;
         await Task.Delay(1400);
-        await SavedToast.FadeToAsync(0, Motion.Normal, Motion.Vibrant);
         SavedToast.IsVisible = false;
         _toastVisible = false;
     }

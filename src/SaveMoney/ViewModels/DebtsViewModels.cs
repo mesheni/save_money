@@ -104,14 +104,14 @@ public partial class DebtsViewModel(AppDatabase db) : ObservableObject
 
     [RelayCommand]
     private void Add() =>
-        Shell.Current.GoToAsync($"debtnew?dir={(DirectionIndex == 1 ? DebtDirection.IOwe : DebtDirection.OwedToMe)}");
+        SaveMoney.Helpers.PageNavigation.GoToAsync($"debtnew?dir={(DirectionIndex == 1 ? DebtDirection.IOwe : DebtDirection.OwedToMe)}");
 
     [RelayCommand]
     private void Open(DebtRowVM? row)
     {
         if (row is not null)
         {
-            Shell.Current.GoToAsync(row.IsCreditAccount
+            SaveMoney.Helpers.PageNavigation.GoToAsync(row.IsCreditAccount
                 ? $"transaction?repayAccount={Uri.EscapeDataString(row.Id)}"
                 : $"debt?id={Uri.EscapeDataString(row.Id)}");
         }
@@ -331,7 +331,7 @@ public partial class DebtEditViewModel(AppDatabase db) : ObservableObject
             return;
         }
 
-        await Shell.Current.Navigation.PopAsync();
+        await Shell.Current.Navigation.PopAsync(false);
     }
 }
 
@@ -373,7 +373,7 @@ public partial class DebtDetailViewModel(AppDatabase db, DebtService debts) : Ob
     public bool CanRepay => IsOpen && _debt?.Direction == DebtDirection.IOwe;
     public bool CanReceivePayment => IsOpen && _debt?.Direction == DebtDirection.OwedToMe;
     [RelayCommand]
-    private Task RepayAsync() => Shell.Current.GoToAsync($"transaction?repayDebt={DebtId}");
+    private Task RepayAsync() => SaveMoney.Helpers.PageNavigation.GoToAsync($"transaction?repayDebt={DebtId}");
 
     partial void OnIsSettledChanged(bool value)
     {
@@ -410,7 +410,7 @@ public partial class DebtDetailViewModel(AppDatabase db, DebtService debts) : Ob
         _debt = _db.Debts.Get(DebtId);
         if (_debt is null)
         {
-            await Shell.Current.Navigation.PopAsync();
+            await Shell.Current.Navigation.PopAsync(false);
             return;
         }
 
@@ -510,7 +510,7 @@ public partial class DebtDetailViewModel(AppDatabase db, DebtService debts) : Ob
     {
         if (_debt is not null)
         {
-            Shell.Current.GoToAsync($"debtnew?id={_debt.Id}");
+            SaveMoney.Helpers.PageNavigation.GoToAsync($"debtnew?id={_debt.Id}");
         }
     }
 
@@ -535,6 +535,6 @@ public partial class DebtDetailViewModel(AppDatabase db, DebtService debts) : Ob
         }
 
         _db.Debts.SoftDelete(_debt);
-        await Shell.Current.Navigation.PopAsync();
+        await Shell.Current.Navigation.PopAsync(false);
     }
 }

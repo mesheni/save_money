@@ -77,14 +77,14 @@ public partial class AccountsViewModel(AppDatabase db, BalanceService balance) :
     }
 
     [RelayCommand]
-    private void Add() => Shell.Current.GoToAsync("account");
+    private void Add() => SaveMoney.Helpers.PageNavigation.GoToAsync("account");
 
     [RelayCommand]
     private void Edit(AccountRow? row)
     {
         if (row is not null)
         {
-            Shell.Current.GoToAsync($"account?id={row.Id}");
+            SaveMoney.Helpers.PageNavigation.GoToAsync($"account?id={row.Id}");
         }
     }
 

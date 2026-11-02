@@ -55,14 +55,14 @@ public partial class RecurringViewModel(AppDatabase db) : ObservableObject
     }
 
     [RelayCommand]
-    private void Add() => Shell.Current.GoToAsync("recurringnew");
+    private void Add() => SaveMoney.Helpers.PageNavigation.GoToAsync("recurringnew");
 
     [RelayCommand]
     private void Edit(RecurringRowVM? row)
     {
         if (row is not null)
         {
-            Shell.Current.GoToAsync($"recurringnew?id={row.Id}");
+            SaveMoney.Helpers.PageNavigation.GoToAsync($"recurringnew?id={row.Id}");
         }
     }
 
@@ -306,6 +306,6 @@ public partial class RecurringEditViewModel(AppDatabase db) : ObservableObject
             return;
         }
 
-        await Shell.Current.Navigation.PopAsync();
+        await Shell.Current.Navigation.PopAsync(false);
     }
 }

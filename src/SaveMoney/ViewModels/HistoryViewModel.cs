@@ -283,7 +283,7 @@ public partial class HistoryViewModel(AppDatabase db, HistoryService history) : 
             return;
         }
 
-        Shell.Current.GoToAsync($"transaction?id={item.Id}");
+        SaveMoney.Helpers.PageNavigation.GoToAsync($"transaction?id={item.Id}");
     }
 
     private void Refresh()

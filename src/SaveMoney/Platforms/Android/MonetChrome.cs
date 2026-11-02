@@ -1,7 +1,7 @@
 using Android.Content.Res;
 using Android.Views;
 using Google.Android.Material.BottomNavigation;
-using Google.Android.Material.Shape;
+using Android.Graphics.Drawables;
 using SaveMoney.Helpers;
 
 namespace SaveMoney.Platforms.Android;
@@ -45,14 +45,19 @@ public static class MonetChrome
             nav.ItemTextAppearanceActive = labelStyle;
             nav.ItemTextAppearanceInactive = labelStyle;
             nav.LabelVisibilityMode = 1; // LABEL_VISIBILITY_LABELED
-            nav.ItemActiveIndicatorEnabled = true;
-            nav.ItemActiveIndicatorWidth = (int)(64 * density);
-            nav.ItemActiveIndicatorHeight = (int)(32 * density);
-            nav.ItemActiveIndicatorColor = ColorStateList.ValueOf(Color("SecondaryContainer"));
-            nav.ItemActiveIndicatorShapeAppearance = ShapeAppearanceModel.InvokeBuilder()!.SetAllCornerSizes(16 * density)!.Build()!;
+            // Highlight the complete destination: icon AND label, not just the icon pill.
+            nav.ItemActiveIndicatorEnabled = false;
+            var fill = new GradientDrawable();
+            fill.SetColor(Color("SecondaryContainer"));
+            fill.SetCornerRadius(24 * density);
+            var statesBackground = new StateListDrawable();
+            var inset = (int)(4 * density);
+            statesBackground.AddState([global::Android.Resource.Attribute.StateChecked], new InsetDrawable(fill, inset));
+            statesBackground.AddState([], new ColorDrawable(global::Android.Graphics.Color.Transparent));
+            nav.ItemBackground = statesBackground;
             int[][] states = [[global::Android.Resource.Attribute.StateChecked], []];
             nav.ItemIconTintList = new ColorStateList(states, [Color("OnSecondaryContainer").ToArgb(), Color("OnSurfaceVariant").ToArgb()]);
-            nav.ItemTextColor = new ColorStateList(states, [Color("OnSurface").ToArgb(), Color("OnSurfaceVariant").ToArgb()]);
+            nav.ItemTextColor = new ColorStateList(states, [Color("OnSecondaryContainer").ToArgb(), Color("OnSurfaceVariant").ToArgb()]);
             return;
         }
         if (root is global::Android.Views.ViewGroup group)

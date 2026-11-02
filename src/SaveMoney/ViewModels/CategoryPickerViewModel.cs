@@ -3,63 +3,78 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SaveMoney.Core.Database;
 using SaveMoney.Core.Models;
-using SaveMoney.Messaging;
 
 namespace SaveMoney.ViewModels;
 
-/// <summary>Чип списка «Все категории»: плоская строка с отступом для подкатегорий.</summary>
-public partial class CategoryRow(string id, string name, string icon, int depth) : ObservableObject
+public sealed record CategoryRow(string Id, string Name, string Icon, bool IsSelected, bool HasChildren)
 {
-    public string Id { get; } = id;
-    public string Name { get; } = name;
-    public string Icon { get; } = icon;
-    public int Depth { get; } = depth;
-    public string Display => $"{Icon} {Name}";
-    public string AccessibleName => Depth > 0 ? $"Подкатегория {Name}" : $"Категория {Name}";
+    public bool ShowChildrenArrow => HasChildren && !IsSelected;
+    public string AccessibleName => $"{Name}{(IsSelected ? ", выбрана" : "")}{(HasChildren ? ", есть подкатегории" : "")}";
 }
 
-/// <summary>
-/// Полный список категорий для выбора на экране ввода (роут "categorypicker?kind=expense|income").
-/// Тап по строке выбирает категорию, рассылает CategoryPickedMessage и закрывает экран.
-/// </summary>
 [QueryProperty(nameof(Kind), "kind")]
 public partial class CategoryPickerViewModel(AppDatabase db) : ObservableObject
 {
-    private readonly AppDatabase _db = db;
-
     public ObservableCollection<CategoryRow> Items { get; } = [];
-
-    /// <summary>"expense" / "income" из query.</summary>
     public string Kind { get; set; } = "expense";
+    public string? SelectedId { get; set; }
+    private Category? _parent;
+    public bool HasParent => _parent is not null;
+    public string ParentName => _parent?.Name ?? "Категории";
+    public bool HasNoItems => Items.Count == 0;
+    public Func<string, Task>? CompleteAsync { get; set; }
+
+    [ObservableProperty] public partial string SearchText { get; set; } = "";
+    partial void OnSearchTextChanged(string value) => Reload();
 
     public void Initialize()
     {
-        var kind = Kind == "income" ? CategoryKind.Income : CategoryKind.Expense;
-        Items.Clear();
-        foreach (var root in _db.Categories.GetRoots(kind))
-        {
-            Items.Add(new CategoryRow(root.Id, root.Name, root.Icon ?? IconKeys.Other, depth: 0));
-            foreach (var child in _db.Categories.GetChildren(root.Id))
-            {
-                Items.Add(new CategoryRow(child.Id, child.Name, child.Icon ?? IconKeys.Other, depth: 1));
-            }
-        }
+        _parent = null;
+        var selected = SelectedId is not null ? db.Categories.Get(SelectedId) : null;
+        if (selected?.ParentId is { } parentId) _parent = db.Categories.Get(parentId);
+        else if (selected is not null && db.Categories.GetChildren(selected.Id).Count > 0) _parent = selected;
+        SearchText = "";
+        Reload();
     }
 
-    public Func<Task>? CloseAsync { get; set; }
+    private void Reload()
+    {
+        var kind = Kind == "income" ? CategoryKind.Income : CategoryKind.Expense;
+        var categories = _parent is null ? db.Categories.GetRoots(kind) : db.Categories.GetChildren(_parent.Id);
+        Items.Clear();
+        foreach (var category in categories.Where(c => string.IsNullOrWhiteSpace(SearchText)
+            || c.Name.Contains(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)))
+            Items.Add(new CategoryRow(category.Id, category.Name, category.Icon ?? IconKeys.Other,
+                category.Id == SelectedId, db.Categories.GetChildren(category.Id).Count > 0));
+        OnPropertyChanged(nameof(HasParent));
+        OnPropertyChanged(nameof(ParentName));
+        OnPropertyChanged(nameof(HasNoItems));
+    }
+
+    [RelayCommand]
+    private void ShowRoots()
+    {
+        _parent = null;
+        SearchText = "";
+        Reload();
+    }
+
+    [RelayCommand]
+    private async Task UseParentAsync()
+    {
+        if (_parent is not null && CompleteAsync is not null) await CompleteAsync(_parent.Id);
+    }
 
     [RelayCommand]
     private async Task PickAsync(CategoryRow? row)
     {
-        if (row is null)
+        if (row is null) return;
+        if (row.HasChildren)
         {
-            return;
+            _parent = db.Categories.Get(row.Id);
+            SearchText = "";
+            Reload();
         }
-
-        CategoryPickedMessage.Broadcast(row.Id);
-        if (CloseAsync is not null)
-        {
-            await CloseAsync();
-        }
+        else if (CompleteAsync is not null) await CompleteAsync(row.Id);
     }
 }

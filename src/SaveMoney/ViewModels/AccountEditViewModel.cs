@@ -167,7 +167,7 @@ public partial class AccountEditViewModel(AppDatabase db) : ObservableObject
 
         // Начальный баланс/флаг «в общем балансе» влияют на «Баланс по счетам».
         TransactionsChangedMessage.Broadcast();
-        await Shell.Current.Navigation.PopAsync();
+        await Shell.Current.Navigation.PopAsync(false);
     }
 
     [RelayCommand]
@@ -189,6 +189,6 @@ public partial class AccountEditViewModel(AppDatabase db) : ObservableObject
 
         _db.Accounts.SoftDelete(_editing);
         TransactionsChangedMessage.Broadcast();
-        await Shell.Current.Navigation.PopAsync();
+        await Shell.Current.Navigation.PopAsync(false);
     }
 }

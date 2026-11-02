@@ -26,7 +26,7 @@
 - .NET 10 + .NET MAUI (SingleProject: android / windows в CI, iOS-head в проекте)
 - SQLite через sqlite-net-pcl, миграции через `PRAGMA user_version`
 - CommunityToolkit.Mvvm, LiveCharts2 (SkiaSharp)
-- xUnit: 121 тест, включая Core и проверку палитр/контраста Monet
+- xUnit: 133 теста, включая Core, палитры/контраст Monet и завершение/отмену жестов
 
 ## Структура
 
