@@ -33,7 +33,7 @@ public partial class PaydayViewModel(
     private readonly BudgetService _budgets = budgets;
 
     public ObservableCollection<string> PaydayDayOptions { get; } =
-        new(Enumerable.Range(1, 28).Select(d => $"числа {d}"));
+        new(Enumerable.Range(1, 31).Select(d => $"числа {d}"));
 
     [ObservableProperty]
     public partial int PaydayDayIndex { get; set; }

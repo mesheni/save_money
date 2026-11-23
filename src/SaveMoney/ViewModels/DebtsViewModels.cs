@@ -372,6 +372,9 @@ public partial class DebtDetailViewModel(AppDatabase db, DebtService debts) : Ob
     public bool IsOpen => !IsSettled;
     public bool CanRepay => IsOpen && _debt?.Direction == DebtDirection.IOwe;
     public bool CanReceivePayment => IsOpen && _debt?.Direction == DebtDirection.OwedToMe;
+
+    /// <summary>Закрыт досрочно с ненулевым остатком — можно открыть снова.</summary>
+    public bool CanReopen => IsSettled && _debt is not null && _db.Debts.GetRemaining(_debt) > 0;
     [RelayCommand]
     private Task RepayAsync() => SaveMoney.Helpers.PageNavigation.GoToAsync($"transaction?repayDebt={DebtId}");
 
@@ -380,6 +383,7 @@ public partial class DebtDetailViewModel(AppDatabase db, DebtService debts) : Ob
         OnPropertyChanged(nameof(IsOpen));
         OnPropertyChanged(nameof(CanRepay));
         OnPropertyChanged(nameof(CanReceivePayment));
+        OnPropertyChanged(nameof(CanReopen));
     }
 
     [ObservableProperty]
@@ -438,6 +442,7 @@ public partial class DebtDetailViewModel(AppDatabase db, DebtService debts) : Ob
             ? $"Срок: {DateTimeOffset.FromUnixTimeSeconds(due).ToLocalTime():d MMMM yyyy}"
             : "";
         IsSettled = _debt.Status == DebtStatus.Settled;
+        OnPropertyChanged(nameof(CanReopen));
 
         Payments.Clear();
         foreach (var payment in _db.Debts.GetPayments(_debt.Id))
@@ -498,11 +503,35 @@ public partial class DebtDetailViewModel(AppDatabase db, DebtService debts) : Ob
             return;
         }
 
+        var remaining = _db.Debts.GetRemaining(_debt);
+        var confirmed = await SaveMoney.Helpers.MonetDialogs.AlertAsync(
+            "Закрыть долг досрочно?",
+            $"Остаток {MoneyFormat.Rubles(remaining)} будет считаться закрытым без платежа. Открыть долг снова можно на этом же экране.",
+            "Закрыть", "Отмена");
+        if (!confirmed)
+        {
+            return;
+        }
+
         _debt.Status = DebtStatus.Settled;
         _debt.SettledDateUnix = DateTimeOffset.Now.ToUnixTimeSeconds();
         _db.Debts.Save(_debt);
         Reload();
-        await Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    private void Reopen()
+    {
+        if (_debt is null)
+        {
+            return;
+        }
+
+        _debt.Status = DebtStatus.Active;
+        _debt.SettledDateUnix = null;
+        _db.Debts.Save(_debt);
+        TransactionsChangedMessage.Broadcast(); // сальдо долгов в шапке ввода
+        Reload();
     }
 
     [RelayCommand]

@@ -74,7 +74,9 @@
             <Button Text="Экспортировать все операции в CSV" Style="{StaticResource PrimaryButton}"
                     Command="{Binding ExportAllCsvCommand}"/>
             <Button Text="Резервная копия базы данных" Style="{StaticResource GhostButton}"
-                    Command="{Binding BackupDatabaseAsyncCommand}"/>
+                    Command="{Binding BackupDatabaseCommand}"/>
+            <Button Text="Восстановить из резервной копии" Style="{StaticResource GhostButton}"
+                    Command="{Binding RestoreDatabaseCommand}"/>
 
             <Label Text="День зарплаты и цикл настраиваются на экране «Ещё → До зарплаты»."
                    FontSize="14" Opacity="0.6"/>

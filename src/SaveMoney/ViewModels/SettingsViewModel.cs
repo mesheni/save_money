@@ -146,6 +146,8 @@ public partial class SettingsViewModel(AppDatabase db, CsvExportService csv) : O
                 $"savemoney-backup-{DateTime.Now:yyyyMMdd_HHmmss}.db");
             // VACUUM большой базы занимает секунды — не замораживаем UI-поток.
             await Task.Run(() => _db.Connection.Execute($"VACUUM INTO '{path.Replace("'", "''")}'"));
+            // Копии раньше копились в AppData бесконечно: храним последние несколько.
+            AppDatabase.PruneOldFiles(backupDirectory, "savemoney-backup-*.db", KeepFiles);
 
             await Share.RequestAsync(new ShareFileRequest
             {
@@ -159,12 +161,69 @@ public partial class SettingsViewModel(AppDatabase db, CsvExportService csv) : O
         }
     }
 
+    /// <summary>Сколько последних копий/экспортов хранить в AppData (файлы уже отданы через «Поделиться»).</summary>
+    private const int KeepFiles = 5;
+
+    [RelayCommand]
+    private async Task RestoreDatabaseAsync()
+    {
+        try
+        {
+            var picked = await FilePicker.Default.PickAsync(new PickOptions { PickerTitle = "Файл резервной копии (.db)" });
+            if (picked is null)
+            {
+                return;
+            }
+
+            // Провайдер файла (Диск, загрузки) отдаёт поток — копируем в кеш, чтобы открыть как SQLite.
+            var staged = Path.Combine(FileSystem.CacheDirectory, "restore-candidate.db");
+            await using (var source = await picked.OpenReadAsync())
+            await using (var target = File.Create(staged))
+            {
+                await source.CopyToAsync(target);
+            }
+
+            if (AppDatabase.ValidateBackup(staged) is { } error)
+            {
+                File.Delete(staged);
+                await AlertAsync?.Invoke("Не удалось восстановить", error)!;
+                return;
+            }
+
+            var confirmed = await MonetDialogs.AlertAsync(
+                "Восстановить из копии?",
+                $"Все текущие данные заменятся содержимым «{picked.FileName}». "
+                + "Текущая база перед этим сохранится в резервные копии.",
+                "Восстановить", "Отмена");
+            if (!confirmed)
+            {
+                File.Delete(staged);
+                return;
+            }
+
+            var backupDirectory = Path.Combine(FileSystem.AppDataDirectory, "backups");
+            var safety = Path.Combine(backupDirectory, $"savemoney-backup-{DateTime.Now:yyyyMMdd_HHmmss}-before-restore.db");
+            _db.RestoreFrom(staged, safety);
+            File.Delete(staged);
+            AppDatabase.PruneOldFiles(backupDirectory, "savemoney-backup-*.db", KeepFiles);
+
+            ThemePalette.Initialize(_db);
+            SaveMoney.Messaging.TransactionsChangedMessage.Broadcast();
+            await AlertAsync?.Invoke("Готово", "Данные восстановлены из резервной копии.")!;
+        }
+        catch (Exception ex)
+        {
+            await AlertAsync?.Invoke("Ошибка восстановления", ex.Message)!;
+        }
+    }
+
     private async Task ExportCsvAsync(long fromUnix, long toUnix)
     {
         try
         {
-            var path = await Task.Run(() =>
-                _csv.ExportTransactions(fromUnix, toUnix, Path.Combine(FileSystem.AppDataDirectory, "exports")));
+            var exportDirectory = Path.Combine(FileSystem.AppDataDirectory, "exports");
+            var path = await Task.Run(() => _csv.ExportTransactions(fromUnix, toUnix, exportDirectory));
+            AppDatabase.PruneOldFiles(exportDirectory, "savemoney_*.csv", KeepFiles);
             await Share.RequestAsync(new ShareFileRequest
             {
                 Title = Path.GetFileName(path),

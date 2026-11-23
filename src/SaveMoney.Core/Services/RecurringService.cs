@@ -77,10 +77,14 @@ public sealed class RecurringService(AppDatabase database, TransactionService tr
         }
     }
 
+    /// <summary>Предел операций за один пропущенный интервал (защита от лавины после годов простоя).</summary>
+    public const int MaxCatchUpPerPayment = 120;
+
     /// <summary>
     /// Создаёт транзакции по наступившим срокам и переносит next_date в будущее.
-    /// Если приложение не открывали несколько периодов, транзакция создаётся одна
-    /// (на самый ранний просроченный срок), next_date догоняет все пропуски.
+    /// Если приложение не открывали несколько периодов, создаётся операция на каждый
+    /// пропущенный срок (не больше <see cref="MaxCatchUpPerPayment"/>): иначе баланс
+    /// молча расходился бы с реальностью. Всё по одному платежу — атомарно.
     /// Возвращает число созданных транзакций. Идемпотентно при повторном вызове.
     /// </summary>
     public int MaterializeDue(long nowUnix)
@@ -96,28 +100,39 @@ public sealed class RecurringService(AppDatabase database, TransactionService tr
                 continue;
             }
 
-            var dueDateUnix = recurring.NextDateUnix;
+            var originalNext = recurring.NextDateUnix;
 
             try
             {
+                var count = 0;
                 _db.Connection.RunInTransaction(() =>
                 {
                     var next = recurring.NextDateUnix;
-                    while (next <= nowUnix) next = ComputeNextDateUnix(recurring, next);
-                    _transactions.Save(new Transaction
+                    while (next <= nowUnix)
                     {
-                        AccountId = recurring.AccountId, CategoryId = recurring.CategoryId,
-                        AmountMinor = recurring.AmountMinor, Kind = recurring.Kind,
-                        Payee = recurring.Payee, Note = recurring.Note, DateUnix = dueDateUnix,
-                        Source = TransactionSource.Recurring,
-                    });
+                        if (count < MaxCatchUpPerPayment)
+                        {
+                            _transactions.Save(new Transaction
+                            {
+                                AccountId = recurring.AccountId, CategoryId = recurring.CategoryId,
+                                AmountMinor = recurring.AmountMinor, Kind = recurring.Kind,
+                                Payee = recurring.Payee, Note = recurring.Note, DateUnix = next,
+                                Source = TransactionSource.Recurring,
+                            });
+                            count++;
+                        }
+
+                        next = ComputeNextDateUnix(recurring, next);
+                    }
+
                     recurring.NextDateUnix = next;
                     _db.RecurringPayments.Save(recurring);
                 });
-                created++;
+                created += count;
             }
             catch (Exception)
             {
+                recurring.NextDateUnix = originalNext;
                 // Keep the original due date so the operation can be retried.
             }
         }

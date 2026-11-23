@@ -107,6 +107,9 @@ public partial class QuickAddViewModel : ObservableObject,
     /// а правка не подменяет исходную категорию операции.</summary>
     private bool _categoryExplicit;
 
+    /// <summary>При правке поле «Магазин или заметка» загружено из Payee (иначе — из Note).</summary>
+    private bool _memoFromPayee;
+
     /// <summary>
     /// Угадывание по магазину: в сетке всегда выбрана какая-то категория, поэтому
     /// подставляем догадку сразу при вводе, пока пользователь не выбрал категорию сам.
@@ -877,8 +880,19 @@ public partial class QuickAddViewModel : ObservableObject,
             tx.TransferAccountId = null;
             tx.TransferAmountMinor = null;
             tx.CategoryId = categoryId;
-            tx.Payee = kind == TransactionKind.Expense ? memo : null;
-            tx.Note = kind == TransactionKind.Expense ? null : memo;
+            if (IsEditing && kind == originalKind)
+            {
+                // Правка того же типа: поле ввода показывало одно поле (магазин или
+                // заметку) — пишем обратно туда же, второе не трогаем. Иначе у операций
+                // из долгов («Иван» + «Долг: Иван») правка суммы стирала заметку.
+                if (_memoFromPayee) tx.Payee = memo;
+                else tx.Note = memo;
+            }
+            else
+            {
+                tx.Payee = kind == TransactionKind.Expense ? memo : null;
+                tx.Note = kind == TransactionKind.Expense ? null : memo;
+            }
         }
 
         try
@@ -963,6 +977,7 @@ public partial class QuickAddViewModel : ObservableObject,
         var txDate = DateTimeOffset.FromUnixTimeSeconds(tx.DateUnix).ToLocalTime().DateTime;
         Date = txDate;
         _editTimeOfDay = txDate.TimeOfDay;
+        _memoFromPayee = tx.Payee is not null || (tx.Note is null && tx.Kind == TransactionKind.Expense);
         MemoText = tx.Payee ?? tx.Note ?? "";
 
         LoadAccounts(selectId: tx.AccountId);

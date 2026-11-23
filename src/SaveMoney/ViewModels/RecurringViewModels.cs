@@ -112,7 +112,7 @@ public partial class RecurringEditViewModel(AppDatabase db) : ObservableObject
     public ObservableCollection<string> AccountOptions { get; } = [];
     public ObservableCollection<string> CategoryOptions { get; } = [];
     public ObservableCollection<string> DayOfMonthOptions { get; } =
-        new(Enumerable.Range(1, 28).Select(d => d.ToString()));
+        new(Enumerable.Range(1, 31).Select(d => d.ToString()));
 
     public IReadOnlyList<string> KindOptions { get; } = ["Расход", "Доход"];
     public IReadOnlyList<string> RecurrenceOptions { get; } = ["Ежемесячно", "Еженедельно", "Каждые N дней"];
@@ -194,7 +194,7 @@ public partial class RecurringEditViewModel(AppDatabase db) : ObservableObject
                 _ => 0,
             };
             IntervalDaysText = Math.Max(1, _editing.IntervalDays).ToString();
-            DayOfMonthIndex = Math.Clamp(_editing.DayOfMonth, 1, 28) - 1;
+            DayOfMonthIndex = Math.Clamp(_editing.DayOfMonth, 1, 31) - 1;
             NextDate = DateTimeOffset.FromUnixTimeSeconds(_editing.NextDateUnix).LocalDateTime;
             IsActive = _editing.IsActive;
 

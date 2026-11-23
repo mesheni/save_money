@@ -108,9 +108,12 @@ public sealed class RepaymentService(AppDatabase db)
         var payments = db.Connection.Table<DebtPayment>().Where(p => p.TransactionId == original.Id && !p.IsDeleted).ToList();
         foreach (var payment in payments)
         {
-            db.Debts.SoftDeletePayment(payment);
             var debt = db.Debts.Get(payment.DebtId);
-            if (debt is null) continue;
+            // Закрыт вручную («досрочно») при ненулевом остатке — это решение
+            // пользователя, правка или удаление платежа его не отменяет.
+            var manuallySettled = debt is { Status: DebtStatus.Settled } && db.Debts.GetRemaining(debt) > 0;
+            db.Debts.SoftDeletePayment(payment);
+            if (debt is null || manuallySettled) continue;
             debt.Status = db.Debts.GetRemaining(debt) > 0 ? DebtStatus.Active : DebtStatus.Settled;
             debt.SettledDateUnix = debt.Status == DebtStatus.Active ? null : original.DateUnix;
             db.Debts.Save(debt);

@@ -22,6 +22,9 @@
                 </VerticalStackLayout>
             </Border>
 
+            <Button Text="Открыть снова" Style="{StaticResource GhostButton}" Command="{Binding ReopenCommand}"
+                    IsVisible="{Binding CanReopen}"/>
+
             <Label Text="Платежи" Style="{StaticResource GroupLabel}"/>
         </VerticalStackLayout>
         </CollectionView.Header>

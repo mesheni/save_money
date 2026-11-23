@@ -37,8 +37,13 @@ public sealed class ReportService(AppDatabase database)
     public List<CategorySlice> GetExpenseByCategory(long fromUnix, long toUnix) =>
         GetByCategory(fromUnix, toUnix, CategoryKind.Expense);
 
-    /// <summary>Расходы (или доходы) по категориям за период, по убыванию; без категории — отдельной строкой.</summary>
-    public List<CategorySlice> GetByCategory(long fromUnix, long toUnix, string kind = TransactionKind.Expense)
+    /// <summary>
+    /// Расходы (или доходы) по категориям за период, по убыванию; без категории — отдельной строкой.
+    /// Подкатегории по умолчанию сворачиваются в корень («Продукты → Супермаркет» считается
+    /// в «Продукты»), как и в бюджетах; <paramref name="rollUpToRoot"/> = false — плоский разрез.
+    /// </summary>
+    public List<CategorySlice> GetByCategory(long fromUnix, long toUnix, string kind = TransactionKind.Expense,
+        bool rollUpToRoot = true)
     {
         var expenses = _db.Transactions.GetBetween(fromUnix, toUnix)
             .Where(t => t.Kind == kind)
@@ -58,8 +63,14 @@ public sealed class ReportService(AppDatabase database)
         {
             if (tx.CategoryId is not null && categories.TryGetValue(tx.CategoryId, out var category))
             {
-                var sum = slices.TryGetValue(tx.CategoryId, out var existing) ? existing.Sum : 0;
-                slices[tx.CategoryId] = (sum + tx.AmountMinor, category.Name, category.Icon ?? IconKeys.Other);
+                if (rollUpToRoot && category.ParentId is not null
+                    && categories.TryGetValue(category.ParentId, out var parent))
+                {
+                    category = parent;
+                }
+
+                var sum = slices.TryGetValue(category.Id, out var existing) ? existing.Sum : 0;
+                slices[category.Id] = (sum + tx.AmountMinor, category.Name, category.Icon ?? IconKeys.Other);
             }
             else
             {

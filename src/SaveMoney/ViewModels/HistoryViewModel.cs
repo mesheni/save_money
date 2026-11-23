@@ -294,14 +294,18 @@ public partial class HistoryViewModel(AppDatabase db, HistoryService history) : 
         }
 
         var to = DateTimeOffset.Now.AddDays(1).ToUnixTimeSeconds();
-        var fromLocal = PeriodIndex switch
+        // Начало периода — с полуночи, как в отчётах; «Всё» — действительно всё.
+        var now = DateTime.Now;
+        DateTime? fromLocal = PeriodIndex switch
         {
-            0 => DateTimeOffset.Now.AddDays(-7),
-            1 => DateTimeOffset.Now.AddMonths(-1),
-            2 => DateTimeOffset.Now.AddMonths(-3),
-            _ => DateTimeOffset.Now.AddYears(-10)
+            0 => ReportPeriods.LastDays(now, 7).From,
+            1 => ReportPeriods.LastMonths(now, 1).From,
+            2 => ReportPeriods.LastMonths(now, 3).From,
+            _ => null,
         };
-        var from = fromLocal.ToUnixTimeSeconds();
+        var from = fromLocal is { } f
+            ? new DateTimeOffset(f, TimeZoneInfo.Local.GetUtcOffset(f)).ToUnixTimeSeconds()
+            : 0;
 
         var accountId = AccountIndex > 0 && AccountIndex <= _accountIds.Count ? _accountIds[AccountIndex - 1] : null;
         var groups = _history.GetGroups(from, to, accountId);

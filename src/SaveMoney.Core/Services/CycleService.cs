@@ -62,11 +62,12 @@ public sealed class CycleService(AppDatabase database)
         return new CycleInfo { Start = start, End = start.AddDays(days), TotalDays = days };
     }
 
+    /// <summary>День зарплаты 1–31; в коротких месяцах — последний день месяца.</summary>
     public int GetPaydayDay() =>
-        Math.Clamp(_db.Settings.GetInt(SettingKeys.PaydayDay, 5), 1, 28);
+        Math.Clamp(_db.Settings.GetInt(SettingKeys.PaydayDay, 5), 1, 31);
 
     public void SetPaydayDay(int day) =>
-        _db.Settings.SetInt(SettingKeys.PaydayDay, Math.Clamp(day, 1, 28));
+        _db.Settings.SetInt(SettingKeys.PaydayDay, Math.Clamp(day, 1, 31));
 
     /// <summary>
     /// Ближайшая дата зарплаты. В сам день зарплаты возвращается сегодняшний день

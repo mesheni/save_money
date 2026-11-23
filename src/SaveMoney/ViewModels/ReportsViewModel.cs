@@ -197,20 +197,21 @@ public partial class ReportsViewModel(
 
     private (long From, long To) GetRange()
     {
-        var now = DateTimeOffset.Now;
+        var now = DateTime.Now;
+        // Все периоды — целыми сутками: с полуночи первого дня до конца сегодняшнего.
         var fromLocal = PeriodIndex switch
         {
-            0 => now.AddDays(-7).LocalDateTime,
-            1 => now.AddMonths(-1).LocalDateTime,
-            2 => now.AddMonths(-3).LocalDateTime,
+            0 => ReportPeriods.LastDays(now, 7).From,
+            1 => ReportPeriods.LastMonths(now, 1).From,
+            2 => ReportPeriods.LastMonths(now, 3).From,
             3 => _cycle.GetCurrentCycle().Start,
             5 => FromDate.Date,
             // «Всё» — с первой операции, а не с 2000 года (сотни пустых столбцов).
             _ => _db.Transactions.GetEarliestDateUnix() is { } earliest
                 ? DateTimeOffset.FromUnixTimeSeconds(earliest).ToLocalTime().Date
-                : now.LocalDateTime.Date,
+                : now.Date,
         };
-        var toLocal = PeriodIndex == 5 ? ToDate.Date.AddDays(1) : now.LocalDateTime.AddDays(1);
+        var toLocal = PeriodIndex == 5 ? ToDate.Date.AddDays(1) : now.Date.AddDays(1);
 
         return (ToUnix(fromLocal), ToUnix(toLocal));
     }

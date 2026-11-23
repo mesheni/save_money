@@ -94,6 +94,8 @@ public sealed class AuditRegressionTests : IDisposable
             AmountMinor = 5000, DateUnix = 1000, Kind = TransactionKind.Expense });
         db.Categories.SoftDelete(child);
         Assert.Equal(5000, Assert.Single(new BudgetService(db).GetStatuses(0, 2000)).FactMinor);
-        Assert.Equal("Child", Assert.Single(new ReportService(db).GetExpenseByCategory(0, 2000)).Name);
+        // В отчёте подкатегория сворачивается в корень, удалённая — тоже.
+        Assert.Equal("Root", Assert.Single(new ReportService(db).GetExpenseByCategory(0, 2000)).Name);
+        Assert.Equal("Child", Assert.Single(new ReportService(db).GetByCategory(0, 2000, TransactionKind.Expense, rollUpToRoot: false)).Name);
     }
 }

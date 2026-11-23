@@ -58,11 +58,16 @@ public class CycleAndRecurringTests : IDisposable
     }
 
     [Fact]
-    public void Payday_Day_ClampedTo28()
+    public void Payday_Day_ClampedTo31()
     {
         var service = new CycleService(_test.Db);
+        service.SetPaydayDay(40);
+        Assert.Equal(31, service.GetPaydayDay());
+
+        // 31-е в феврале — последний день месяца.
         service.SetPaydayDay(31);
-        Assert.Equal(28, service.GetPaydayDay());
+        Assert.Equal(new DateTime(2026, 2, 28), service.GetNextPayday(new DateTime(2026, 2, 10)));
+        Assert.Equal(new DateTime(2026, 3, 31), service.GetNextPayday(new DateTime(2026, 3, 1)));
     }
 
     [Fact]
