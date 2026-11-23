@@ -53,7 +53,7 @@ public partial class ReportsPage : ContentPage
         chart.TooltipBackgroundPaint = background;
         chart.TooltipTextPaint = text;
         chart.TooltipTextSize = 13;
-        chart.AnimationsSpeed = TimeSpan.Zero;
+        chart.AnimationsSpeed = Motion.AnimationsEnabled ? TimeSpan.FromMilliseconds(Motion.Emphasized) : TimeSpan.Zero;
         chart.EasingFunction = t => (float)Motion.VibrantFunc(t);
     }
 
@@ -63,7 +63,7 @@ public partial class ReportsPage : ContentPage
         chart.TooltipBackgroundPaint = background;
         chart.TooltipTextPaint = text;
         chart.TooltipTextSize = 13;
-        chart.AnimationsSpeed = TimeSpan.Zero;
+        chart.AnimationsSpeed = Motion.AnimationsEnabled ? TimeSpan.FromMilliseconds(Motion.Emphasized) : TimeSpan.Zero;
         chart.EasingFunction = t => (float)Motion.VibrantFunc(t);
     }
 

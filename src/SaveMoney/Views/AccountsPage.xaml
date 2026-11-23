@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:helpers="clr-namespace:SaveMoney.Helpers"
              xmlns:vm="clr-namespace:SaveMoney.ViewModels"
              xmlns:ctl="clr-namespace:SaveMoney.Controls"
              x:Class="SaveMoney.Views.AccountsPage"
@@ -18,7 +19,7 @@
 
     <Grid RowDefinitions="Auto,*" Padding="16,12">
 
-        <Label Grid.Row="0" Text="{Binding TotalText}" FontFamily="InterSemiBold" Padding="4,6,0,8"/>
+        <Label Grid.Row="0" Text="{Binding TotalText}" helpers:Animate.CountUp="True" FontFamily="InterSemiBold" Padding="4,6,0,8"/>
 
         <CollectionView Grid.Row="1" ItemsSource="{Binding Rows}">
             <CollectionView.ItemTemplate>

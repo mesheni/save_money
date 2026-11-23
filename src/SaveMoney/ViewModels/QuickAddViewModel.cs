@@ -231,6 +231,9 @@ public partial class QuickAddViewModel : ObservableObject,
 
     /// <summary>Страница подставляет тост «Сохранено» после успешной записи.</summary>
     public Func<Task>? SavedAsync { get; set; }
+
+    /// <summary>Страница подставляет отклик на пустую сумму (покачивание); без него — диалог.</summary>
+    public Func<Task>? InvalidAmountAsync { get; set; }
     public Func<string, string?, Task<string?>>? PickCategoryAsync { get; set; }
     public string? SelectedCategoryId => SubCategories.FirstOrDefault(c => c.IsSelected)?.Id ?? RootCategories.FirstOrDefault(c => c.IsSelected)?.Id;
     public string SelectedCategoryText
@@ -809,7 +812,10 @@ public partial class QuickAddViewModel : ObservableObject,
         var amountMinor = MoneyFormat.ParseInput(AmountText);
         if (amountMinor <= 0)
         {
-            await AlertAsync?.Invoke("Ошибка", "Введите сумму больше нуля")!;
+            if (InvalidAmountAsync is not null)
+                await InvalidAmountAsync();
+            else
+                await AlertAsync?.Invoke("Ошибка", "Введите сумму больше нуля")!;
             return;
         }
 

@@ -41,17 +41,10 @@
             <Setter.Value>
                 <VisualStateGroupList>
                     <VisualStateGroup Name="CommonStates">
-                        <VisualState Name="Normal">
-                            <VisualState.Setters>
-                                <Setter Property="Scale" Value="1" />
-                            </VisualState.Setters>
-                        </VisualState>
-                        <VisualState Name="Pressed">
-                            <VisualState.Setters>
-                                <Setter Property="Scale" Value="1" />
-                                <Setter Property="Opacity" Value="1" />
-                            </VisualState.Setters>
-                        </VisualState>
+                        <!-- Сжатие при нажатии анимирует Platforms/Android/MotionHooks:
+                             сеттер Scale здесь мгновенно сбивал бы пружину. -->
+                        <VisualState Name="Normal" />
+                        <VisualState Name="Pressed" />
                         <VisualState Name="Disabled">
                             <VisualState.Setters>
                                 <Setter Property="Opacity" Value="0.42" />

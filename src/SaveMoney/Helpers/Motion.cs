@@ -33,6 +33,12 @@ public static class Motion
     /// <summary>Появления и переходы, мс.</summary>
     public const uint Normal = 240;
 
+    /// <summary>Выразительные изменения: заполнение прогресса, диаграммы, мс.</summary>
+    public const uint Emphasized = 450;
+
+    /// <summary>Перебор суммы до нового значения, мс.</summary>
+    public const uint Count = 650;
+
     /// <summary>Та же кривая как чистая функция — для LiveCharts (Func&lt;float,float&gt;).</summary>
     public static readonly Func<double, double> VibrantFunc = Bezier(0.2, 0, 0, 1);
 
@@ -76,4 +82,92 @@ public static class Motion
 
         return Y((lo + hi) / 2);
     };
+}
+
+/// <summary>Короткие анимации элементов поверх токенов <see cref="Motion"/>.</summary>
+public static class MotionExtensions
+{
+    /// <summary>Появление: прозрачность, подъём и лёгкое увеличение с пружиной.</summary>
+    public static async Task PopInAsync(this VisualElement view, double rise = 16, double fromScale = 0.92)
+    {
+        view.AbortAnimation(nameof(PopInAsync));
+        if (!Motion.AnimationsEnabled)
+        {
+            view.Opacity = 1;
+            view.TranslationY = 0;
+            view.Scale = 1;
+            return;
+        }
+
+        view.Opacity = 0;
+        view.TranslationY = rise;
+        view.Scale = fromScale;
+        var completion = new TaskCompletionSource();
+        new Animation
+        {
+            { 0, 0.6, new Animation(v => view.Opacity = v, 0, 1, Motion.Vibrant) },
+            { 0, 1, new Animation(v => view.TranslationY = v, rise, 0, Motion.Vibrant) },
+            { 0, 1, new Animation(v => view.Scale = v, fromScale, 1, Easing.SpringOut) },
+        }.Commit(view, nameof(PopInAsync), length: 380, finished: (_, _) => completion.TrySetResult());
+        await completion.Task;
+    }
+
+    /// <summary>Исчезновение: прозрачность и уход вниз.</summary>
+    public static async Task PopOutAsync(this VisualElement view, double drop = 12)
+    {
+        view.AbortAnimation(nameof(PopOutAsync));
+        if (!Motion.AnimationsEnabled)
+        {
+            view.Opacity = 0;
+            return;
+        }
+
+        var completion = new TaskCompletionSource();
+        var start = view.Opacity;
+        new Animation
+        {
+            { 0, 1, new Animation(v => view.Opacity = v, start, 0, Easing.CubicIn) },
+            { 0, 1, new Animation(v => view.TranslationY = v, 0, drop, Easing.CubicIn) },
+        }.Commit(view, nameof(PopOutAsync), length: Motion.Normal, finished: (_, _) => completion.TrySetResult());
+        await completion.Task;
+    }
+
+    /// <summary>Мягкое проявление снизу — для блоков, которые показываются по ходу работы.</summary>
+    public static Task RevealAsync(this VisualElement view) => view.PopInAsync(rise: 10, fromScale: 1);
+
+    /// <summary>Затухающее покачивание по горизонтали — «так нельзя».</summary>
+    public static async Task ShakeAsync(this VisualElement view, double amplitude = 10)
+    {
+        view.AbortAnimation(nameof(ShakeAsync));
+        if (!Motion.AnimationsEnabled)
+        {
+            view.TranslationX = 0;
+            return;
+        }
+
+        var completion = new TaskCompletionSource();
+        new Animation(t => view.TranslationX = amplitude * Math.Sin(t * Math.PI * 6) * (1 - t))
+            .Commit(view, nameof(ShakeAsync), length: 420, easing: Easing.Linear,
+                finished: (_, _) => { view.TranslationX = 0; completion.TrySetResult(); });
+        await completion.Task;
+    }
+
+    /// <summary>Акцент на значении: короткий «вдох» до 1.06 и возврат с пружиной.</summary>
+    public static async Task PulseAsync(this VisualElement view, double peak = 1.06)
+    {
+        view.AbortAnimation(nameof(PulseAsync));
+        if (!Motion.AnimationsEnabled)
+        {
+            view.Scale = 1;
+            return;
+        }
+
+        var completion = new TaskCompletionSource();
+        new Animation
+        {
+            { 0, 0.35, new Animation(v => view.Scale = v, 1, peak, Easing.CubicOut) },
+            { 0.35, 1, new Animation(v => view.Scale = v, peak, 1, Easing.SpringOut) },
+        }.Commit(view, nameof(PulseAsync), length: 420, finished: (_, _) => { view.Scale = 1; completion.TrySetResult(); });
+        await completion.Task;
+    }
 }

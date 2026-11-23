@@ -47,6 +47,9 @@ public static class MauiProgram
             });
 
 #if ANDROID
+        // Анимации элементов: нажатия, прогресс, суммы, появление списков.
+        Platforms.Android.MotionHooks.Install();
+
         // Убираем Material-подчёркивание у всех полей на Android: поля форм обёрнуты
         // в Border с рамкой — вместе с underline получалась двойная линия.
         Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("NoUnderline", (handler, _) =>

@@ -24,6 +24,7 @@ public partial class QuickAddPage : ContentPage
         };
         viewModel.CloseAsync = async () => await Navigation.PopAsync(false);
         viewModel.SavedAsync = ShowSavedToastAsync;
+        viewModel.InvalidAmountAsync = ShowInvalidAmountAsync;
 
         viewModel.PickCategoryAsync = async (kind, selected) =>
         {
@@ -89,9 +90,34 @@ public partial class QuickAddPage : ContentPage
 
         _toastVisible = true;
         SavedToast.IsVisible = true;
-        SavedToast.Opacity = 1;
-        await Task.Delay(1400);
+        SavedCheck.Scale = Motion.AnimationsEnabled ? 0 : 1;
+        _ = BalanceLabel.PulseAsync(1.08);
+        await SavedToast.PopInAsync(rise: 24, fromScale: 0.86);
+        await SavedCheck.ScaleToAsync(1, 260, Easing.SpringOut);
+        await Task.Delay(1100);
+        await SavedToast.PopOutAsync();
         SavedToast.IsVisible = false;
+        SavedToast.TranslationY = 0;
         _toastVisible = false;
+    }
+
+    /// <summary>Пустая сумма: покачивание и тактильный отклик вместо модального окна.</summary>
+    private async Task ShowInvalidAmountAsync()
+    {
+        const string message = "Введите сумму больше нуля";
+        SemanticScreenReader.Default.Announce(message);
+#if ANDROID
+        // Без разрешения VIBRATE: системный отклик представления.
+        (AmountLabel.Handler?.PlatformView as Android.Views.View)?.PerformHapticFeedback(
+            OperatingSystem.IsAndroidVersionAtLeast(30) ? Android.Views.FeedbackConstants.Reject : Android.Views.FeedbackConstants.LongPress);
+#endif
+
+        if (!Motion.AnimationsEnabled)
+        {
+            await MonetDialogs.AlertAsync("Ошибка", message, "ОК");
+            return;
+        }
+
+        await AmountLabel.ShakeAsync(12);
     }
 }

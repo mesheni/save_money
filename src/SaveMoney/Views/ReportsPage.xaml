@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:helpers="clr-namespace:SaveMoney.Helpers"
              xmlns:vm="clr-namespace:SaveMoney.ViewModels"
              xmlns:ctl="clr-namespace:SaveMoney.Controls"
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
@@ -86,7 +87,7 @@
                 <VerticalStackLayout Spacing="2">
                     <Label Text="{Binding PeriodTotalCaption}" FontSize="14"
                            TextColor="{DynamicResource OnSurfaceVariant}"/>
-                    <Label Text="{Binding PeriodTotalText}" FontSize="30" FontFamily="InterBold"/>
+                    <Label Text="{Binding PeriodTotalText}" helpers:Animate.CountUp="True" FontSize="30" FontFamily="InterBold"/>
                     <HorizontalStackLayout Spacing="4" Margin="0,4,0,0" IsVisible="{Binding HasDelta}">
                         <Label Text="{Binding DeltaText}" FontSize="14" FontFamily="InterSemiBold"
                                TextColor="{DynamicResource Error}">

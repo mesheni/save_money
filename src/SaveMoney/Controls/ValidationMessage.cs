@@ -16,8 +16,12 @@ public sealed class ValidationMessage : Label
         PropertyChanged += (_, args) =>
         {
             if (args.PropertyName != nameof(Text)) return;
+            var wasVisible = IsVisible;
             IsVisible = !string.IsNullOrEmpty(Text);
-            if (IsVisible) Dispatcher.Dispatch(Reveal);
+            if (!IsVisible) return;
+            Dispatcher.Dispatch(Reveal);
+            // Новая ошибка проявляется, повторная — покачивается, чтобы её заметили.
+            if (Handler is not null) _ = wasVisible ? this.ShakeAsync(6) : this.RevealAsync();
         };
     }
 

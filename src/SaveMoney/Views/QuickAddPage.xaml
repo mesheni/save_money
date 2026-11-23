@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:SaveMoney.ViewModels"
              xmlns:ctl="clr-namespace:SaveMoney.Controls"
+             xmlns:helpers="clr-namespace:SaveMoney.Helpers"
              xmlns:core="clr-namespace:SaveMoney.Core.Services;assembly=SaveMoney.Core"
              x:Class="SaveMoney.Views.QuickAddPage"
              Title="{Binding ModeText}"
@@ -28,7 +29,7 @@
                 <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*" ColumnSpacing="5" RowSpacing="1">
                     <Label Text="Всего" FontSize="14"
                            TextColor="{DynamicResource OnSurfaceVariant}"/>
-                    <Label Grid.Column="1" x:Name="BalanceLabel" Text="{Binding BalanceText}" FontSize="14" FontFamily="InterSemiBold"/>
+                    <Label Grid.Column="1" x:Name="BalanceLabel" Text="{Binding BalanceText}" helpers:Animate.CountUp="True" FontSize="14" FontFamily="InterSemiBold"/>
                     <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding DebtsSummaryText}" FontSize="14" FontFamily="InterSemiBold"
                            IsVisible="{Binding HasDebtsSummary}" LineBreakMode="WordWrap"
                            TextColor="{DynamicResource OnSurfaceVariant}"/>
@@ -37,7 +38,7 @@
             <Border Grid.Row="1" StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="12,0,10,0" MinimumHeightRequest="48"
                     BackgroundColor="{DynamicResource PrimaryContainer}"
                     VerticalOptions="Center" HorizontalOptions="Start" Margin="0,8,0,0"
-                    IsVisible="{Binding HasPaydayHint}">
+                    IsVisible="{Binding HasPaydayHint}" helpers:Animate.Reveal="True">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding OpenPaydayCommand}"/>
                 </Border.GestureRecognizers>
@@ -103,12 +104,12 @@
             </Grid>
         </Border>
 
-        <VerticalStackLayout IsVisible="{Binding IsRepayment}" Spacing="8">
+        <VerticalStackLayout IsVisible="{Binding IsRepayment}" Spacing="8" helpers:Animate.Reveal="True">
             <Button Text="{Binding DebtButtonText}" Command="{Binding PickDebtCommand}"
                     Style="{StaticResource GhostButton}" LineBreakMode="WordWrap"
                     HorizontalOptions="Fill" SemanticProperties.Description="Выбрать задолженность"/>
             <Label Text="{Binding RepaymentRemainingText}" IsVisible="{Binding HasRepaymentTarget}" FontSize="14" HorizontalTextAlignment="Center"/>
-            <VerticalStackLayout IsVisible="{Binding IsChoosingRepayment}" Spacing="8">
+            <VerticalStackLayout IsVisible="{Binding IsChoosingRepayment}" Spacing="8" helpers:Animate.Reveal="True">
                 <Label Text="Нет открытых задолженностей. Добавьте долг, кредит или кредитный счёт с отрицательным балансом."
                        IsVisible="{Binding HasNoRepaymentTargets}" FontSize="14"/>
                 <VerticalStackLayout BindableLayout.ItemsSource="{Binding RepaymentTargets}" Spacing="8">
@@ -128,7 +129,7 @@
         </VerticalStackLayout>
 
         <!-- Одна строка сохраняет общую базовую линию знака, числа и валюты. -->
-        <Label Grid.Row="2" FontSize="{Binding AmountFontSize}" FontFamily="InterSemiBold"
+        <Label x:Name="AmountLabel" Grid.Row="2" FontSize="{Binding AmountFontSize}" FontFamily="InterSemiBold"
                MinimumHeightRequest="48" VerticalTextAlignment="Center" HorizontalTextAlignment="End"
                LineBreakMode="CharacterWrap" Margin="0,2">
             <Label.FormattedText>
@@ -318,8 +319,13 @@
                 BackgroundColor="{DynamicResource Primary}"
                 HorizontalOptions="Center" VerticalOptions="End" Margin="16,0,16,16"
                 InputTransparent="True">
-            <Label Text="Сохранено" TextColor="{DynamicResource OnPrimary}"
-                   FontFamily="InterSemiBold" FontSize="14" />
+            <HorizontalStackLayout Spacing="8">
+                <Label x:Name="SavedCheck" Text="{x:Static ctl:Glyphs.Check}" FontFamily="MaterialSymbolsRounded"
+                       FontAutoScalingEnabled="False" FontSize="18" VerticalOptions="Center"
+                       TextColor="{DynamicResource OnPrimary}"/>
+                <Label Text="Сохранено" TextColor="{DynamicResource OnPrimary}" VerticalOptions="Center"
+                       FontFamily="InterSemiBold" FontSize="14" />
+            </HorizontalStackLayout>
         </Border>
 
     </Grid>

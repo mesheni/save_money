@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:helpers="clr-namespace:SaveMoney.Helpers"
              xmlns:vm="clr-namespace:SaveMoney.ViewModels"
              xmlns:svc="clr-namespace:SaveMoney.Core.Services;assembly=SaveMoney.Core"
              xmlns:ctl="clr-namespace:SaveMoney.Controls"
@@ -26,7 +27,7 @@
 <VerticalStackLayout Spacing="2">
                 <Label Text="{Binding PaydayEndText}" FontSize="14"
                        TextColor="{DynamicResource OnSurfaceVariant}"/>
-                <Label Text="{Binding CanSpendText}" FontSize="40" TextColor="{DynamicResource OnPrimaryContainer}" FontFamily="InterBold">
+                <Label Text="{Binding CanSpendText}" helpers:Animate.CountUp="True" FontSize="40" TextColor="{DynamicResource OnPrimaryContainer}" FontFamily="InterBold">
                     <Label.Triggers>
                         <DataTrigger TargetType="Label" Binding="{Binding CanSpendNegative}" Value="True">
                             <Setter Property="TextColor" Value="{DynamicResource Error}"/>
@@ -70,13 +71,13 @@
                          Color="{DynamicResource OutlineVariant}"/>
                 <Grid MinimumHeightRequest="48" ColumnDefinitions="*,Auto">
                     <Label Grid.Column="0" Text="Остаток на счетах" FontSize="16" VerticalOptions="Center"/>
-                    <Label Grid.Column="1" Text="{Binding BalanceText}" FontSize="16" FontFamily="InterSemiBold" VerticalOptions="Center"/>
+                    <Label Grid.Column="1" Text="{Binding BalanceText}" helpers:Animate.CountUp="True" FontSize="16" FontFamily="InterSemiBold" VerticalOptions="Center"/>
                 </Grid>
                 <BoxView HeightRequest="1"
                          Color="{DynamicResource OutlineVariant}"/>
                 <Grid MinimumHeightRequest="48" ColumnDefinitions="*,Auto">
                     <Label Grid.Column="0" Text="Платежи до зарплаты" FontSize="16" VerticalOptions="Center"/>
-                    <Label Grid.Column="1" Text="{Binding UpcomingTotalText}" FontSize="16" FontFamily="InterSemiBold" VerticalOptions="Center"
+                    <Label Grid.Column="1" Text="{Binding UpcomingTotalText}" helpers:Animate.CountUp="True" FontSize="16" FontFamily="InterSemiBold" VerticalOptions="Center"
                            TextColor="{DynamicResource OnSurfaceVariant}">
                         <Label.Triggers>
                             <DataTrigger TargetType="Label" Binding="{Binding HasUpcomingTotal}" Value="True">
