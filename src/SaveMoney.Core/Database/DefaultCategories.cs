@@ -77,6 +77,7 @@ public static class DefaultCategories
                 db.Insert(new Category
                 {
                     Name = items[i].Children[j],
+                    Icon = items[i].Icon,
                     Kind = kind,
                     ParentId = root.Id,
                     Sort = j,

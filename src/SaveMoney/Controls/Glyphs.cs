@@ -12,6 +12,7 @@ public static class Glyphs
     public const string Add = "\ue145";
     public const string Apps = "\ue5c3";
     public const string ArrowBack = "\ue5c4";
+    public const string Backspace = "\ue14a";     // стереть последнюю цифру
     public const string Calendar = "\uebcc";      // calendar_month
     public const string Check = "\ue5ca";
     public const string ChevronDown = "\ue313";   // keyboard_arrow_down

@@ -18,6 +18,18 @@ public static class MonetChrome
     {
         var activity = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity;
         if (activity?.Window is not { } window) return;
+        StyleWindow(window);
+
+        // Модальные страницы MAUI живут в окне DialogFragment со своей статус-строкой:
+        // без этого «Выбор категории» оставался с системным синим акцентом.
+        if (activity is AndroidX.Fragment.App.FragmentActivity fragmentActivity)
+            foreach (var fragment in fragmentActivity.SupportFragmentManager.Fragments)
+                if (fragment is AndroidX.Fragment.App.DialogFragment { Dialog.Window: { } dialogWindow })
+                    StyleWindow(dialogWindow);
+    }
+
+    private static void StyleWindow(global::Android.Views.Window window)
+    {
         var dark = Microsoft.Maui.Controls.Application.Current?.RequestedTheme == AppTheme.Dark;
         window.DecorView.SetBackgroundColor(Color("Surface"));
         window.SetStatusBarColor(Color("Surface"));
@@ -36,6 +48,17 @@ public static class MonetChrome
 
     public static void StyleNavigation(global::Android.Views.View root)
     {
+        // Страницы с навбаром Shell: на Android 15 статус-строка прозрачная, под ней
+        // рисуют AppBarLayout/CoordinatorLayout — по умолчанию системным акцентом
+        // (colorPrimary = system_accent1_600), отсюда «синяя полоса» при своей палитре.
+        if (root is AndroidX.CoordinatorLayout.Widget.CoordinatorLayout coordinator)
+            coordinator.SetStatusBarBackgroundColor(Color("Surface"));
+        if (root is Google.Android.Material.AppBar.AppBarLayout appBar)
+        {
+            appBar.SetStatusBarForegroundColor(Color("Surface"));
+            appBar.SetBackgroundColor(Color("Surface"));
+        }
+
         if (root is BottomNavigationView nav)
         {
             var density = nav.Resources?.DisplayMetrics?.Density ?? 1;

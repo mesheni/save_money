@@ -48,6 +48,11 @@ public partial class AppShell : Shell
 
         Helpers.ThemePalette.RefreshPlatform();
 #if ANDROID
+        // Shell применяет оформление страницы с навбаром уже после OnNavigated и
+        // заливает фон окна своим цветом (синяя полоса под прозрачной статус-строкой
+        // Android 15). Перекрашиваем ещё раз, когда Shell закончил.
+        Dispatcher.Dispatch(Helpers.ThemePalette.RefreshPlatform);
+        Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(150), Helpers.ThemePalette.RefreshPlatform);
         Platforms.Android.ScreenMotion.Navigated(this);
 #endif
 

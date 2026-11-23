@@ -176,7 +176,7 @@ public sealed class RepaymentServiceTests : IDisposable
         Db.Connection.Execute("ALTER TABLE debts DROP COLUMN kind");
         Db.Connection.Execute("PRAGMA user_version = 2");
         DbMigrator.Migrate(Db.Connection);
-        Assert.Equal(3, Db.Connection.ExecuteScalar<int>("PRAGMA user_version"));
+        Assert.Equal(DbMigrator.CurrentVersion, Db.Connection.ExecuteScalar<int>("PRAGMA user_version"));
         Assert.Equal(DebtKind.Personal, Db.Debts.Get(debt.Id)!.Kind);
         Assert.Equal(8766, Db.Debts.GetRemaining(debt));
         Assert.Null(Assert.Single(Db.Debts.GetPayments(debt.Id)).TransactionId);

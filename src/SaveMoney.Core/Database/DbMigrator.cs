@@ -9,7 +9,7 @@ namespace SaveMoney.Core.Database;
 /// </summary>
 public static class DbMigrator
 {
-    public const int CurrentVersion = 3;
+    public const int CurrentVersion = 4;
 
     /// <summary>Эмодзи v1 → ключи иконок v2 (categories.icon). Литералы — ровно как в сидах/палитре v1.</summary>
     private static readonly (string Emoji, string Key)[] EmojiToIconKey =
@@ -65,6 +65,17 @@ public static class DbMigrator
             db.CreateTable<DebtPayment>(CreateFlags.ImplicitPK | CreateFlags.ImplicitIndex);
             db.CreateTable<Transaction>(CreateFlags.ImplicitPK | CreateFlags.ImplicitIndex);
             db.Execute("UPDATE debts SET kind = ? WHERE kind IS NULL OR kind = ''", DebtKind.Personal);
+        }
+
+        if (version < 4)
+        {
+            // Сидовые подкатегории создавались без иконки и рисовались запасным «ⓘ»:
+            // наследуют иконку корня, как и созданные пользователем.
+            db.Execute(
+                """
+                UPDATE categories SET icon = (SELECT p.icon FROM categories p WHERE p.id = categories.parent_id)
+                WHERE parent_id IS NOT NULL AND (icon IS NULL OR icon = '')
+                """);
         }
 
         if (version > CurrentVersion)

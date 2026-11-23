@@ -109,6 +109,30 @@ public class ReviewFixesRegressionTests : IDisposable
         Assert.Equal(DebtStatus.Settled, _test.Db.Debts.Get(debt.Id)!.Status);
     }
 
+    // --- UI: иконки подкатегорий ---
+
+    [Fact]
+    public void SeededSubcategories_InheritRootIcon()
+    {
+        var all = _test.Db.Categories.GetAllActive();
+        var transport = all.Single(c => c.Name == "Транспорт" && c.ParentId is null);
+
+        Assert.All(all.Where(c => c.ParentId == transport.Id), c => Assert.Equal(transport.Icon, c.Icon));
+    }
+
+    [Fact]
+    public void MigrationV4_FillsMissingSubcategoryIcons()
+    {
+        var db = _test.Db.Connection;
+        var root = _test.Db.Categories.GetAllActive().First(c => c.ParentId is null && c.Icon == IconKeys.Groceries);
+        db.Execute("UPDATE categories SET icon = NULL WHERE parent_id = ?", root.Id);
+        db.Execute("PRAGMA user_version = 3");
+
+        SaveMoney.Core.Database.DbMigrator.Migrate(db);
+
+        Assert.All(_test.Db.Categories.GetChildren(root.Id), c => Assert.Equal(IconKeys.Groceries, c.Icon));
+    }
+
     // --- 6. Динамика за длинный период ---
 
     [Fact]

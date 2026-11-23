@@ -131,6 +131,7 @@ public partial class PaydayViewModel(
         var total = _balance.GetTotalBalance();
         var canSpend = total - upcomingExpense + upcomingIncome;
         CanSpendNegative = canSpend < 0;
+        OnPropertyChanged(nameof(CanSpendNegative));
         CanSpendText = MoneyFormat.Rubles(canSpend);
 
         var perDay = canSpend / Math.Max(1, daysLeft);
@@ -141,6 +142,8 @@ public partial class PaydayViewModel(
         var info = _cycle.GetCurrentCycle();
         var elapsed = (now.Date - info.Start.Date).Days;
         CycleProgress = Math.Clamp((double)elapsed / Math.Max(1, info.TotalDays), 0, 1);
+        // Свойство без [ObservableProperty]: без уведомления полоса оставалась пустой.
+        OnPropertyChanged(nameof(CycleProgress));
         CycleStartText = info.Start.ToString("d MMMM");
         CycleEndText = info.End.AddDays(-1).ToString("d MMMM");
         CycleProgressText = elapsed <= 0
@@ -151,6 +154,7 @@ public partial class PaydayViewModel(
         BalanceText = MoneyFormat.Rubles(total);
         var upcomingNet = upcomingExpense - upcomingIncome;
         HasUpcomingTotal = upcomingNet != 0;
+        OnPropertyChanged(nameof(HasUpcomingTotal));
         UpcomingTotalText = HasUpcomingTotal ? MoneyFormat.SignedRubles(-upcomingNet) : MoneyFormat.Rubles(0);
 
         // Предстоящие платежи списком.

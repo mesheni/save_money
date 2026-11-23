@@ -18,8 +18,33 @@
 
     <Grid RowDefinitions="Auto,Auto,*" Padding="16,12">
 
-        <ctl:MonetPicker Grid.Row="0" ItemsSource="{Binding DirectionOptions}" SelectedIndex="{Binding DirectionIndex}"
-                WidthRequest="160" HorizontalOptions="Start"/>
+        <!-- Сегмент, как «Расходы / Доходы» в отчётах: обе вкладки видны сразу, с числом долгов. -->
+        <Border Grid.Row="0" Style="{StaticResource SegContainer}">
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="3">
+                <ctl:SegmentButton Grid.Column="0" Text="{Binding OwedToMeTabText}" Style="{StaticResource SegButton}"
+                        Command="{Binding ShowOwedToMeCommand}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding IsOwedToMe}" Value="True">
+                            <Setter Property="BackgroundColor" Value="{DynamicResource SecondaryContainer}"/>
+                            <Setter Property="TextColor" Value="{DynamicResource OnSecondaryContainer}"/>
+                            <Setter Property="BorderColor" Value="{DynamicResource OutlineVariant}"/>
+                            <Setter Property="BorderWidth" Value="0"/>
+                        </DataTrigger>
+                    </Button.Triggers>
+                </ctl:SegmentButton>
+                <ctl:SegmentButton Grid.Column="1" Text="{Binding IOweTabText}" Style="{StaticResource SegButton}"
+                        Command="{Binding ShowIOweCommand}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding IsIOwe}" Value="True">
+                            <Setter Property="BackgroundColor" Value="{DynamicResource SecondaryContainer}"/>
+                            <Setter Property="TextColor" Value="{DynamicResource OnSecondaryContainer}"/>
+                            <Setter Property="BorderColor" Value="{DynamicResource OutlineVariant}"/>
+                            <Setter Property="BorderWidth" Value="0"/>
+                        </DataTrigger>
+                    </Button.Triggers>
+                </ctl:SegmentButton>
+            </Grid>
+        </Border>
 
         <Label Grid.Row="1" Text="{Binding SummaryText}" FontFamily="InterSemiBold" Padding="4,8,0,4"/>
 
@@ -73,7 +98,7 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Label Grid.Row="2" Text="Долгов нет — добавьте первый кнопкой сверху"
+        <Label Grid.Row="2" Text="{Binding EmptyText}" HorizontalTextAlignment="Center"
                IsVisible="{Binding HasNoRows}" VerticalOptions="Center" HorizontalOptions="Center"
                TextColor="{DynamicResource OnSurfaceVariant}"/>
 

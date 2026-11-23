@@ -41,8 +41,58 @@ public partial class DebtsViewModel(AppDatabase db) : ObservableObject
 
     private string Direction => DirectionIndex == 1 ? DebtDirection.IOwe : DebtDirection.OwedToMe;
 
+    private bool _directionChosen;
+
+    // Сегмент «Мне должны / Я должен» с числом открытых долгов на каждой вкладке:
+    // выпадающий список без стрелки не читался как переключатель, и долги «пропадали».
+    public bool IsOwedToMe => DirectionIndex == 0;
+    public bool IsIOwe => DirectionIndex == 1;
+
+    [ObservableProperty]
+    public partial string OwedToMeTabText { get; set; } = "Мне должны";
+
+    [ObservableProperty]
+    public partial string IOweTabText { get; set; } = "Я должен";
+
+    public string EmptyText => DirectionIndex == 1
+        ? "Вы никому не должны. Долг или кредит — кнопкой «+» сверху"
+        : "Вам никто не должен. Добавить долг — кнопкой «+» сверху";
+
+    [RelayCommand]
+    private void ShowOwedToMe()
+    {
+        _directionChosen = true;
+        DirectionIndex = 0;
+    }
+
+    [RelayCommand]
+    private void ShowIOwe()
+    {
+        _directionChosen = true;
+        DirectionIndex = 1;
+    }
+
+    private (int OwedToMe, int IOwe) CountOpen()
+    {
+        var active = _db.Debts.GetActive();
+        var credit = new RepaymentService(_db).GetTargets().Count(t => t.IsCreditAccount);
+        return (active.Count(d => d.Direction == DebtDirection.OwedToMe),
+            active.Count(d => d.Direction == DebtDirection.IOwe) + credit);
+    }
+
     public Task InitializeAsync()
     {
+        var (owedToMe, iOwe) = CountOpen();
+        OwedToMeTabText = owedToMe > 0 ? $"Мне должны · {owedToMe}" : "Мне должны";
+        IOweTabText = iOwe > 0 ? $"Я должен · {iOwe}" : "Я должен";
+
+        // Пока пользователь сам не выбрал вкладку, открываем ту, где есть долги.
+        if (!_directionChosen && owedToMe == 0 && iOwe > 0 && DirectionIndex == 0)
+        {
+            DirectionIndex = 1; // OnDirectionIndexChanged перезагрузит список
+            return Task.CompletedTask;
+        }
+
         Reload();
         return Task.CompletedTask;
     }
@@ -100,7 +150,13 @@ public partial class DebtsViewModel(AppDatabase db) : ObservableObject
         HasNoRows = Rows.Count == 0;
     }
 
-    partial void OnDirectionIndexChanged(int value) => Reload();
+    partial void OnDirectionIndexChanged(int value)
+    {
+        OnPropertyChanged(nameof(IsOwedToMe));
+        OnPropertyChanged(nameof(IsIOwe));
+        OnPropertyChanged(nameof(EmptyText));
+        Reload();
+    }
 
     [RelayCommand]
     private void Add() =>
