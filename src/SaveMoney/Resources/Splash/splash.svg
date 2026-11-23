@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg width="456" height="456" viewBox="0 0 456 456" version="1.1" xmlns="http://www.w3.org/2000/svg">
-    <!-- Кошелёк: корпус -->
-    <rect x="88" y="128" width="280" height="200" rx="32" fill="#FFFFFF"/>
-    <!-- Шов -->
-    <rect x="112" y="160" width="232" height="8" rx="4" fill="#AE6241" opacity="0.35"/>
-    <!-- Карман для монет -->
-    <rect x="256" y="216" width="152" height="112" rx="28" fill="#2ECC71"/>
-    <circle cx="316" cy="272" r="18" fill="#FFFFFF"/>
+    <!-- Банка с монетами (как на иконке приложения) -->
+    <rect x="137" y="152" width="182" height="190" rx="46" fill="#EEF4EF"/>
+    <circle cx="190" cy="296" r="28.5" fill="#E8B65A"/>
+    <circle cx="255" cy="304" r="28.5" fill="#C9913A"/>
+    <circle cx="224" cy="251" r="28.5" fill="#E8B65A"/>
+    <circle cx="277" cy="255" r="23" fill="#C9913A"/>
+    <rect x="156" y="182" width="15" height="61" rx="7.5" fill="#FFFFFF"/>
+    <rect x="152" y="114" width="152" height="46" rx="15" fill="#C97753"/>
+    <rect x="205" y="129" width="46" height="11" rx="5.5" fill="#96502F"/>
 </svg>
