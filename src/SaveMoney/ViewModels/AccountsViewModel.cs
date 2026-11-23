@@ -97,7 +97,7 @@ public partial class AccountsViewModel(AppDatabase db, BalanceService balance) :
 
         var confirmed = await SaveMoney.Helpers.MonetDialogs.AlertAsync(
             "Удалить счёт?",
-            $"«{row.Name}» исчезнет из списков. Транзакции по нему останутся в истории.",
+            $"«{row.Name}» исчезнет из списков. Транзакции по нему останутся в истории, регулярные платежи с этого счёта будут выключены.",
             "Удалить", "Отмена");
         if (!confirmed)
         {
@@ -108,6 +108,7 @@ public partial class AccountsViewModel(AppDatabase db, BalanceService balance) :
         if (account is not null)
         {
             _db.Accounts.SoftDelete(account);
+            SaveMoney.Messaging.TransactionsChangedMessage.Broadcast();
         }
 
         await InitializeAsync();

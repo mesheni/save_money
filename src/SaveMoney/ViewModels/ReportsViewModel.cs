@@ -205,7 +205,10 @@ public partial class ReportsViewModel(
             2 => now.AddMonths(-3).LocalDateTime,
             3 => _cycle.GetCurrentCycle().Start,
             5 => FromDate.Date,
-            _ => new DateTime(2000, 1, 1),
+            // «Всё» — с первой операции, а не с 2000 года (сотни пустых столбцов).
+            _ => _db.Transactions.GetEarliestDateUnix() is { } earliest
+                ? DateTimeOffset.FromUnixTimeSeconds(earliest).ToLocalTime().Date
+                : now.LocalDateTime.Date,
         };
         var toLocal = PeriodIndex == 5 ? ToDate.Date.AddDays(1) : now.LocalDateTime.AddDays(1);
 
@@ -320,17 +323,21 @@ public partial class ReportsViewModel(
         }
 
         var values = new double[points.Count];
-        var weekly = (DateTimeOffset.FromUnixTimeSeconds(to).ToLocalTime().Date
-            - DateTimeOffset.FromUnixTimeSeconds(from).ToLocalTime().Date).TotalDays > 45;
+        var granularity = ReportService.GetGranularity(from, to);
         DayChartWidth = Math.Max(320, points.Count * 44 + 64);
-        DayChartHint = (weekly ? "Каждый столбец — неделя, подпись — её начало." : "Каждый столбец — один день.")
+        DayChartHint = granularity switch
+            {
+                DynamicsGranularity.Month => "Каждый столбец — месяц.",
+                DynamicsGranularity.Week => "Каждый столбец — неделя, подпись — её начало.",
+                _ => "Каждый столбец — один день.",
+            }
             + " Листайте график вбок. Точные суммы — под графиком.";
         for (var i = 0; i < points.Count; i++)
         {
             var value = (IsExpenses ? points[i].ExpenseMinor : points[i].IncomeMinor) / 100.0;
             var amountMinor = IsExpenses ? points[i].ExpenseMinor : points[i].IncomeMinor;
             if (amountMinor > 0)
-                DailyRows.Add(new DailyReportRow((weekly ? "Неделя с " : "") + points[i].Label, MoneyFormat.Rubles(amountMinor)));
+                DailyRows.Add(new DailyReportRow((granularity == DynamicsGranularity.Week ? "Неделя с " : "") + points[i].Label, MoneyFormat.Rubles(amountMinor)));
             values[i] = value;
         }
         DailyRowsHeight = Math.Min(240, DailyRows.Count * 48);

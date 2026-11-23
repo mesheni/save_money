@@ -323,7 +323,7 @@ public partial class DebtEditViewModel(AppDatabase db) : ObservableObject
 
         try
         {
-            _db.Debts.Save(debt);
+            _db.Debts.SaveEdited(debt);
         }
         catch (Exception ex)
         {

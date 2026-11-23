@@ -30,6 +30,33 @@ public class DebtRepository(SQLiteConnection db) : Repository<Debt>(db)
         return Math.Max(0, debt.AmountMinor - paid);
     }
 
+    /// <summary>
+    /// Сохранение после правки долга. Если изменилась сумма, статус пересчитывается
+    /// по остатку: уменьшение ниже выплаченного закрывает долг, увеличение
+    /// погашенного — снова открывает. Без смены суммы статус (в т.ч. ручное
+    /// «погашен») не трогаем.
+    /// </summary>
+    public void SaveEdited(Debt debt)
+    {
+        var stored = Get(debt.Id);
+        if (stored is not null && stored.AmountMinor != debt.AmountMinor)
+        {
+            var remaining = GetRemaining(debt);
+            if (remaining > 0 && debt.Status == DebtStatus.Settled)
+            {
+                debt.Status = DebtStatus.Active;
+                debt.SettledDateUnix = null;
+            }
+            else if (remaining <= 0 && debt.Status == DebtStatus.Active)
+            {
+                debt.Status = DebtStatus.Settled;
+                debt.SettledDateUnix = DateTimeOffset.Now.ToUnixTimeSeconds();
+            }
+        }
+
+        Save(debt);
+    }
+
     /// <summary>Добавляет платёж и закрывает долг, если погашен полностью.</summary>
     public void AddPayment(DebtPayment payment)
     {

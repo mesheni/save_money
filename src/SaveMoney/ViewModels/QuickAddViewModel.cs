@@ -103,6 +103,28 @@ public partial class QuickAddViewModel : ObservableObject,
     [ObservableProperty]
     public partial string MemoText { get; set; } = "";
 
+    /// <summary>Категорию выбрал сам пользователь — угадывание по магазину её не перебивает,
+    /// а правка не подменяет исходную категорию операции.</summary>
+    private bool _categoryExplicit;
+
+    /// <summary>
+    /// Угадывание по магазину: в сетке всегда выбрана какая-то категория, поэтому
+    /// подставляем догадку сразу при вводе, пока пользователь не выбрал категорию сам.
+    /// </summary>
+    partial void OnMemoTextChanged(string value)
+    {
+        if (IsEditing || !IsExpenseMode || _categoryExplicit || string.IsNullOrWhiteSpace(value))
+        {
+            return;
+        }
+
+        var guess = _transactions.GuessCategoryId(value.Trim());
+        if (guess is not null && guess != SelectedCategoryId)
+        {
+            SelectCategoryById(guess);
+        }
+    }
+
     [ObservableProperty]
     public partial DateTime Date { get; set; } = DateTime.Now;
 
@@ -361,8 +383,10 @@ public partial class QuickAddViewModel : ObservableObject,
             RootCategories.Add(new CategoryChip { Id = root.Id, Name = root.Name, Icon = root.Icon ?? IconKeys.Other });
         }
 
+        // Последней могла быть подкатегория: выбираем её корень, а ребёнка — внутри него.
         var lastId = _transactions.GetLastCategoryId(kind);
-        CategoryChip? toSelect = RootCategories.FirstOrDefault(c => c.Id == lastId)
+        var lastRootId = lastId is null ? null : _db.Categories.Get(lastId)?.ParentId ?? lastId;
+        CategoryChip? toSelect = RootCategories.FirstOrDefault(c => c.Id == lastRootId)
             ?? RootCategories.FirstOrDefault();
 
         if (toSelect is null)
@@ -556,6 +580,7 @@ public partial class QuickAddViewModel : ObservableObject,
     [RelayCommand]
     private void SetExpense()
     {
+        _categoryExplicit = false;
         IsRepayment = false;
         IsIncome = false;
         IsTransfer = false;
@@ -567,6 +592,7 @@ public partial class QuickAddViewModel : ObservableObject,
     [RelayCommand]
     private void SetIncome()
     {
+        _categoryExplicit = false;
         IsRepayment = false;
         IsIncome = true;
         IsTransfer = false;
@@ -664,21 +690,25 @@ public partial class QuickAddViewModel : ObservableObject,
     [RelayCommand]
     private async Task PickTargetAsync()
     {
-        var options = TargetAccounts.Select(a => a.Name).ToArray();
+        // Номер в подписи, как у «Счёт»: при одинаковых именах выбор по имени
+        // подсвечивал сразу нескольких получателей.
+        var targets = TargetAccounts.ToList();
+        var options = targets.Select((a, i) => $"{a.Name} · {i + 1}").ToArray();
         if (options.Length == 0)
         {
             return;
         }
 
         var picked = await PickAsync?.Invoke("Куда", options)!;
-        if (picked is null)
+        var index = picked is null ? -1 : Array.IndexOf(options, picked);
+        if (index < 0)
         {
             return;
         }
 
-        foreach (var chip in TargetAccounts)
+        foreach (var chip in targets)
         {
-            chip.IsSelected = chip.Name == picked;
+            chip.IsSelected = chip == targets[index];
         }
 
         RefreshPickerTexts();
@@ -699,6 +729,7 @@ public partial class QuickAddViewModel : ObservableObject,
             return;
         }
 
+        _categoryExplicit = true;
         // Вызываем двухарговую перегрузку явно: SelectRoot(chip) разрешился бы
         // в саму команду (меньше параметров — лучше) и ушёл в бесконечную рекурсию.
         SelectRoot(chip, trySelectChildId: null);
@@ -716,6 +747,7 @@ public partial class QuickAddViewModel : ObservableObject,
             return;
         }
 
+        _categoryExplicit = true;
         SelectChip(SubCategories, chip);
         NotifyCategorySelection();
         TryQuickSave();
@@ -734,6 +766,7 @@ public partial class QuickAddViewModel : ObservableObject,
         if (PickCategoryAsync is null) return;
         var selected = await PickCategoryAsync(kind, SelectedCategoryId);
         if (selected is null) return;
+        _categoryExplicit = true;
         SelectCategoryById(selected);
         TryQuickSave();
     }
@@ -828,8 +861,15 @@ public partial class QuickAddViewModel : ObservableObject,
             var categoryId = SubCategories.FirstOrDefault(c => c.IsSelected)?.Id
                 ?? RootCategories.FirstOrDefault(c => c.IsSelected)?.Id;
 
+            // Правка без явного выбора категории сохраняет исходную — даже пустую
+            // или удалённую, которой нет в сетке: иначе молча подставилась бы последняя.
+            if (IsEditing && !_categoryExplicit && kind == originalKind)
+            {
+                categoryId = _editing!.CategoryId;
+            }
+
             // Категория не выбрана, но введён магазин — угадываем по прошлым покупкам.
-            if (categoryId is null && memo is not null)
+            if (categoryId is null && memo is not null && !IsEditing)
             {
                 categoryId = _transactions.GuessCategoryId(memo);
             }
@@ -865,6 +905,7 @@ public partial class QuickAddViewModel : ObservableObject,
 
         AmountText = "";
         MemoText = "";
+        _categoryExplicit = false;
         SetDefaultDate();
         _repaymentTarget = null;
         DebtButtonText = "Выбрать задолженность";
@@ -930,22 +971,30 @@ public partial class QuickAddViewModel : ObservableObject,
             RebuildTargetAccounts(selectId: tx.TransferAccountId);
         }
 
-        SelectCategoryById(tx.CategoryId);
+        if (!SelectCategoryById(tx.CategoryId))
+        {
+            // Категории нет (или она удалена) — не показываем чужую «последнюю».
+            SelectChip(RootCategories, null);
+            SubCategories.Clear();
+            HasSubCategories = false;
+            NotifyCategorySelection();
+        }
+
         ModeText = $"{ModeText} · правка";
     }
 
-    private void SelectCategoryById(string? categoryId)
+    private bool SelectCategoryById(string? categoryId)
     {
         if (categoryId is null)
         {
-            return;
+            return false;
         }
 
         var rootChip = RootCategories.FirstOrDefault(c => c.Id == categoryId);
         if (rootChip is not null)
         {
             SelectRoot(rootChip, trySelectChildId: null);
-            return;
+            return true;
         }
 
         // Подкатегория другого корня: её нет в текущей ленте — ищем родителя в БД,
@@ -954,14 +1003,17 @@ public partial class QuickAddViewModel : ObservableObject,
         var parentId = category?.ParentId;
         if (parentId is null)
         {
-            return;
+            return false;
         }
 
         var parentChip = RootCategories.FirstOrDefault(c => c.Id == parentId);
-        if (parentChip is not null)
+        if (parentChip is null)
         {
-            SelectRoot(parentChip, trySelectChildId: categoryId);
+            return false;
         }
+
+        SelectRoot(parentChip, trySelectChildId: categoryId);
+        return SubCategories.Any(c => c.IsSelected);
     }
 
     private long ToUnix(DateTime local) =>

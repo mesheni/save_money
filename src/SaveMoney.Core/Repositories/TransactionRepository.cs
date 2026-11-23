@@ -38,6 +38,10 @@ public class TransactionRepository(SQLiteConnection db) : Repository<Transaction
           .Take(limit)
           .ToList();
 
+    /// <summary>Дата самой ранней реальной операции (null — операций нет): начало периода «Всё».</summary>
+    public long? GetEarliestDateUnix() =>
+        Db.ExecuteScalar<long?>("SELECT MIN(date_unix) FROM transactions WHERE is_deleted = 0 AND is_pending_review = 0");
+
     public long CountAll() =>
         Db.ExecuteScalar<long>("SELECT COUNT(*) FROM transactions WHERE is_deleted = 0");
 }

@@ -86,8 +86,16 @@ public sealed class RecurringService(AppDatabase database, TransactionService tr
     public int MaterializeDue(long nowUnix)
     {
         var created = 0;
+        var liveAccounts = _db.Accounts.GetAll().Select(a => a.Id).ToHashSet();
         foreach (var recurring in GetDue(nowUnix))
         {
+            // Счёт удалён (в т.ч. в старых базах, где платёж не выключился):
+            // операция на удалённом счёте выпала бы из всех балансов.
+            if (!liveAccounts.Contains(recurring.AccountId))
+            {
+                continue;
+            }
+
             var dueDateUnix = recurring.NextDateUnix;
 
             try

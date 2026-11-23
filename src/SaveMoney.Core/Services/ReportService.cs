@@ -21,6 +21,13 @@ public class DynamicsPoint
     public required long IncomeMinor { get; init; }
 }
 
+public enum DynamicsGranularity
+{
+    Day,
+    Week,
+    Month,
+}
+
 /// <summary>Данные для экрана отчётов.</summary>
 public sealed class ReportService(AppDatabase database)
 {
@@ -98,14 +105,22 @@ public sealed class ReportService(AppDatabase database)
 
         var from = DateTimeOffset.FromUnixTimeSeconds(fromUnix).ToLocalTime().Date;
         var to = DateTimeOffset.FromUnixTimeSeconds(toUnix).ToLocalTime().Date;
-        var byWeek = (to - from).TotalDays > 45;
+        var granularity = GetGranularity(fromUnix, toUnix);
+        // Период через границу года: «05.01» без года неоднозначно.
+        var dayFormat = from.Year != to.AddDays(-1).Year ? "dd.MM.yy" : "dd.MM";
 
         var buckets = new List<(DateTime Start, DateTime End, string Label)>();
         var cursor = from;
         while (cursor < to)
         {
-            var end = byWeek ? cursor.AddDays(7) : cursor.AddDays(1);
-            buckets.Add((cursor, end, cursor.ToString("dd.MM")));
+            var end = granularity switch
+            {
+                DynamicsGranularity.Month => new DateTime(cursor.Year, cursor.Month, 1).AddMonths(1),
+                DynamicsGranularity.Week => cursor.AddDays(7),
+                _ => cursor.AddDays(1),
+            };
+            var label = granularity == DynamicsGranularity.Month ? cursor.ToString("MM.yyyy") : cursor.ToString(dayFormat);
+            buckets.Add((cursor, end, label));
             cursor = end;
         }
 
@@ -128,6 +143,17 @@ public sealed class ReportService(AppDatabase database)
         }
 
         return result;
+    }
+
+    /// <summary>Шаг столбцов динамики: дни до 45 дней, недели до года, дальше — месяцы
+    /// (иначе «Всё» за несколько лет давало сотни недельных столбцов).</summary>
+    public static DynamicsGranularity GetGranularity(long fromUnix, long toUnix)
+    {
+        var days = (DateTimeOffset.FromUnixTimeSeconds(toUnix).ToLocalTime().Date
+            - DateTimeOffset.FromUnixTimeSeconds(fromUnix).ToLocalTime().Date).TotalDays;
+        return days > 366 ? DynamicsGranularity.Month
+            : days > 45 ? DynamicsGranularity.Week
+            : DynamicsGranularity.Day;
     }
 
     public (long IncomeMinor, long ExpenseMinor) GetTotals(long fromUnix, long toUnix)

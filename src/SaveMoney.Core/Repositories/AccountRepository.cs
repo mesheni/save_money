@@ -26,6 +26,23 @@ public class AccountRepository(SQLiteConnection db) : Repository<Account>(db)
           .OrderBy(a => a.Name, StringComparer.CurrentCulture)
           .ToList();
 
+    /// <summary>
+    /// Удаление счёта выключает его регулярные платежи: иначе они продолжали бы
+    /// создавать операции на удалённом счёте, невидимые ни в одном балансе.
+    /// </summary>
+    public override void SoftDelete(Account entity) => Db.RunInTransaction(() =>
+    {
+        var recurring = new Repository<RecurringPayment>(Db);
+        foreach (var payment in Db.Table<RecurringPayment>()
+                     .Where(r => r.AccountId == entity.Id && !r.IsDeleted && r.IsActive).ToList())
+        {
+            payment.IsActive = false;
+            recurring.Save(payment);
+        }
+
+        base.SoftDelete(entity);
+    });
+
     public Account? GetByName(string name) =>
         Db.Table<Account>().FirstOrDefault(a => !a.IsDeleted && a.Name == name);
 }

@@ -180,7 +180,7 @@ public partial class AccountEditViewModel(AppDatabase db) : ObservableObject
 
         var confirmed = await SaveMoney.Helpers.MonetDialogs.AlertAsync(
             "Удалить счёт?",
-            $"«{_editing.Name}» исчезнет из списков. Транзакции по нему останутся в истории.",
+            $"«{_editing.Name}» исчезнет из списков. Транзакции по нему останутся в истории, регулярные платежи с этого счёта будут выключены.",
             "Удалить", "Отмена");
         if (!confirmed)
         {
