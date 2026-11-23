@@ -10,10 +10,15 @@ public static class MoneyFormat
 {
     private static readonly CultureInfo RussianCulture = CultureInfo.GetCultureInfo("ru-RU");
 
+    /// <summary>Типографский минус (U+2212), как у знака суммы на экране ввода:
+    /// дефис из культуры ru-RU давал «-30 000» рядом с «− 0 ₽».</summary>
+    public const string Minus = "\u2212";
+
     public static string Rubles(long minorUnits)
     {
-        var rubles = minorUnits / 100m;
-        return $"{rubles.ToString("N2", RussianCulture)} ₽";
+        var rubles = Math.Abs(minorUnits / 100m);
+        var sign = minorUnits < 0 ? Minus : string.Empty;
+        return $"{sign}{rubles.ToString("N2", RussianCulture)} ₽";
     }
 
     public static string SignedRubles(long minorUnits)
@@ -44,7 +49,7 @@ public static class MoneyFormat
             return 0;
         }
 
-        var normalized = text.Replace(" ", "").Replace("\u00a0", "").Replace(',', '.');
+        var normalized = text.Replace(" ", "").Replace("\u00a0", "").Replace(Minus, "-").Replace(',', '.');
         if (!decimal.TryParse(normalized, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var value))
         {
             return 0;

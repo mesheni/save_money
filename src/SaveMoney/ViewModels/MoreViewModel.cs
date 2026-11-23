@@ -48,7 +48,7 @@ public partial class MoreViewModel : ObservableObject
     public ObservableCollection<MoreMenuItem> AppItems { get; } =
     [
         new(IconKeys.Settings, "Настройки и экспорт", "settings"),
-        new(IconKeys.Family, "Синхронизация и семья", "sync", isEnabled: false),
+        // «Синхронизация и семья (появится в 2.0)» убрана: неактивный пункт только занимал место.
     ];
 
     public MoreViewModel(AppDatabase db, BalanceService balance, CycleService cycle,
@@ -60,8 +60,6 @@ public partial class MoreViewModel : ObservableObject
         _recurring = recurring;
         _budgets = budgets;
 
-        var sync = AppItems[1];
-        sync.Subtitle = "Появится в версии 2.0";
         AppItems[0].Subtitle = "Тема, цикл, CSV, резервная копия";
         MoneyItems[1].Subtitle = "Свои иконки и подкатегории";
     }
@@ -106,13 +104,13 @@ public partial class MoreViewModel : ObservableObject
 
     private string BuildPaydaySubtitle()
     {
-        if (_db.Settings.GetLong(SettingKeys.CycleAnchorUnix, 0) == 0)
-        {
-            return "Настройте день зарплаты";
-        }
-
+        // Прогноз считается всегда (по умолчанию зарплата 5-го) — как и на самом экране;
+        // раньше здесь висело «Настройте день зарплаты», хотя экран уже всё показывал.
         var (perDay, daysLeft) = PaydayForecast();
-        return $"{MoneyFormat.Rubles(perDay)} в день · {daysLeft} {Plural(daysLeft, "день", "дня", "дней")}";
+        var payday = _cycle.GetNextPayday(DateTime.Now);
+        return daysLeft == 0
+            ? "Зарплата сегодня"
+            : $"{MoneyFormat.Rubles(perDay)} в день · до {payday:d MMMM}";
     }
 
     private string BuildBudgetsSubtitle()
@@ -151,14 +149,14 @@ public partial class MoreViewModel : ObservableObject
         var now = DateTime.Now;
         var nowUnix = new DateTimeOffset(now, TimeZoneInfo.Local.GetUtcOffset(now)).ToUnixTimeSeconds();
         var payday = _cycle.GetNextPayday(now);
-        var daysLeft = Math.Max(1, _cycle.GetDaysUntilPayday(now));
+        var daysLeft = _cycle.GetDaysUntilPayday(now);
         var paydayEndUnix = new DateTimeOffset(payday.Date.AddDays(1),
             TimeZoneInfo.Local.GetUtcOffset(payday.Date)).ToUnixTimeSeconds();
         var upcoming = _recurring.GetUpcomingBetween(nowUnix, paydayEndUnix);
         var canSpend = _balance.GetTotalBalance()
             - upcoming.Where(r => r.Kind == TransactionKind.Expense).Sum(r => r.AmountMinor)
             + upcoming.Where(r => r.Kind == TransactionKind.Income).Sum(r => r.AmountMinor);
-        return (canSpend / daysLeft, daysLeft);
+        return (canSpend / Math.Max(1, daysLeft), daysLeft);
     }
 
     private static string Plural(int n, string one, string few, string many) => n % 10 == 1 && n % 100 != 11

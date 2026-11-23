@@ -118,6 +118,9 @@ public partial class ReportsViewModel(
     [ObservableProperty]
     public partial double DayChartWidth { get; set; } = 320;
 
+    /// <summary>Последний столбец с суммой (−1 — пусто): к нему прокручивается график.</summary>
+    public int LastDataColumn { get; private set; } = -1;
+
     [ObservableProperty]
     public partial string DayChartHint { get; set; } = "";
 
@@ -325,6 +328,7 @@ public partial class ReportsViewModel(
 
         var values = new double[points.Count];
         var granularity = ReportService.GetGranularity(from, to);
+        LastDataColumn = -1;
         DayChartWidth = Math.Max(320, points.Count * 44 + 64);
         DayChartHint = granularity switch
             {
@@ -332,11 +336,12 @@ public partial class ReportsViewModel(
                 DynamicsGranularity.Week => "Каждый столбец — неделя, подпись — её начало.",
                 _ => "Каждый столбец — один день.",
             }
-            + " Листайте график вбок. Точные суммы — под графиком.";
+            + (points.Count > 7 ? " Листайте график вбок." : "");
         for (var i = 0; i < points.Count; i++)
         {
             var value = (IsExpenses ? points[i].ExpenseMinor : points[i].IncomeMinor) / 100.0;
             var amountMinor = IsExpenses ? points[i].ExpenseMinor : points[i].IncomeMinor;
+            if (amountMinor > 0) LastDataColumn = i;
             if (amountMinor > 0)
                 DailyRows.Add(new DailyReportRow((granularity == DynamicsGranularity.Week ? "Неделя с " : "") + points[i].Label, MoneyFormat.Rubles(amountMinor)));
             values[i] = value;
@@ -378,7 +383,10 @@ public partial class ReportsViewModel(
     private void BuildTop(long from, long to, string kind)
     {
         var slices = _reports.GetByCategory(from, to, kind)
-            .Where(s => s.AmountMinor > 0);
+            .Where(s => s.AmountMinor > 0)
+            .ToList();
+        // Проценты по всем долям сразу — в сумме 100, а не 101.
+        var percents = ReportService.RoundPercents(slices.Select(s => s.AmountMinor).ToList());
 
         TopRows.Clear();
         var index = 0;
@@ -389,7 +397,7 @@ public partial class ReportsViewModel(
             {
                 Name = slice.Name,
                 AmountText = MoneyFormat.Rubles(slice.AmountMinor),
-                PercentText = $"{slice.SharePercent:F0}%",
+                PercentText = $"{percents[index]}%",
                 Progress = Math.Min(1.0, slice.SharePercent / 100.0),
                 BarColor = Color.FromRgb(paint.Red, paint.Green, paint.Blue),
             });

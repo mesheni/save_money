@@ -156,6 +156,7 @@
             <Border Grid.Row="1" Grid.Column="0" StrokeShape="RoundRectangle 12" Padding="12,0" MinimumHeightRequest="48"
                     SemanticProperties.Description="Выбрать счёт" SemanticProperties.Hint="Открывает список счетов">
                 <Border.Triggers>
+                    <!-- Справа — категория (операция) или «Куда» (перевод); у погашения второго поля нет. -->
                     <DataTrigger TargetType="Border" Binding="{Binding IsRepayment}" Value="True">
                         <Setter Property="Grid.ColumnSpan" Value="2"/>
                     </DataTrigger>
@@ -191,24 +192,61 @@
                         SemanticProperties.Description="Выбрать счёт назначения" SemanticProperties.Hint="Открывает список счетов"/>
                 </Grid>
             </Border>
+            <!-- Категория рядом со счётом: отдельной строкой она уходила под клавиатуру. -->
+            <Border Grid.Row="1" Grid.Column="1" StrokeShape="RoundRectangle 12" MinimumHeightRequest="48" Padding="10,0" IsVisible="{Binding IsOperation}">
+                <Grid ColumnDefinitions="22,*,18" ColumnSpacing="6" MinimumHeightRequest="48">
+                    <Label Text="{Binding SelectedCategoryIcon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded"
+                           FontAutoScalingEnabled="False" FontSize="20" VerticalOptions="Center" TextColor="{DynamicResource Primary}"/>
+                    <Label Grid.Column="1" Text="{Binding SelectedCategoryText}" FontSize="14" LineBreakMode="WordWrap" VerticalOptions="Center"/>
+                    <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronDown}" FontFamily="MaterialSymbolsRounded"
+                           FontAutoScalingEnabled="False" FontSize="16" VerticalOptions="Center"/>
+                    <Button Grid.ColumnSpan="3" Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
+                            Command="{Binding OpenAllCategoriesCommand}" SemanticProperties.Description="Выбрать категорию и подкатегорию"
+                            SemanticProperties.Hint="{Binding SelectedCategoryText}"/>
+                </Grid>
+            </Border>
         </Grid>
 
         <Button Text="Погасить долг" Command="{Binding SaveCommand}" IsVisible="{Binding IsRepayment}"
                 Style="{StaticResource PrimaryButton}" HeightRequest="-1" MinimumHeightRequest="48"
                 Padding="12,8" LineBreakMode="WordWrap"/>
 
-        <Border MinimumHeightRequest="48" Padding="12,4" IsVisible="{Binding IsOperation}">
-            <Grid ColumnDefinitions="24,*,24" ColumnSpacing="10" MinimumHeightRequest="48">
-                <Label Text="{Binding SelectedCategoryIcon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded"
-                       FontAutoScalingEnabled="False" FontSize="24" VerticalOptions="Center" TextColor="{DynamicResource Primary}"/>
-                <Label Grid.Column="1" Text="{Binding SelectedCategoryText}" FontSize="16" LineBreakMode="WordWrap" VerticalOptions="Center"/>
-                <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded"
-                       FontAutoScalingEnabled="False" FontSize="24" VerticalOptions="Center"/>
-                <Button Grid.ColumnSpan="3" Text="" BackgroundColor="Transparent" BorderWidth="0" Padding="0"
-                        Command="{Binding OpenAllCategoriesCommand}" SemanticProperties.Description="Выбрать категорию и подкатегорию"
-                        SemanticProperties.Hint="{Binding SelectedCategoryText}"/>
-            </Grid>
-        </Border>
+        <!-- Частые категории одним касанием (с включённым быстрым вводом — сразу сохраняют);
+             поле «категория» рядом со счётом — полный выбор с подкатегориями. -->
+        <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never" IsVisible="{Binding IsOperation}">
+            <HorizontalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding TopCategories}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:CategoryChip">
+                        <Border StrokeShape="RoundRectangle 18" Padding="12,0" MinimumHeightRequest="44"
+                                StrokeThickness="1" Stroke="{DynamicResource OutlineVariant}"
+                                BackgroundColor="{DynamicResource SurfaceContainerLow}"
+                                SemanticProperties.Description="{Binding AccessibleName}">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{DynamicResource SecondaryContainer}"/>
+                                    <Setter Property="Stroke" Value="{DynamicResource SecondaryContainer}"/>
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectRootCommand, Source={RelativeSource AncestorType={x:Type vm:QuickAddViewModel}}}"
+                                                      CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                <Label Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded"
+                                       FontAutoScalingEnabled="False" FontSize="18" VerticalOptions="Center"
+                                       TextColor="{DynamicResource Primary}"/>
+                                <Label Text="{Binding Name}" FontSize="14" VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </HorizontalStackLayout>
+        </ScrollView>
+
+
+        <!-- Удаление прямо с экрана правки: раньше оно было только скрытым свайпом в истории. -->
+        <Button Text="Удалить операцию" Style="{StaticResource DangerButton}" IsVisible="{Binding IsEditing}"
+                Command="{Binding DeleteCommand}"/>
         </VerticalStackLayout>
         </ScrollView>
 

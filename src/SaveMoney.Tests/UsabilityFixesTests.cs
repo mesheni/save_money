@@ -106,6 +106,25 @@ public class UsabilityFixesTests : IDisposable
         Assert.Equal(new DateTime(2026, 11, 24), month.To);
     }
 
+    [Fact]
+    public void RoundPercents_AlwaysSumTo100()
+    {
+        // 20 123 / 5 000 / 3 000: простое округление давало 72 + 18 + 11 = 101.
+        Assert.Equal([71, 18, 11], ReportService.RoundPercents([2_012_300, 500_000, 300_000]));
+        Assert.Equal(100, ReportService.RoundPercents([1, 1, 1]).Sum());
+        Assert.Equal([0, 0], ReportService.RoundPercents([0, 0]));
+    }
+
+    [Fact]
+    public void Rubles_UsesTypographicMinus_AndParsesItBack()
+    {
+        var text = MoneyFormat.Rubles(-3_000_000);
+
+        Assert.StartsWith("−", text);
+        Assert.DoesNotContain("-", text);
+        Assert.Equal(-1_550, MoneyFormat.ParseInput("−15,5"));
+    }
+
     // --- Долги ---
 
     [Fact]

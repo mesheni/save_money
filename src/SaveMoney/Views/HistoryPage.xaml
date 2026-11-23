@@ -98,7 +98,7 @@
         <CollectionView Grid.Row="4" ItemsSource="{Binding Groups}" IsGrouped="True">
             <CollectionView.GroupHeaderTemplate>
                 <DataTemplate x:DataType="vm:HistoryGroupVM">
-                    <Grid ColumnDefinitions="*,Auto" MinimumHeightRequest="48" Padding="0,12,0,4">
+                    <Grid ColumnDefinitions="*,Auto" MinimumHeightRequest="48" Padding="0,12,8,4">
                         <Label Grid.Column="0" Text="{Binding HeaderTitleText}" FontFamily="InterSemiBold" FontSize="14"
                                VerticalOptions="End"/>
                         <Label Grid.Column="1" Text="{Binding DayTotalText}" FontSize="14" VerticalOptions="End"
@@ -112,46 +112,44 @@
                         <SwipeView Grid.Row="0">
                             <SwipeView.RightItems>
                                 <SwipeItems>
-                                    <SwipeItem Text="Удалить" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
+                                    <SwipeItem Text="Удалить" BackgroundColor="{DynamicResource Error}" Invoked="OnDeleteInvoked" CommandParameter="{Binding .}"/>
                                 </SwipeItems>
                             </SwipeView.RightItems>
-                            <Border Style="{StaticResource Card}" Padding="0" Margin="0,0,0,8">
-<Grid MinimumHeightRequest="60" ColumnSpacing="10" ColumnDefinitions="40,*,Auto" Padding="16,12"
-                                  BackgroundColor="Transparent"
-                                  SemanticProperties.Hint="Открыть операцию для изменения">
-                                <Border Grid.Column="0" WidthRequest="40" MinimumHeightRequest="48" StrokeThickness="0"
-                                        StrokeShape="RoundRectangle 20" HorizontalOptions="Start" VerticalOptions="Center"
-                                        BackgroundColor="{DynamicResource SurfaceContainer}">
-                                    <Label Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontAutoScalingEnabled="False"
-                                           FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"
-                                           TextColor="{DynamicResource OnSurface}"/>
-                                </Border>
-                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                                    <Label Text="{Binding Title}" FontSize="16" FontFamily="InterSemiBold"/>
-                                    <Label Text="{Binding Subtitle}" FontSize="14"
-                                           TextColor="{DynamicResource OnSurfaceVariant}"/>
-                                <Label Text="{Binding AmountText}" FontSize="14" FontFamily="InterSemiBold" LineBreakMode="WordWrap"
-                                       VerticalOptions="Center" HorizontalOptions="End"
-                                       TextColor="{DynamicResource Income}">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding IsExpense}" Value="True">
-                                            <Setter Property="TextColor" Value="{DynamicResource Error}"/>
-
-
-                                        </DataTrigger>
-                                        <DataTrigger TargetType="Label" Binding="{Binding IsNeutral}" Value="True">
-                                            <Setter Property="TextColor" Value="{DynamicResource OnSurfaceVariant}"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                                </VerticalStackLayout>
-                                <Label Grid.Column="2" Text="{x:Static ctl:Glyphs.ChevronRight}" FontFamily="MaterialSymbolsRounded" FontAutoScalingEnabled="False" FontSize="18" VerticalOptions="Center"
-                                       TextColor="{DynamicResource OnSurfaceVariant}"/>
-                                <Grid.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:HistoryViewModel}}}" CommandParameter="{Binding .}"/>
-                                </Grid.GestureRecognizers>
-                            </Grid>
-</Border>
+                            <!-- Компактная строка: иконка · название и подпись · сумма справа.
+                                 Тап — правка; шеврон не нужен, вся строка кликабельна. -->
+                            <Border Style="{StaticResource Card}" Padding="0" Margin="0,0,0,6">
+                                <Grid MinimumHeightRequest="56" ColumnSpacing="12" ColumnDefinitions="40,*,Auto" Padding="12,8"
+                                      BackgroundColor="Transparent"
+                                      SemanticProperties.Hint="Открыть операцию для изменения">
+                                    <Border Grid.Column="0" WidthRequest="40" HeightRequest="40" StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 20" VerticalOptions="Center"
+                                            BackgroundColor="{DynamicResource SurfaceContainer}">
+                                        <Label Text="{Binding Icon, Converter={StaticResource IconGlyph}}" FontFamily="MaterialSymbolsRounded" FontAutoScalingEnabled="False"
+                                               FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"
+                                               TextColor="{DynamicResource OnSurface}"/>
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Label Text="{Binding Title}" FontSize="16" FontFamily="InterSemiBold" LineBreakMode="TailTruncation"/>
+                                        <Label Text="{Binding Subtitle}" FontSize="14" LineBreakMode="TailTruncation"
+                                               TextColor="{DynamicResource OnSurfaceVariant}"/>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2" Text="{Binding AmountText}" FontSize="16" FontFamily="InterSemiBold" LineBreakMode="NoWrap"
+                                           VerticalOptions="Center" HorizontalOptions="End"
+                                           TextColor="{DynamicResource Income}">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsExpense}" Value="True">
+                                                <Setter Property="TextColor" Value="{DynamicResource Error}"/>
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsNeutral}" Value="True">
+                                                <Setter Property="TextColor" Value="{DynamicResource OnSurfaceVariant}"/>
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type vm:HistoryViewModel}}}" CommandParameter="{Binding .}"/>
+                                    </Grid.GestureRecognizers>
+                                </Grid>
+                            </Border>
                         </SwipeView>
 
                     </Grid>

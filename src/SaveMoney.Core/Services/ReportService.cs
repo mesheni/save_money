@@ -167,6 +167,30 @@ public sealed class ReportService(AppDatabase database)
             : DynamicsGranularity.Day;
     }
 
+    /// <summary>
+    /// Целые проценты долей, в сумме ровно 100 (метод наибольших остатков):
+    /// простое округление давало «72% + 18% + 11% = 101%».
+    /// </summary>
+    public static int[] RoundPercents(IReadOnlyList<long> amounts)
+    {
+        var total = amounts.Sum();
+        if (total <= 0)
+        {
+            return new int[amounts.Count];
+        }
+
+        var exact = amounts.Select(a => a * 100m / total).ToArray();
+        var result = exact.Select(e => (int)Math.Floor(e)).ToArray();
+        var remainder = 100 - result.Sum();
+        foreach (var i in Enumerable.Range(0, exact.Length)
+                     .OrderByDescending(i => exact[i] - result[i]).ThenBy(i => i).Take(remainder))
+        {
+            result[i]++;
+        }
+
+        return result;
+    }
+
     public (long IncomeMinor, long ExpenseMinor) GetTotals(long fromUnix, long toUnix)
     {
         var transactions = _db.Transactions.GetBetween(fromUnix, toUnix);

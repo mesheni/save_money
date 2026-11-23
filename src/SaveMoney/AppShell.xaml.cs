@@ -31,6 +31,40 @@ public partial class AppShell : Shell
 		Routing.RegisterRoute("settings", typeof(SettingsPage));
 	}
 
+    private DateTime _lastBackOnInput = DateTime.MinValue;
+
+    /// <summary>
+    /// «Назад» на корне вкладки: с «Истории»/«Отчётов»/«Ещё» — на «Ввод», а с «Ввода» —
+    /// выход только по второму нажатию за 2 секунды. Раньше любое «Назад» на корне
+    /// молча закрывало приложение.
+    /// </summary>
+    protected override bool OnBackButtonPressed()
+    {
+        if (Navigation.ModalStack.Count > 0 || (CurrentItem?.CurrentItem?.Stack.Count ?? 1) > 1)
+        {
+            return base.OnBackButtonPressed();
+        }
+
+        if (CurrentPage is not QuickAddPage)
+        {
+            _ = GoToAsync("//quickadd");
+            return true;
+        }
+
+        var now = DateTime.UtcNow;
+        if (now - _lastBackOnInput < TimeSpan.FromSeconds(2))
+        {
+            return base.OnBackButtonPressed();
+        }
+
+        _lastBackOnInput = now;
+#if ANDROID
+        global::Android.Widget.Toast.MakeText(global::Android.App.Application.Context,
+            "Нажмите «Назад» ещё раз, чтобы выйти", global::Android.Widget.ToastLength.Short)?.Show();
+#endif
+        return true;
+    }
+
     protected override void OnNavigating(ShellNavigatingEventArgs args)
     {
         base.OnNavigating(args);

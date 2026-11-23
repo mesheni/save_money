@@ -421,14 +421,26 @@ public partial class QuickAddViewModel : ObservableObject,
         NotifyCategorySelection();
     }
 
-    /// <summary>Сетка — первые 8 корневых; выбранная вне топа выталкивается в начало, чтобы оставаться видимой.</summary>
+    /// <summary>
+    /// Строка чипов — первые 8 корневых в их обычном порядке. Выбранная вне восьмёрки
+    /// встаёт первой, чтобы оставаться видимой; выбор внутри восьмёрки порядок не меняет —
+    /// иначе чип «убегал» из-под пальца.
+    /// </summary>
     private void BuildTopCategories(string selectedRootId)
     {
+        var top = RootCategories.Take(8).ToList();
+        if (top.All(c => c.Id != selectedRootId) && RootCategories.FirstOrDefault(c => c.Id == selectedRootId) is { } selected)
+        {
+            top = [selected, .. top.Take(7)];
+        }
+
+        if (TopCategories.SequenceEqual(top))
+        {
+            return;
+        }
+
         TopCategories.Clear();
-        var ordered = RootCategories
-            .OrderByDescending(c => c.Id == selectedRootId)
-            .Take(8);
-        foreach (var chip in ordered)
+        foreach (var chip in top)
         {
             TopCategories.Add(chip);
         }
@@ -940,6 +952,40 @@ public partial class QuickAddViewModel : ObservableObject,
             {
                 await SavedAsync();
             }
+        }
+    }
+
+    [RelayCommand]
+    private async Task DeleteAsync()
+    {
+        if (_editing is null)
+        {
+            return;
+        }
+
+        var confirmed = await SaveMoney.Helpers.MonetDialogs.AlertAsync(
+            "Удалить операцию?",
+            $"Операция на {MoneyFormat.Rubles(_editing.AmountMinor)} будет удалена.",
+            "Удалить", "Отмена");
+        if (!confirmed)
+        {
+            return;
+        }
+
+        try
+        {
+            new RepaymentService(_db).Delete(_editing);
+            TransactionsChangedMessage.Broadcast();
+        }
+        catch (Exception ex)
+        {
+            await AlertAsync?.Invoke("Ошибка", ex.Message)!;
+            return;
+        }
+
+        if (CloseAsync is not null)
+        {
+            await CloseAsync();
         }
     }
 

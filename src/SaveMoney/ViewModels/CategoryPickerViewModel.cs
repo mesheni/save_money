@@ -8,7 +8,8 @@ namespace SaveMoney.ViewModels;
 
 public sealed record CategoryRow(string Id, string Name, string Icon, bool IsSelected, bool HasChildren)
 {
-    public bool ShowChildrenArrow => HasChildren && !IsSelected;
+    public bool ShowChildrenArrow => HasChildren;
+    public bool ShowCheck => IsSelected && !HasChildren;
     public string AccessibleName => $"{Name}{(IsSelected ? ", выбрана" : "")}{(HasChildren ? ", есть подкатегории" : "")}";
 }
 
@@ -27,12 +28,18 @@ public partial class CategoryPickerViewModel(AppDatabase db) : ObservableObject
     [ObservableProperty] public partial string SearchText { get; set; } = "";
     partial void OnSearchTextChanged(string value) => Reload();
 
+    /// <summary>Корень выбранной категории (сама она или её родитель) — отмечается в списке корней.</summary>
+    private string? _selectedRootId;
+
+    /// <summary>
+    /// Экран всегда открывается со списком корневых категорий: раньше он открывался
+    /// внутри текущей, и для смены категории нужен был лишний шаг «Все категории».
+    /// </summary>
     public void Initialize()
     {
         _parent = null;
         var selected = SelectedId is not null ? db.Categories.Get(SelectedId) : null;
-        if (selected?.ParentId is { } parentId) _parent = db.Categories.Get(parentId);
-        else if (selected is not null && db.Categories.GetChildren(selected.Id).Count > 0) _parent = selected;
+        _selectedRootId = selected?.ParentId ?? selected?.Id;
         SearchText = "";
         Reload();
     }
@@ -40,12 +47,34 @@ public partial class CategoryPickerViewModel(AppDatabase db) : ObservableObject
     private void Reload()
     {
         var kind = Kind == "income" ? CategoryKind.Income : CategoryKind.Expense;
-        var categories = _parent is null ? db.Categories.GetRoots(kind) : db.Categories.GetChildren(_parent.Id);
+        var query = SearchText.Trim();
         Items.Clear();
-        foreach (var category in categories.Where(c => string.IsNullOrWhiteSpace(SearchText)
-            || c.Name.Contains(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase)))
-            Items.Add(new CategoryRow(category.Id, category.Name, category.Icon ?? IconKeys.Other,
-                category.Id == SelectedId, db.Categories.GetChildren(category.Id).Count > 0));
+
+        if (query.Length > 0)
+        {
+            // Поиск сквозной: и корни, и подкатегории («такси» находит «Транспорт → Такси»).
+            var all = db.Categories.GetAllActive().Where(c => c.Kind == kind).ToList();
+            var byId = all.ToDictionary(c => c.Id);
+            foreach (var category in all.Where(c => c.Name.Contains(query, StringComparison.CurrentCultureIgnoreCase)))
+            {
+                var parent = category.ParentId is { } pid && byId.TryGetValue(pid, out var p) ? p : null;
+                if (category.ParentId is not null && parent is null) continue; // родитель удалён
+                Items.Add(new CategoryRow(category.Id,
+                    parent is null ? category.Name : $"{parent.Name} → {category.Name}",
+                    category.Icon ?? parent?.Icon ?? IconKeys.Other,
+                    category.Id == SelectedId,
+                    parent is null && all.Any(c => c.ParentId == category.Id)));
+            }
+        }
+        else
+        {
+            var categories = _parent is null ? db.Categories.GetRoots(kind) : db.Categories.GetChildren(_parent.Id);
+            foreach (var category in categories)
+                Items.Add(new CategoryRow(category.Id, category.Name, category.Icon ?? _parent?.Icon ?? IconKeys.Other,
+                    category.Id == SelectedId || (_parent is null && category.Id == _selectedRootId),
+                    db.Categories.GetChildren(category.Id).Count > 0));
+        }
+
         OnPropertyChanged(nameof(HasParent));
         OnPropertyChanged(nameof(ParentName));
         OnPropertyChanged(nameof(HasNoItems));

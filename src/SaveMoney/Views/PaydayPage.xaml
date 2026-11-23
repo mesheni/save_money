@@ -33,12 +33,17 @@
                         </DataTrigger>
                     </Label.Triggers>
                 </Label>
-                <VerticalStackLayout Spacing="4">
-                    <Label Text="{Binding PerDayText}" FontSize="16" FontFamily="InterSemiBold"
-                           TextColor="{DynamicResource Primary}"/>
-                    <Label Text="{Binding DaysLeftText}" FontSize="16"
-                           TextColor="{DynamicResource OnSurfaceVariant}"/>
-                </VerticalStackLayout>
+                <!-- Одна строка с переносом по словам: раньше «· осталось N дн.» висело
+                     отдельной строкой, начинающейся с точки. -->
+                <Label FontSize="16" LineBreakMode="WordWrap">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{Binding PerDayText}" FontFamily="InterSemiBold" TextColor="{DynamicResource Primary}"/>
+                            <Span Text=" "/>
+                            <Span Text="{Binding DaysLeftText}" TextColor="{DynamicResource OnSurfaceVariant}"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
             </VerticalStackLayout>
 </Border>
 
@@ -166,13 +171,24 @@
             <!-- Настройки цикла. -->
             <VerticalStackLayout Spacing="12" Margin="0,8,0,0">
                 <Label Text="Настройки" Style="{StaticResource CardTitle}"/>
-                <Grid ColumnDefinitions="*,Auto">
-                    <Label Text="День зарплаты" VerticalOptions="Center"/>
-                    <ctl:MonetPicker Grid.Column="1" ItemsSource="{Binding PaydayDayOptions}" SelectedIndex="{Binding PaydayDayIndex}" WidthRequest="170"/>
-                </Grid>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="День зарплаты"/>
+                    <Label Text="До него считается «Можно тратить» и сумма в день." Style="{StaticResource MutedText}"/>
+                    <!-- Поле с рамкой и стрелкой, как в настройках: «числа 5» без них не читалось как выбор. -->
+                    <Border Padding="12,0" MinimumHeightRequest="48" StrokeShape="RoundRectangle 12">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <ctl:MonetPicker ItemsSource="{Binding PaydayDayOptions}" SelectedIndex="{Binding PaydayDayIndex}"
+                                             BackgroundColor="Transparent" SemanticProperties.Description="День зарплаты"/>
+                            <Label Grid.Column="1" Text="{x:Static ctl:Glyphs.ChevronDown}" FontFamily="MaterialSymbolsRounded" FontAutoScalingEnabled="False"
+                                   FontSize="18" VerticalOptions="Center" InputTransparent="True"/>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
                 <BoxView HeightRequest="1"
                          Color="{DynamicResource OutlineVariant}"/>
-                <Label Text="Цикл: якорная дата и длина (сменный график)" Style="{StaticResource MutedText}"/>
+                <Label Text="Цикл бюджетов"/>
+                <Label Text="Отдельно от зарплаты: по нему считаются бюджеты и отчёт «Текущий цикл». Начало и длина — например, для сменного графика."
+                       Style="{StaticResource MutedText}"/>
                 <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
                     <DatePicker Date="{Binding CycleAnchorDate}" Format="d MMM yyyy"/>
                     <Entry Text="{Binding CycleDaysText}" Placeholder="30" WidthRequest="80" Keyboard="Numeric"/>

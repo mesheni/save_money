@@ -27,8 +27,12 @@
                     <VerticalStackLayout Spacing="8">
                         <Label Text="Цветовая палитра" Style="{StaticResource CardTitle}"/>
                         <Border Padding="12,0" MinimumHeightRequest="48">
-                            <ctl:MonetPicker ItemsSource="{Binding ColorSourceOptions}" SelectedIndex="{Binding ColorSourceIndex}"
-                                    SemanticProperties.Description="Источник цветов приложения" BackgroundColor="Transparent"/>
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <ctl:MonetPicker ItemsSource="{Binding ColorSourceOptions}" SelectedIndex="{Binding ColorSourceIndex}"
+                                        SemanticProperties.Description="Источник цветов приложения" BackgroundColor="Transparent"/>
+                                <Label Grid.Column="1" Text="{x:Static ctl:Glyphs.ChevronDown}" FontFamily="MaterialSymbolsRounded" FontAutoScalingEnabled="False"
+                                       FontSize="18" VerticalOptions="Center" InputTransparent="True"/>
+                            </Grid>
                         </Border>
                         <Label Text="{Binding PaletteHint}" Style="{StaticResource MutedText}"/>
                         <Border Style="{StaticResource HeroCard}">

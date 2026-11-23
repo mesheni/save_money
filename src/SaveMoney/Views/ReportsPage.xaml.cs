@@ -75,8 +75,13 @@ public partial class ReportsPage : ContentPage
 
     private async void OnDaysChartSizeChanged(object? sender, EventArgs e)
     {
-        // При открытии показываем последние даты, а не пустое начало периода.
-        if (DaysChart.Width > 0)
-            await DayChartScroll.ScrollToAsync(DaysChart.Width, 0, false);
+        // При открытии показываем последний столбец с суммой у правого края,
+        // а не пустой хвост периода (траты в начале месяца были «не видны»).
+        if (DaysChart.Width <= 0) return;
+        const double column = 44, axis = 64;
+        var target = _viewModel.LastDataColumn < 0
+            ? DaysChart.Width
+            : (_viewModel.LastDataColumn + 1) * column + axis - DayChartScroll.Width + column;
+        await DayChartScroll.ScrollToAsync(Math.Clamp(target, 0, Math.Max(0, DaysChart.Width - DayChartScroll.Width)), 0, false);
     }
 }
